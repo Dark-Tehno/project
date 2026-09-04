@@ -1,0 +1,26 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Инцидент {{ archive_item.name }}{% endblock %}
+
+{% block content %}
+        <h1>// {{ archive_item|upper }} //</h1>
+        <a href="{% url 'DZ_archives' %}"><< Назад к архиву</a>
+        <br>
+        <p><strong>Дата:</strong> {{ archive_item.date|date:"d.m.Y" }}</p>
+        <p><strong>Связанный объект:</strong> <a href="{% url 'DZ_object' archive_item.anomaly.slug %}">{{ archive_item.anomaly }}</a></p>
+        <p><strong>Описание:</strong> {{ archive_item.description }}</p>
+
+        <hr style="border-color: var(--border-color); margin: 2rem 0;">
+
+        <h3>Ход событий:</h3>
+        <ol>
+            {% for event in archive_item.course_of_events %}
+                <li>{{ event|safe }}</li>
+            {% endfor %}
+        </ol>
+        <h3>Последствия:</h3>
+        <p>{{ archive_item.consequences|safe }}</p>
+        <br>
+        <a href="{% url 'DZ_archives' %}"><< Назад к архиву</a>
+{% endblock %}

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZ-NET :: Бета тест</title>
+    <link rel="stylesheet" href="https://vsp210.ru/static/DZ/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--main-bg) 0%, #001100 100%);
+            min-height: 100vh;
+            font-family: 'Fira Code', monospace;
+            overflow: hidden;
+            position: relative;
+            text-shadow: 0 0 2px var(--main-text);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(0,255,65,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0,255,65,0.05) 0%, transparent 50%);
+            animation: matrixRain 20s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes matrixRain {
+            0% { transform: translateY(0) translateX(0); }
+            100% { transform: translateY(-100px) translateX(20px); }
+        }
+
+        .banner-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .banner {
+            background: rgba(5, 10, 5, 0.95);
+            border: 2px solid var(--main-text);
+            border-radius: 12px;
+            padding: 60px;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 65, 0.4),
+                inset 0 0 30px rgba(0, 255, 65, 0.05);
+            position: relative;
+            overflow: hidden;
+            animation: bannerGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes bannerGlow {
+            0% { 
+                box-shadow: 0 0 30px rgba(0, 255, 65, 0.4), 
+                inset 0 0 30px rgba(0, 255, 65, 0.05); 
+                border-color: var(--main-text);
+            }
+            100% { 
+                box-shadow: 0 0 60px rgba(0, 255, 65, 0.6), 
+                inset 0 0 40px rgba(0, 255, 65, 0.1); 
+                border-color: #00ff88;
+            }
+        }
+
+        .logo {
+            width: 120px;
+            height: auto;
+            margin: 0 auto 30px;
+            filter: drop-shadow(0 0 20px var(--main-text));
+            animation: logoFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        .title {
+            color: var(--main-text);
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-shadow: 0 0 20px var(--main-text);
+            margin-bottom: 20px;
+            letter-spacing: 6px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: #aaffaa;
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            font-weight: 400;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--dark-text), var(--main-text));
+            color: var(--main-bg);
+            padding: 18px 40px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(0, 255, 65, 0.4);
+            transition: all 0.3s ease;
+            text-shadow: none;
+            border: 2px solid var(--main-text);
+            animation: pulseButton 2s infinite;
+            font-family: 'Fira Code', monospace;
+        }
+
+        @keyframes pulseButton {
+            0% { box-shadow: 0 8px 25px rgba(0, 255, 65, 0.4); }
+            50% { box-shadow: 0 8px 35px rgba(0, 255, 65, 0.6); }
+            100% { box-shadow: 0 8px 25px rgba(0, 255, 65, 0.4); }
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 255, 65, 0.7);
+            background: linear-gradient(45deg, var(--main-text), var(--dark-text));
+        }
+
+        .creator {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            color: #aaffaa;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: rgba(0, 255, 65, 0.2);
+            color: var(--main-text);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            border: 1px solid var(--main-text);
+            margin-top: 20px;
+            /* Добавляем нижний отступ вместо <br> */
+            margin-bottom: 24px; 
+            animation: blink 2s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.6; }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .banner {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            .title {
+                font-size: 2.5rem;
+                letter-spacing: 3px;
+            }
+            .subtitle {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="beta-watermark">Бета тест</div>
+    
+    <div class="banner-container">
+        <div class="banner">
+            <img src="https://vsp210.ru/static/DZ/images/logo.png" alt="DZ-NET" class="logo">
+            <h1 class="title">DZ-NET</h1>
+            <p class="subtitle">Сеть "Дети Земли" • Комплекс-01 "Цитадель"</p>
+            <span class="status-badge">Бета тест</span>
+            
+            <!-- Теги <br> убраны для чистоты кода -->
+
+            <a href="https://vsp210.ru" target="_blank" class="cta-button">
+                🚀 ПОДКЛЮЧИТЬСЯ К СЕТИ
+            </a>
+            <div class="creator">создано Dark.Tehno</div>
+        </div>
+    </div>
+</body>
+</html>

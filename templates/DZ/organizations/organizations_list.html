@@ -1,0 +1,29 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Реестр организаций{% endblock %}
+
+{% block content %}
+        <h1>// СПРАВОЧНИК: ОРГАНИЗАЦИИ //</h1>
+        <a href="{% url 'DZ_dashboard' %}"><< Назад к панели управления</a>
+<br>
+<br>
+        <p>Известные организации, действующие в аномальной сфере:</p>
+
+        <div class="entry-list">
+            <div class="list-entry">
+                <h3><a href="{% url 'DZ_children_of_earth' %}">Дети Земли</a></h3>
+                <p><strong>Статус:</strong> Активна. <strong>Идеология:</strong> Сдерживание и защита человечества.</p>
+            </div>
+            <div class="list-entry">
+                <h3><a href="{% url 'DZ_silver_hand' %}">Серебряная Длань</a></h3>
+                <p><strong>Статус:</strong> Активна. <strong>Идеология:</strong> Технократический капитализм.</p>
+            </div>
+            <div class="list-entry">
+                <h3><a href="{% url 'DZ_liberateds' %}">Освобождённые</a></h3>
+                <p><strong>Статус:</strong> Активна. <strong>Идеология:</strong> Радикальный аномальный трансгуманизм.</p>
+            </div>
+        </div>
+
+        <br>
+{% endblock %}

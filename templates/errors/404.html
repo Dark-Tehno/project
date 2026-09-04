@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="vsp210 with Dark.Tehno">
+        <meta name="description" content="Ошибка 404: Страница не найдена">
+        <title>Ошибка 404: Страница не найдена</title>
+        <link rel="stylesheet" href="{% static 'css/errors/base.css' %}">
+        <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    </head>
+    <body>
+        <div class="container">
+            <h1>Ошибка 404</h1>
+            <h3>К сожалению, запрашиваемая вами страница не найдена.</h3>
+        </div>
+        
+
+        <footer>
+            <div style="margin: 20px 0;">
+                <a href="{% url 'home' %}">&larr; На главную</a>
+            </div>
+            <p>&copy; 2025-2026 Dark.Tehno. Ветвь компании DEFAULT A-5. Все права защищены.</p>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>С Днем Рождения, {{ name }}!</title>
+    <meta name="description" content="Страница с днем рождения {{ name }}">
+    <meta name="author" content="Владимир (vsp210) / Dark.Tehno">
+    <meta property="og:title" content="Страница с днем рождения">
+    <meta property="og:description" content="Страница с днем рождения">
+    <meta property="og:image" content="https://vsp210.ru{% static 'images/favicon.png' %}">
+    <meta property="og:url" content="https://vsp210.ru/birthday/">
+    <meta property="og:type" content="website">
+
+    <link rel="stylesheet" href="{% static 'css/portfolio/birthday.css' %}" />
+  </head>
+  <body>
+    <div class="card-container" role="main" aria-label="Открытка с днем рождения для {{ name }}">
+      <section class="card" id="card0" aria-hidden="false" style="transform: rotateY(0deg);">
+        <h1 class="fadeInDown">С Днем Рождения, {{ name }}!</h1>
+        <h2 class="fadeInUp">{{ date }} — твой особенный день</h2>
+        <p class="fadeInUp" style="animation-delay: 0.5s;">{{ greeting1 }}<br></p>
+        <p>Смахни вправо, чтобы увидеть следующее поздравление</p>
+      </section>
+      <section class="card hidden" id="card1" aria-hidden="true" style="transform: rotateY(90deg);">
+        <h1 class="fadeInDown" style="color:#3a6ea5;">{{ name }}, твоя улыбка — как весеннее солнце!</h1>
+        <h2 class="fadeInUp" style="color:#4a7ecb;">Пусть {{ date }} станет началом грандиозного счастья</h2>
+        <p class="fadeInUp" style="animation-delay: 0.5s; color:#555;">{{ greeting2 }}<br>Ты заслуживаешь самого лучшего!</p>
+        <p>Смахни вправо, чтобы увидеть прошлое поздравление</p>
+      </section>
+    </div>
+    <script src="{% static 'js/portfolio/birthday.js' %}"></script>
+  </body>
+</html>

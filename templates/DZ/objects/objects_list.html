@@ -1,0 +1,24 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}База данных объектов{% endblock %}
+
+{% block content %}
+<h1>// БАЗА ДАННЫХ: ОБЪЕКТЫ //</h1>
+<a href="{% url 'DZ_dashboard' %}"><< Назад к панели управления</a>
+<br>
+<br>
+<p>Доступные для просмотра досье:</p>
+
+<div class="entry-list">
+    {% for anomaly in anomalys %}
+        <div class="list-entry">
+            <h3><a href="{% url 'DZ_object' anomaly.slug %}">{{ anomaly.get_full_id }} "{{ anomaly.name }}"</a></h3>
+            <p><strong>Класс угрозы:</strong> {{ anomaly.get_threat_class_display }}</p>
+        </div>
+    {% endfor %}
+
+</div>
+
+<br>
+{% endblock %}

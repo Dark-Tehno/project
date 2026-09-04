@@ -1,0 +1,12 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}{{ archive_item.name }}{% endblock %}
+
+{% block content %}
+        <h1>// {{ archive_item.name }} //</h1>
+        <a href="{% url 'DZ_archives' %}"><< Назад к архиву</a>
+        <br>
+        <p><strong>Дата:</strong> {{ archive_item.date|date:"d.m.Y" }}</p>
+        {{ archive_item.data|safe  }}
+{% endblock %}

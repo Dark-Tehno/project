@@ -1,0 +1,312 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Владимир (vsp210) / Dark.Tehno">
+    <meta name="description" content="Визитка - Владимир, Бэкенд Разработчик. Привет! Меня зовут Владимир, мне 16 лет, и я увлечен backend-разработкой на Python. Я стремлюсь стать профессиональным разработчиком и уже сейчас работаю над интересными проектами. Мне особенно интересно создавать API, работать с базами данных и оптимизировать код. Я постоянно учусь новому и ищу возможности для применения своих знаний."/>
+    <title>Визитка - Владимир, Бэкенд Разработчик</title>
+    <meta property="og:title" content="vsp210">
+    <meta property="og:description"
+        content="Владимир, Бэкенд Разработчик.">
+    <meta property="og:image"
+        content="https://vsp210.ru/{{ logo_url }}">
+    <meta property="og:url"
+        content="https://vsp210.ru">
+    <meta property="og:type"
+        content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+:root{
+  --bg:#0a0d18;
+  --elevated:#121729;
+  --surface:#161c33;
+  --surface-2:#1d2440;
+  --border:#262d4d;
+  --border-soft:#1c2340;
+  --text:#e8eaf6;
+  --text-muted:#9aa2c7;
+  --text-faint:#5d6690;
+  --violet:#7c5cff;
+  --blue:#3e7bfa;
+  --cyan:#22d3e8;
+  --gradient:linear-gradient(120deg,var(--violet) 0%,var(--blue) 55%,var(--cyan) 100%);
+  --font-display:'Unbounded',sans-serif;
+  --font-body:'Golos Text',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --radius:16px;
+  --radius-sm:10px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(1100px 620px at 88% -10%, rgba(124,92,255,.15), transparent 60%),
+    radial-gradient(900px 520px at -10% 20%, rgba(34,211,232,.09), transparent 55%),
+    var(--bg);
+  color:var(--text-muted);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--font-display); font-weight:700; letter-spacing:-.01em; color:var(--text); margin:0;}
+p{margin:0;}
+a{color:var(--cyan); text-decoration:none;}
+a:hover{text-decoration:underline;}
+::selection{background:rgba(124,92,255,.4); color:#fff;}
+a:focus-visible,button:focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:6px;}
+
+/* ---------- topbar ---------- */
+.hb-topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px clamp(16px,4vw,40px);
+  border-bottom:1px solid var(--border-soft);
+  background:rgba(10,13,24,.6);
+  backdrop-filter:blur(10px);
+  position:sticky; top:0; z-index:20;
+}
+.hb-brand{display:flex; align-items:center; gap:9px; font-family:var(--font-display); font-weight:700; font-size:1rem; color:var(--text);}
+.hb-nav{display:flex; align-items:center; gap:18px; font-size:.86rem; color:var(--text-muted); font-weight:500;}
+.hb-nav a{color:var(--text-muted);}
+.hb-nav a:hover{color:var(--text);}
+
+/* ---------- shell ---------- */
+.hb-page{max-width:880px; margin:0 auto; padding:0 clamp(16px,4vw,24px) 80px;}
+
+/* ---------- hero ---------- */
+.hb-hero{
+  display:grid; grid-template-columns:1.2fr 1fr; gap:36px; align-items:center;
+  padding:clamp(48px,8vw,80px) 0 clamp(36px,6vw,56px);
+}
+.hb-eyebrow{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:12px;}
+.hb-hero h1{font-size:clamp(2.4rem,6vw,3.4rem); font-weight:800; line-height:1;}
+.hb-role{
+  margin-top:10px; font-family:var(--font-display); font-weight:600; font-size:clamp(1.1rem,2.4vw,1.3rem);
+  background:var(--gradient); -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hb-tagline{margin-top:16px; font-size:1.02rem; max-width:46ch;}
+.hb-links{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px;}
+.hb-btn{
+  font-family:var(--font-body); font-weight:600; font-size:.86rem;
+  padding:10px 16px; border-radius:9px; border:1px solid var(--border-soft);
+  color:var(--text); background:var(--surface); display:inline-flex; align-items:center; gap:7px;
+}
+.hb-btn:hover{border-color:var(--border); background:var(--surface-2); text-decoration:none;}
+.hb-btn.grad{background:var(--gradient); color:#0a0d18; border:none; font-weight:700;}
+.hb-btn.grad:hover{filter:brightness(1.07); text-decoration:none;}
+
+/* whoami card (signature) */
+.hb-whoami{
+  background:var(--elevated); border:1px solid var(--border-soft); border-radius:var(--radius);
+  font-family:var(--font-mono); font-size:.86rem; overflow:hidden;
+  box-shadow:0 30px 60px -32px rgba(0,0,0,.6);
+}
+.hb-whoami-bar{padding:10px 14px; border-bottom:1px solid var(--border-soft); color:var(--text-faint); font-size:.72rem; background:rgba(255,255,255,.02);}
+.hb-whoami-body{padding:16px 18px 18px;}
+.hb-whoami-body .cmd{color:var(--cyan); margin-bottom:12px;}
+.hb-whoami-body .cmd .cursor{display:inline-block; width:6px; height:1em; background:var(--cyan); vertical-align:text-bottom; margin-left:2px; animation:hbBlink 1s step-end infinite;}
+.hb-row{display:grid; grid-template-columns:84px 1fr; gap:4px 10px; margin-bottom:6px; color:var(--text-muted);}
+.hb-row .k{color:var(--text-faint);}
+.hb-row .v{color:var(--text);}
+@keyframes hbBlink{50%{opacity:0;}}
+
+/* ---------- sections ---------- */
+.hb-section{padding:clamp(30px,5vw,44px) 0; border-top:1px solid var(--border-soft);}
+.hb-section h2{font-size:1.5rem; margin-bottom:18px;}
+.hb-about p{font-size:1.04rem; line-height:1.75; max-width:70ch;}
+
+/* skills marquee */
+.hb-scroller{overflow:hidden; -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);}
+.hb-track{display:flex; width:max-content; animation:hbScroll 26s linear infinite;}
+.hb-track-group{display:flex; align-items:center; gap:10px; padding-right:10px;}
+@keyframes hbScroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+.hb-pill{
+  font-family:var(--font-mono); font-size:.84rem; font-weight:500; color:var(--cyan);
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:20px;
+  padding:7px 15px; white-space:nowrap;
+}
+
+/* projects */
+.hb-projects{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px;}
+.hb-card{
+  background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-sm);
+  padding:20px;
+}
+.hb-card:hover{border-color:var(--border);}
+.hb-card h3{font-size:1.08rem;}
+.hb-card h3 a{color:var(--text);}
+.hb-card h3 a:hover{color:var(--cyan); text-decoration:none;}
+.hb-ver{
+  font-family:var(--font-mono); font-size:.72rem; color:var(--cyan); background:var(--surface-2);
+  border:1px solid var(--border-soft); border-radius:20px; padding:3px 10px; display:inline-block;
+  margin:9px 0 12px;
+}
+.hb-card p.desc{font-size:.92rem; margin-bottom:12px;}
+.hb-tech{font-size:.76rem; color:var(--text-faint);}
+.hb-tech b{color:var(--text-muted); font-weight:600;}
+
+/* contact */
+.hb-contact{display:flex; flex-wrap:wrap; gap:10px;}
+.hb-contact a{
+  font-weight:500; font-size:.92rem; color:var(--text-muted); background:var(--surface);
+  border:1px solid var(--border-soft); border-radius:20px; padding:8px 16px;
+}
+.hb-contact a:hover{color:var(--text); border-color:var(--border); text-decoration:none;}
+
+footer{text-align:center; padding:26px 0 10px; font-size:.8rem; color:var(--text-faint);}
+
+@media (max-width:760px){
+  .hb-hero{grid-template-columns:1fr;}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  .hb-track{animation:none;}
+  .hb-whoami-body .cursor{animation:none;}
+}
+    </style>
+</head>
+<body>
+    <header class="hb-topbar">
+        <div class="hb-brand">
+            <svg width="22" height="22" viewBox="0 0 26 26" fill="none">
+                <defs><linearGradient id="hbMark" x1="2" y1="2" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#7c5cff"/><stop offset="0.55" stop-color="#3e7bfa"/><stop offset="1" stop-color="#22d3e8"/>
+                </linearGradient></defs>
+                <circle cx="13" cy="13" r="11" stroke="url(#hbMark)" stroke-width="2.4"/>
+                <path d="M9.5 7.5H13.2C15.9 7.5 18 9.7 18 13C18 16.3 15.9 18.5 13.2 18.5H9.5V7.5Z" stroke="url(#hbMark)" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+            Dark.Tehno
+        </div>
+        <nav class="hb-nav">
+            <a href="https://vsp210.ru/dark-lang/">Dark.Lang</a>
+            <a href="https://vsp210.ru/account/">Dark.Account</a>
+            <a href="https://github.com/vsp210" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+    </header>
+
+    <div class="hb-page">
+        <section class="hb-hero">
+            <div>
+                <div class="hb-eyebrow">Визитка · Владимир</div>
+                <h1>Владимир</h1>
+                <p class="hb-role">Бэкенд-разработчик</p>
+                <p class="hb-tagline">16 лет, увлечён backend-разработкой на Python. Создаю API, работаю с базами данных, оптимизирую код — и уже сейчас собираю собственные проекты под крылом Dark.Tehno.</p>
+                <div class="hb-links">
+                    <a class="hb-btn grad" href="#projects">Смотреть проекты</a>
+                    <a class="hb-btn" href="#contact">Связаться</a>
+                </div>
+            </div>
+            <div class="hb-whoami">
+                <div class="hb-whoami-bar">vsp210@dark-tehno</div>
+                <div class="hb-whoami-body">
+                    <div class="cmd">$ whoami --verbose<span class="cursor"></span></div>
+                    <div class="hb-row"><span class="k">имя</span><span class="v">Владимир (vsp210)</span></div>
+                    <div class="hb-row"><span class="k">возраст</span><span class="v">16</span></div>
+                    <div class="hb-row"><span class="k">роль</span><span class="v">Бэкенд-разработчик</span></div>
+                    <div class="hb-row"><span class="k">стек</span><span class="v">Python, Django, PostgreSQL</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="hb-section hb-about">
+            <h2>Обо мне</h2>
+            <p>
+                Привет! Меня зовут Владимир, мне 16 лет, и я увлечен backend-разработкой на Python. Я стремлюсь стать профессиональным разработчиком и уже сейчас работаю над интересными проектами. Мне особенно интересно создавать API, работать с базами данных и оптимизировать код. Я постоянно учусь новому и ищу возможности для применения своих знаний.
+            </p>
+        </section>
+
+        <section id="skills" class="hb-section">
+            <h2>Навыки</h2>
+            <div class="hb-scroller">
+                <div class="hb-track">
+                    <div class="hb-track-group">
+                        <span class="hb-pill">Python</span>
+                        <span class="hb-pill">Django</span>
+                        <span class="hb-pill">PostgreSQL</span>
+                        <span class="hb-pill">SQL</span>
+                        <span class="hb-pill">Redis</span>
+                        <span class="hb-pill">Git</span>
+                        <span class="hb-pill">HTML/CSS</span>
+                        <span class="hb-pill">JavaScript</span>
+                        <span class="hb-pill">Vite React</span>
+                    </div>
+                    <div class="hb-track-group" aria-hidden="true">
+                        <span class="hb-pill">Python</span>
+                        <span class="hb-pill">Django</span>
+                        <span class="hb-pill">PostgreSQL</span>
+                        <span class="hb-pill">SQL</span>
+                        <span class="hb-pill">Redis</span>
+                        <span class="hb-pill">Git</span>
+                        <span class="hb-pill">HTML/CSS</span>
+                        <span class="hb-pill">JavaScript</span>
+                        <span class="hb-pill">Vite React</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="hb-section">
+            <h2>Проекты</h2>
+            <div class="hb-projects">
+                {% if user.is_superuser %}
+                    <div class="hb-card">
+                        <h3><a href="/admin/">Admin panel</a></h3>
+                        <span class="hb-ver">версия: хз</span>
+                        <p class="desc">Админ панель.</p>
+                        <p class="hb-tech"><b>Технологии:</b> Python, Django, PostgreSQL, HTML, CSS, JS.</p>
+                    </div>
+                {% endif %}
+
+                <div class="hb-card">
+                    <h3><a href="https://vsp210.ru/dark-lang/">Dark.Lang</a></h3>
+                    <span class="hb-ver">версия: 0.4.0</span>
+                    <p class="desc">Язык программирования, основанный на Python.</p>
+                    <p class="hb-tech"><b>Технологии:</b> Python.</p>
+                </div>
+
+                {% comment %} <div class="hb-card">
+                    <h3><a href="https://vsp210.ru/mail/">Dark.Mail</a></h3>
+                    <span class="hb-ver">версия: 0.1.3</span>
+                    <p class="desc">Сайт для получения почты на временный email-адрес.</p>
+                    <p class="hb-tech"><b>Технологии:</b> Python, Django, PostgreSQL, Redis, HTML, CSS, JS.</p>
+                </div> {% endcomment %}
+
+                <div class="hb-card">
+                    <h3><a href="https://vsp210.ru/news/">Dark.News</a></h3>
+                    <span class="hb-ver">версия: 1</span>
+                    <p class="desc">Сайт для прочтения новостей. От Dark.Tehno.</p>
+                    <p class="hb-tech"><b>Технологии:</b> Python, Django, PostgreSQL, HTML, CSS, JS.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="hb-section">
+            <h2>Связь со мной</h2>
+            <div class="hb-contact">
+                <a href="https://t.me/vsp210">Telegram</a>
+                <a href="https://t.me/vsp210_official">Telegram-канал</a>
+                <a href="https://github.com/vsp210">GitHub</a>
+                <a href="https://vk.com/vsp210">ВКонтакте</a>
+            </div>
+        </section>
+
+        <section id="dark-tehno" class="hb-section">
+            <h2>О Dark.Tehno</h2>
+            <p style="max-width:70ch; font-size:1.02rem; line-height:1.75;">
+                Dark.Tehno — это организация. Мы стремимся к инновациям и постоянному развитию, применяя самые современные технологии и фокусируясь на глубокой экспертизе в backend-разработке.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025-2026 Dark.Tehno. Все права защищены.</p>
+    </footer>
+
+</body>
+</html>

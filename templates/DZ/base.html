@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZ-NET :: {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'DZ/css/style.css' %}">
+</head>
+<body>
+    <div class="beta-watermark">Бета тест создано Dark.Tehno</div>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <button id="stabilize-btn" class="stabilize-button">Стабилизация</button>
+    <script src="{% static 'DZ/js/ui.js' %}"></script>
+    {% block script %}{% endblock %}
+</body>
+</html>

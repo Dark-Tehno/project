@@ -1,0 +1,30 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Досье: {{ zone.name }}{% endblock %}
+
+{% block content %}
+        <h1>Досье объекта: {{ zone.name }}</h1>
+        <a href="{% url 'DZ_zones' %}"><< Назад к реестру Зон</a>
+        <br>
+        <p><strong>Расположение:</strong> {{ zone.location }}</p>
+        <p><strong>Статус:</strong> {{ zone.get_status_display }}</p>
+        <p><strong>Командир Зоны:</strong> {% if zone.commander %}<a href="{% url 'DZ_personnel' zone.commander.slug %}">{{ zone.commander }} (Класс {{ zone.commander.personnel_class }})</a>{% else %}Неизвестен{% endif %}</p>
+
+        <hr style="border-color: var(--border-color); margin: 2rem 0;">
+
+        <h3>1. Общая информация</h3>
+        {{ zone.description|safe }}
+        
+        <h3>2. Специализация</h3>
+        {{ zone.specialization|safe }}
+
+        <h3>3. Персонал</h3>
+        <ul>
+            <li><strong>Командный состав:</strong> {{ zone.command_staff }}</li>
+            <li><strong>Научный персонал (F, G, H):</strong> ~{{ zone.scientific_staff }}</li>
+            <li><strong>Персонал безопасности (I, J, K):</strong> ~{{ zone.security_personnel }}</li>
+            <li><strong>Административный и технический персонал:</strong> ~{{ zone.administrative_technical_staff }}</li>
+            <li><strong>Персонал класса A:</strong> ~{{ zone.class_a_personnel }} (постоянно ротируется)</li>
+        </ul>
+{% endblock %}

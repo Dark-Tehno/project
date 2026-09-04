@@ -1,0 +1,23 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Реестр персонала{% endblock %}
+
+{% block content %}
+        <h1>// РЕЕСТР: ПЕРСОНАЛ //</h1>
+        <a href="{% url 'DZ_dashboard' %}"><< Назад к панели управления</a>
+<br>
+<br>
+        <p>Доступные для просмотра личные дела:</p>
+
+        <div class="entry-list">
+            {% for personnel in personnels %}
+                <div class="list-entry">
+                    <h3><a href="{% url 'DZ_personnel' personnel.slug %}">{{ personnel }}</a></h3>
+                    <p><strong>Класс:</strong> {{ personnel.get_personnel_class_display }}. <strong>Должность:</strong> {{ personnel.position }}.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <br>
+{% endblock %}

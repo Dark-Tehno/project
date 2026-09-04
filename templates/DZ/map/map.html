@@ -1,0 +1,31 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}DZ-NET :: Глобальная карта объектов{% endblock %}
+
+{% block content %}
+        <h1>// ГЛОБАЛЬНАЯ КАРТА ОБЪЕКТОВ //</h1>
+        <a href="{% url 'DZ_dashboard' %}"><< Назад к панели управления</a>
+<br>
+<br>
+        <p>Наведите курсор на маркер для получения краткой информации. Используйте +/- или жесты для масштабирования.</p>
+        
+        <div id="map-wrapper" class="map-wrapper">
+            <div id="map-container">
+                <!-- SVG карта будет загружена сюда с помощью JavaScript -->
+            </div>
+            
+            <!-- Кнопки управления зумом -->
+            <div class="zoom-controls">
+                <button id="zoom-in" class="zoom-btn">+</button>
+                <button id="zoom-out" class="zoom-btn">-</button>
+                <div class="zoom-level">100%</div>
+            </div>
+        </div>
+
+        <br>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'DZ/js/map.js' %}"></script>
+{% endblock %}

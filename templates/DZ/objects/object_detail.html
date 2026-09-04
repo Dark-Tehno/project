@@ -1,0 +1,42 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Объект {{ anomaly.get_full_id }}{% endblock %}
+
+{% block content %}
+<h1>Досье объекта: {{ anomaly.get_full_id }} "{{ anomaly.name }}"</h1>
+<a href="{% url 'DZ_objects' %}"><< Назад к списку объектов</a>
+<br>
+<p><strong>ID Объекта:</strong> {{ anomaly.get_full_id }}</p>
+<p><strong>Класс угрозы:</strong> {{ anomaly.get_threat_class_display }}</p>
+<p><strong>Зона содержания:</strong> Зона 3-Sisters, остров в Индийском океане.</p>
+
+<hr style="border-color: var(--border-color); margin: 2rem 0;">
+
+<h3>1. Описание</h3>
+{% if anomaly.image %}
+    <figure class="image-container">
+        <img src="{{ anomaly.image.url }}" alt="{{ anomaly.image_caption }}">
+        <figcaption>{{ anomaly.image_caption }}</figcaption>
+    </figure>
+{% endif %}
+{{ anomaly.description|safe }}
+
+<h3>2. Аномальные свойства</h3>
+<p>{{ anomaly.anomalous_properties|safe }}</p>
+
+<h3>3. Связанные документы</h3>
+<p>Для доступа к дополнительным материалам выберите соответствующий файл из архива:</p>
+<ul>
+    {% for incident_report in anomaly.incident_reports.all %}
+        <li><a href="{% url 'DZ_archive' incident_report.slug %}">[ОТКРЫТЬ] Отчёт об инциденте {{ incident_report.name }}</a></li>
+    {% endfor %}
+    {% for interrogation_protocol in anomaly.interrogation_protocols.all %}
+        <li><a href="{% url 'DZ_archive' interrogation_protocol.slug %}">[ОТКРЫТЬ] Протокол допроса {{ interrogation_protocol.name }}</a></li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
+
+

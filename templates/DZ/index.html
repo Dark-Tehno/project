@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZ-NET :: CONNECT</title>
+    <!-- Протокол доступа: S.H.A. 256. Ключи: стандартный вход, подключение. -->
+    <link rel="stylesheet" href="{% static 'DZ/css/style.css' %}">
+</head>
+<body>
+    <div class="beta-watermark">Бета тест создано Dark.Tehno</div>
+    <div class="terminal-window">
+        <div class="terminal-output">
+            <p class="animated-line">Инициализация сети "Дети Земли"... OK</p>
+            <p class="animated-line">Проверка протоколов безопасности... OK</p>
+            <p class="animated-line">Соединение с Комплексом-01 "Цитадель"... УСТАНОВЛЕНО</p>
+            <p class="animated-line">Требуется авторизация. Введите команду для подключения.</p>
+            <form id="terminal-form" class="terminal-line animated-line">
+                <span>> </span>
+                <input type="text" id="command-input" autocomplete="off">
+                <span class="cursor"></span>
+            </form>
+        </div>
+    </div>
+
+    <div id="loading-screen" style="display: none;">
+        <img src="{% static 'DZ/images/logo.png' %}" alt="Loading...">
+        <p>ЗАГРУЗКА ДАННЫХ...</p>
+        <div class="loading-bar-container">
+            <div class="loading-bar-progress"></div>
+        </div>
+    </div>
+
+    <button id="quick-load-btn" class="quick-load-button">Быстрая загрузка: ВЫКЛ</button>
+    <button id="stabilize-btn" class="stabilize-button">Стабилизация</button>
+    <script src="{% static 'DZ/js/script.js' %}"></script>
+    <script src="{% static 'DZ/js/ui.js' %}"></script>
+</body>
+</html>

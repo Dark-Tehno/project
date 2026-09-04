@@ -1,0 +1,709 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Dark.News</title>
+<meta name="description" content="Dark.News - честные новости, из разных источников.">
+<meta name="author" content="Владимир (vsp210) / Dark.Tehno">
+<meta property="og:title" content="Dark.News - честные новости, из разных источников.">
+<meta property="og:description" content="Dark.News - честные новости, из разных источников.">
+<meta property="og:image" content="https://vsp210.ru{% static 'images/favicon.png' %}">
+<meta property="og:url" content="https://vsp210.ru/news/">
+<meta property="og:type" content="website">
+
+<link href="{% static 'news/fonts/fonts.css' %}" rel="stylesheet">
+<script src="{% static 'news/js/marked.min.js' %}"></script>
+<script src="{% static 'news/js/dompurify.min.js' %}"></script>
+<style>
+  :root{
+    --bg: #050807;
+    --bg-deep: #020403;
+    --panel: #0b120e;
+    --panel-raised: #0f1913;
+    --line: #1c3226;
+    --line-strong: #2c4f3a;
+    --green: #39ff88;
+    --green-dim: #23a35c;
+    --green-soft: #8fd6ac;
+    --text: #cdeedb;
+    --text-muted: #5e8570;
+    --red: #ff5f6b;
+    --red-dim: #c23f4a;
+    --amber: #ffc857;
+    --glow: 0 0 8px rgba(57,255,136,0.45);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 120% 60% at 50% -10%, rgba(57,255,136,0.06), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'JetBrains Mono',monospace;
+    min-height:100vh;
+    position:relative;
+  }
+  /* scanline overlay */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:80;
+    background:repeating-linear-gradient(180deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,20,10,0.10) 3px);
+    mix-blend-mode:multiply;
+    opacity:0.5;
+  }
+  a{color:inherit;}
+  ::selection{background:var(--green-dim);color:#03150a;}
+  .wrap{max-width:840px;margin:0 auto;padding:0 18px 90px;}
+
+  /* Terminal chrome header */
+  .termbar{
+    max-width:840px;margin:20px auto 0;
+    background:var(--panel-raised);
+    border:1px solid var(--line-strong);
+    border-bottom:none;
+    border-radius:8px 8px 0 0;
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px;
+  }
+  .termbar .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+  .termbar .dot.r{background:#ff5f56;}
+  .termbar .dot.y{background:#ffbd2e;}
+  .termbar .dot.g{background:#27c93f;}
+  .termbar .path{
+    margin-left:12px;font-size:11.5px;color:var(--text-muted);letter-spacing:0.03em;
+  }
+
+  .masthead{
+    max-width:840px;margin:0 auto;
+    background:var(--panel);
+    border:1px solid var(--line-strong);
+    border-top:none;
+    padding:22px 22px 0;
+  }
+  .boot-line{
+    font-size:11px;color:var(--green-dim);letter-spacing:0.06em;
+    padding-bottom:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;
+  }
+  .boot-line .cursor{
+    display:inline-block;width:7px;height:12px;background:var(--green);
+    animation:blink 1s steps(1) infinite;vertical-align:-2px;margin-left:2px;
+  }
+  @keyframes blink{50%{opacity:0;}}
+  .rule{border:none;border-top:1px solid var(--line);margin:0;}
+
+  .wordmark-row{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    gap:20px;flex-wrap:wrap;padding:16px 0 16px;
+  }
+  .wordmark{
+    font-family:'Space Grotesk',monospace;font-weight:700;
+    font-size:clamp(28px,5.5vw,42px);
+    letter-spacing:-0.01em;line-height:1;margin:0;color:var(--text);
+    text-shadow:var(--glow);
+  }
+  .wordmark .prompt{color:var(--green);}
+  .wordmark small{
+    display:block;font-family:'JetBrains Mono',monospace;font-weight:500;
+    font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);
+    margin-top:8px;
+  }
+  .search-form{
+    display:flex;align-items:stretch;
+    border:1px solid var(--line-strong);
+    background:var(--bg-deep);
+    min-width:230px;flex:1;max-width:320px;border-radius:4px;overflow:hidden;
+  }
+  .search-form span.pfx{
+    display:flex;align-items:center;padding:0 0 0 12px;color:var(--green-dim);font-size:14px;
+  }
+  .search-form input{
+    flex:1;border:none;background:transparent;padding:10px 10px;
+    font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--text);outline:none;
+  }
+  .search-form input::placeholder{color:var(--text-muted);}
+  .search-form button{
+    border:none;border-left:1px solid var(--line-strong);
+    background:var(--green-dim);color:#03150a;
+    font-family:'JetBrains Mono',monospace;font-weight:700;font-size:11px;letter-spacing:0.08em;
+    text-transform:uppercase;padding:0 16px;cursor:pointer;
+  }
+  .search-form button:hover{background:var(--green);}
+
+  /* Tag rail */
+  .tag-rail{
+    display:flex;gap:8px;overflow-x:auto;padding:4px 0 18px;
+    scrollbar-width:thin;
+  }
+  .tag-chip{
+    flex:0 0 auto;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;letter-spacing:0.03em;
+    padding:6px 12px;border:1px solid var(--line-strong);
+    background:var(--panel-raised);color:var(--green-soft);
+    cursor:pointer;white-space:nowrap;border-radius:4px;
+    transition:all .15s ease;
+  }
+  .tag-chip::before{content:'#';color:var(--green-dim);}
+  .tag-chip:hover{border-color:var(--green-dim);color:var(--green);}
+  .tag-chip.active{
+    background:var(--green-dim);border-color:var(--green-dim);color:#03150a;font-weight:700;
+  }
+  .tag-chip.active::before{color:#03150a;}
+
+  /* Status line */
+  .status-line{
+    max-width:840px;margin:0 auto;
+    background:var(--panel);
+    border:1px solid var(--line-strong);border-top:none;
+    font-size:11px;letter-spacing:0.04em;color:var(--text-muted);
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 22px;
+  }
+  .status-line button{
+    background:none;border:none;font-family:inherit;font-size:inherit;
+    letter-spacing:inherit;color:var(--red);cursor:pointer;padding:0;
+  }
+  .status-line button:hover{text-decoration:underline;}
+
+  .feed-shell{
+    max-width:840px;margin:0 auto;padding:22px 0 0;
+  }
+  .feed{display:flex;flex-direction:column;gap:22px;}
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:22px 24px 18px;
+    position:relative;
+    transition:border-color .15s ease;
+  }
+  .card:hover{border-color:var(--line-strong);}
+  .card-meta{
+    font-size:11px;letter-spacing:0.04em;color:var(--text-muted);
+    display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-bottom:10px;
+  }
+  .card-meta .dot{opacity:0.5;}
+  .card-tags{display:inline-flex;gap:6px;flex-wrap:wrap;}
+  .card-tag{color:var(--green-dim);}
+  .card-tag::before{content:'#';}
+  .card h2{
+    font-family:'Space Grotesk',monospace;font-weight:600;font-size:22px;line-height:1.25;
+    margin:0 0 12px;cursor:pointer;color:var(--text);
+  }
+  .card h2::before{content:'> ';color:var(--green);}
+  .card h2:hover{color:var(--green);text-shadow:var(--glow);}
+  .card-content{
+    font-size:14.5px;line-height:1.65;color:var(--text);
+    max-height:140px;overflow:hidden;position:relative;margin-bottom:6px;
+  }
+  .card-content.expanded{max-height:none;}
+  .card-content.clamped::after{
+    content:'';position:absolute;bottom:0;left:0;right:0;height:46px;
+    background:linear-gradient(transparent, var(--panel));
+  }
+  .card-content p{margin:0 0 12px;}
+  .card-content h1,.card-content h2,.card-content h3{font-family:'Space Grotesk',monospace;color:var(--green-soft);}
+  .card-content code{background:var(--bg-deep);padding:1px 5px;border-radius:3px;color:var(--green);}
+  .card-content img{max-width:100%;border-radius:4px;}
+  .card-content a{color:var(--green);}
+  .read-more{
+    background:none;border:none;font-size:11px;letter-spacing:0.04em;
+    color:var(--green-dim);cursor:pointer;padding:0;margin-bottom:16px;
+  }
+  .read-more:hover{color:var(--green);}
+
+  .card-footer{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-top:14px;border-top:1px dashed var(--line);
+  }
+  .stamps{display:flex;gap:10px;}
+  .stamp{
+    display:flex;align-items:center;gap:7px;
+    font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;
+    padding:7px 13px;border-radius:4px;
+    border:1px solid var(--line-strong);background:var(--bg-deep);color:var(--text-muted);
+    cursor:pointer;transition:all .12s ease;
+  }
+  .stamp:hover{border-color:var(--green-dim);color:var(--green-soft);}
+  .stamp.like.active{
+    border-color:var(--green);color:var(--green);background:rgba(57,255,136,0.08);text-shadow:var(--glow);
+  }
+  .stamp.dislike.active{
+    border-color:var(--red);color:var(--red);background:rgba(255,95,107,0.08);
+  }
+  .stamp svg{width:14px;height:14px;}
+  .permalink{
+    font-size:11px;color:var(--text-muted);text-decoration:none;letter-spacing:0.03em;
+  }
+  .permalink:hover{color:var(--green);}
+
+  /* Pagination */
+  .pager{
+    display:flex;justify-content:center;align-items:center;gap:16px;
+    margin-top:30px;font-size:12px;letter-spacing:0.04em;
+  }
+  .pager button{
+    border:1px solid var(--line-strong);background:var(--panel-raised);color:var(--text);
+    padding:9px 16px;cursor:pointer;font-family:inherit;font-size:inherit;letter-spacing:inherit;
+    border-radius:4px;
+  }
+  .pager button:disabled{opacity:0.3;cursor:not-allowed;}
+  .pager button:not(:disabled):hover{border-color:var(--green-dim);color:var(--green);}
+  .pager span{color:var(--text-muted);}
+
+  /* States */
+  .state-block{
+    text-align:center;padding:70px 20px;color:var(--text-muted);font-size:12.5px;
+  }
+  .state-block .big{
+    font-family:'Space Grotesk',monospace;font-size:19px;color:var(--green-soft);
+    margin-bottom:8px;font-weight:600;
+  }
+  .spinner{
+    width:24px;height:24px;border-radius:50%;
+    border:3px solid var(--line-strong);border-top-color:var(--green);
+    margin:0 auto 16px;animation:spin 0.8s linear infinite;box-shadow:var(--glow);
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .retry-btn{
+    margin-top:14px;border:1px solid var(--green-dim);background:none;color:var(--green-soft);
+    padding:8px 18px;cursor:pointer;font-family:inherit;font-size:11.5px;letter-spacing:0.05em;border-radius:4px;
+  }
+  .retry-btn:hover{background:var(--green-dim);color:#03150a;}
+
+  /* Modal */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(2,5,3,0.75);
+    display:none;align-items:flex-start;justify-content:center;
+    padding:40px 16px;overflow-y:auto;z-index:50;
+    backdrop-filter:blur(2px);
+  }
+  .modal-backdrop.open{display:flex;}
+  .modal{
+    background:var(--panel);max-width:680px;width:100%;
+    border:1px solid var(--line-strong);padding:30px 28px;position:relative;border-radius:6px;
+    box-shadow:0 0 40px rgba(57,255,136,0.08);
+  }
+  .modal-close{
+    position:absolute;top:14px;right:16px;background:none;border:none;
+    font-size:20px;cursor:pointer;color:var(--text-muted);line-height:1;
+  }
+  .modal-close:hover{color:var(--red);}
+  .modal h2{font-family:'Space Grotesk',monospace;font-size:24px;margin:6px 0 14px;color:var(--text);}
+  .modal h2::before{content:'> ';color:var(--green);}
+  .modal .card-content{max-height:none;}
+
+  footer.site-footer{
+    max-width:840px;margin:0 auto;text-align:center;font-size:10.5px;
+    letter-spacing:0.06em;color:var(--text-muted);
+    padding:34px 20px 10px;
+  }
+  footer.site-footer .prompt{color:var(--green-dim);}
+
+  @media (max-width:560px){
+    .wordmark-row{flex-direction:column;align-items:flex-start;}
+    .search-form{max-width:none;width:100%;}
+    .card{padding:16px 16px 14px;}
+    .card h2{font-size:19px;}
+    .masthead, .status-line{padding-left:16px;padding-right:16px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="termbar">
+    <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+    <span class="path">vsp210@wire:~/news$</span>
+  </div>
+
+  <div class="masthead">
+    <div class="boot-line">
+      <span id="datelineToday"></span>
+      <span>Dark.News :: online<span class="cursor"></span></span>
+    </div>
+    <hr class="rule">
+    <div class="wordmark-row">
+      <h1 class="wordmark"><span class="prompt">$</span> Dark.News<small>// новостная лента vsp210.ru от команды Dark.Tehno</small></h1>
+      <form class="search-form" id="searchForm">
+        <span class="pfx">grep</span>
+        <input type="text" id="searchInput" placeholder="искать по ленте…" autocomplete="off">
+        <button type="submit">run</button>
+      </form>
+    </div>
+    <hr class="rule">
+    <div class="tag-rail" id="tagRail"></div>
+  </div>
+
+  <div class="status-line" id="statusLine"></div>
+
+  <div class="wrap">
+    <div class="feed-shell">
+      <div class="feed" id="feed"></div>
+      <div class="pager" id="pager" style="display:none;"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer"><span class="prompt">$</span> Dark.News · Dark.Tehno 2026 все права защищены.</footer>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+<script>
+    const API_BASE = `${window.location.protocol}//${window.location.host}/news/api/v1/`;
+
+const state = {
+  mode: 'latest',       // 'latest' | 'search'
+  query: '',
+  tag: '',
+  page: 1,
+  pageSize: 10,
+  count: 0,
+  next: null,
+  previous: null,
+  tags: [],
+  loading: false,
+};
+
+const feedEl = document.getElementById('feed');
+const statusLineEl = document.getElementById('statusLine');
+const pagerEl = document.getElementById('pager');
+const tagRailEl = document.getElementById('tagRail');
+const searchForm = document.getElementById('searchForm');
+const searchInput = document.getElementById('searchInput');
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalBody = document.getElementById('modalBody');
+const modalClose = document.getElementById('modalClose');
+
+document.getElementById('datelineToday').textContent = new Date().toLocaleDateString('ru-RU', {
+  day: 'numeric', month: 'long', year: 'numeric'
+});
+
+// ---------- local reaction state (API only returns counts, not "my" state) ----------
+function getReaction(id){
+  try { return localStorage.getItem('reaction:' + id) || null; } catch(e){ return null; }
+}
+function setReaction(id, value){
+  try {
+    if (value) localStorage.setItem('reaction:' + id, value);
+    else localStorage.removeItem('reaction:' + id);
+  } catch(e){}
+}
+
+// ---------- API helpers ----------
+async function apiGet(url){
+  const res = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+async function apiPost(url){
+  const res = await fetch(url, { method: 'POST', headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+function renderMarkdown(md){
+  const raw = marked.parse(md || '');
+  return DOMPurify.sanitize(raw);
+}
+
+function fmtDate(iso){
+  try{
+    const d = new Date(iso);
+    return d.toLocaleDateString('ru-RU', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+  } catch(e){ return iso; }
+}
+
+// ---------- tags ----------
+async function loadTags(){
+  try{
+    const tags = await apiGet(API_BASE + 'tags/');
+    state.tags = Array.isArray(tags) ? tags : (tags.results || []);
+    renderTagRail();
+  } catch(e){
+    tagRailEl.innerHTML = '';
+  }
+}
+
+function renderTagRail(){
+  const chips = [`<button class="tag-chip ${state.tag==='' ? 'active':''}" data-tag="">все</button>`]
+    .concat(state.tags.map(t => `<button class="tag-chip ${state.tag===t.name ? 'active':''}" data-tag="${escapeAttr(t.name)}">${escapeHtml(t.name)}</button>`));
+  tagRailEl.innerHTML = chips.join('');
+  tagRailEl.querySelectorAll('.tag-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.tag = btn.dataset.tag;
+      state.page = 1;
+      if (state.tag) {
+        state.mode = 'search';
+        state.query = '';
+        searchInput.value = '';
+      } else {
+        state.mode = 'latest';
+      }
+      loadFeed();
+    });
+  });
+}
+
+// ---------- feed loading ----------
+function buildUrl(){
+  const params = new URLSearchParams();
+  if (state.mode === 'search') {
+    if (state.query) params.set('q', state.query);
+    if (state.tag) params.set('tag', state.tag);
+    params.set('page', state.page);
+    if (state.pageSize) params.set('page_size', state.pageSize);
+    return API_BASE + 'search/?' + params.toString();
+  }
+  params.set('page', state.page);
+  if (state.pageSize) params.set('page_size', state.pageSize);
+  return API_BASE + 'latests_news/?' + params.toString();
+}
+
+async function loadFeed(){
+  state.loading = true;
+  renderLoading();
+  try{
+    const data = await apiGet(buildUrl());
+    state.count = data.count ?? (data.results ? data.results.length : 0);
+    state.next = data.next || null;
+    state.previous = data.previous || null;
+    const results = data.results || [];
+    renderFeed(results);
+    renderStatusLine(results.length);
+    renderPager();
+  } catch(e){
+    renderError(e);
+  } finally {
+    state.loading = false;
+  }
+}
+
+function renderLoading(){
+  feedEl.innerHTML = `<div class="state-block"><div class="spinner"></div>загружаем ленту…</div>`;
+  statusLineEl.innerHTML = '';
+  pagerEl.style.display = 'none';
+}
+
+function renderError(e){
+  feedEl.innerHTML = `
+    <div class="state-block">
+      <div class="big">connection refused</div>
+      не удалось получить данные с vsp210.ru/news/api/v1/<br>
+      ${escapeHtml(e.message || 'неизвестная ошибка')}
+      <div><button class="retry-btn" id="retryBtn">повторить запрос</button></div>
+    </div>`;
+  document.getElementById('retryBtn').addEventListener('click', loadFeed);
+  statusLineEl.innerHTML = '';
+  pagerEl.style.display = 'none';
+}
+
+function renderStatusLine(shownCount){
+  let label = state.mode === 'search'
+    ? `поиск${state.query ? ': "'+escapeHtml(state.query)+'"' : ''}${state.tag ? ' · тег #'+escapeHtml(state.tag) : ''}`
+    : 'свежая лента';
+  statusLineEl.innerHTML = `<span>${label} · найдено: ${state.count}</span>` +
+    (state.mode === 'search' ? `<button id="clearSearchBtn">[ сбросить ]</button>` : `<span></span>`);
+  const clearBtn = document.getElementById('clearSearchBtn');
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    state.mode = 'latest'; state.query = ''; state.tag = ''; state.page = 1;
+    searchInput.value = '';
+    renderTagRail();
+    loadFeed();
+  });
+}
+
+function renderFeed(results){
+  if (!results.length){
+    feedEl.innerHTML = `
+      <div class="state-block">
+        <div class="big">0 records found</div>
+        ничего не нашлось. попробуйте другой запрос или снимите фильтр по тегу.
+      </div>`;
+    return;
+  }
+  feedEl.innerHTML = results.map(cardTemplate).join('');
+  results.forEach(item => bindCardEvents(item));
+}
+
+function cardTemplate(item){
+  const reaction = getReaction(item.id);
+  const tags = (item.tags || []).map(t => `<span class="card-tag">${escapeHtml(t.name)}</span>`).join('');
+  return `
+  <article class="card" data-id="${item.id}">
+    <div class="card-meta">
+      <span>${fmtDate(item.created_at)}</span>
+      ${tags ? `<span class="dot">·</span><span class="card-tags">${tags}</span>` : ''}
+    </div>
+    <h2 class="card-title" data-id="${item.id}">${escapeHtml(item.title)}</h2>
+    <div class="card-content clamped" data-id="${item.id}">${renderMarkdown(item.content)}</div>
+    <button class="read-more" data-id="${item.id}">[ развернуть ]</button>
+    <div class="card-footer">
+      <div class="stamps">
+        <button class="stamp like ${reaction==='like' ? 'active':''}" data-id="${item.id}" data-action="like">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10v11M2 13v6a2 2 0 002 2h13.4a2 2 0 002-1.7l1.4-9A2 2 0 0018.8 8H14V4a2 2 0 00-2-2l-5 8v3"/></svg>
+          <span class="like-count">${item.likes}</span>
+        </button>
+        <button class="stamp dislike ${reaction==='dislike' ? 'active':''}" data-id="${item.id}" data-action="dislike">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V3M22 11V5a2 2 0 00-2-2H6.6a2 2 0 00-2 1.7l-1.4 9A2 2 0 005.2 16H10v4a2 2 0 002 2l5-8v-3"/></svg>
+          <span class="dislike-count">${item.dislikes}</span>
+        </button>
+      </div>
+      <a class="permalink" href="${item.url || '#'}" data-id="${item.id}">открыть →</a>
+    </div>
+  </article>`;
+}
+
+function bindCardEvents(item){
+  const card = feedEl.querySelector(`.card[data-id="${item.id}"]`);
+  if (!card) return;
+
+  card.querySelector('.card-title').addEventListener('click', () => openDetail(item.id));
+  const permalink = card.querySelector('.permalink');
+  permalink.addEventListener('click', (e) => { e.preventDefault(); openDetail(item.id); });
+
+  const readMoreBtn = card.querySelector('.read-more');
+  const contentEl = card.querySelector('.card-content');
+  readMoreBtn.addEventListener('click', () => {
+    const expanded = contentEl.classList.toggle('expanded');
+    contentEl.classList.toggle('clamped', !expanded);
+    readMoreBtn.textContent = expanded ? '[ свернуть ]' : '[ развернуть ]';
+  });
+
+  card.querySelectorAll('.stamp').forEach(btn => {
+    btn.addEventListener('click', () => handleReaction(item.id, btn.dataset.action, card));
+  });
+}
+
+// ---------- reactions ----------
+async function handleReaction(id, action, card){
+  const likeBtn = card.querySelector('.stamp.like');
+  const dislikeBtn = card.querySelector('.stamp.dislike');
+  const likeCountEl = card.querySelector('.like-count');
+  const dislikeCountEl = card.querySelector('.dislike-count');
+  const current = getReaction(id);
+
+  likeBtn.disabled = true; dislikeBtn.disabled = true;
+  try{
+    if (action === 'like') {
+      if (current === 'like') {
+        const data = await apiPost(API_BASE + 'unlike/' + id + '/');
+        if ('likes' in data) likeCountEl.textContent = data.likes;
+        setReaction(id, null);
+        likeBtn.classList.remove('active');
+      } else {
+        if (current === 'dislike') {
+          const d1 = await apiPost(API_BASE + 'undislike/' + id + '/');
+          if ('dislikes' in d1) dislikeCountEl.textContent = d1.dislikes;
+          dislikeBtn.classList.remove('active');
+        }
+        const data = await apiPost(API_BASE + 'like/' + id + '/');
+        if ('likes' in data) likeCountEl.textContent = data.likes;
+        setReaction(id, 'like');
+        likeBtn.classList.add('active');
+      }
+    } else if (action === 'dislike') {
+      if (current === 'dislike') {
+        const data = await apiPost(API_BASE + 'undislike/' + id + '/');
+        if ('dislikes' in data) dislikeCountEl.textContent = data.dislikes;
+        setReaction(id, null);
+        dislikeBtn.classList.remove('active');
+      } else {
+        if (current === 'like') {
+          const d1 = await apiPost(API_BASE + 'unlike/' + id + '/');
+          if ('likes' in d1) likeCountEl.textContent = d1.likes;
+          likeBtn.classList.remove('active');
+        }
+        const data = await apiPost(API_BASE + 'dislike/' + id + '/');
+        if ('dislikes' in data) dislikeCountEl.textContent = data.dislikes;
+        setReaction(id, 'dislike');
+        dislikeBtn.classList.add('active');
+      }
+    }
+  } catch(e){
+    console.error(e);
+    alert('не удалось сохранить реакцию, попробуйте ещё раз');
+  } finally {
+    likeBtn.disabled = false; dislikeBtn.disabled = false;
+  }
+}
+
+// ---------- detail modal ----------
+async function openDetail(id){
+  modalBody.innerHTML = `<div class="state-block"><div class="spinner"></div>загружаем материал…</div>`;
+  modalBackdrop.classList.add('open');
+  try{
+    const item = await apiGet(API_BASE + 'news_detail/' + id + '/');
+    const tags = (item.tags || []).map(t => `<span class="card-tag">${escapeHtml(t.name)}</span>`).join('');
+    modalBody.innerHTML = `
+      <div class="card-meta">
+        <span>${fmtDate(item.created_at)}</span>
+        ${tags ? `<span class="dot">·</span><span class="card-tags">${tags}</span>` : ''}
+      </div>
+      <h2>${escapeHtml(item.title)}</h2>
+      <div class="card-content">${renderMarkdown(item.content)}</div>
+    `;
+  } catch(e){
+    modalBody.innerHTML = `<div class="state-block"><div class="big">not found</div>${escapeHtml(e.message||'')}</div>`;
+  }
+}
+modalClose.addEventListener('click', () => modalBackdrop.classList.remove('open'));
+modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) modalBackdrop.classList.remove('open'); });
+
+// ---------- pagination ----------
+function renderPager(){
+  const totalPages = Math.max(1, Math.ceil(state.count / state.pageSize));
+  if (totalPages <= 1 && !state.previous && !state.next) { pagerEl.style.display = 'none'; return; }
+  pagerEl.style.display = 'flex';
+  pagerEl.innerHTML = `
+    <button id="prevPageBtn" ${!state.previous ? 'disabled' : ''}>&lt; back</button>
+    <span>стр. ${state.page} / ${totalPages}</span>
+    <button id="nextPageBtn" ${!state.next ? 'disabled' : ''}>next &gt;</button>
+  `;
+  const prevBtn = document.getElementById('prevPageBtn');
+  const nextBtn = document.getElementById('nextPageBtn');
+  if (prevBtn) prevBtn.addEventListener('click', () => { state.page--; loadFeed(); window.scrollTo({top:0, behavior:'smooth'}); });
+  if (nextBtn) nextBtn.addEventListener('click', () => { state.page++; loadFeed(); window.scrollTo({top:0, behavior:'smooth'}); });
+}
+
+// ---------- search ----------
+searchForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const q = searchInput.value.trim();
+  state.query = q;
+  state.page = 1;
+  state.mode = q || state.tag ? 'search' : 'latest';
+  loadFeed();
+});
+
+// ---------- utils ----------
+function escapeHtml(str){
+  return String(str ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+function checkUrlForArticle() {
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#article-')) {
+    const articleId = hash.substring('#article-'.length);
+    if (articleId) {
+      openDetail(articleId);
+    }
+  }
+}
+
+// ---------- init ----------
+loadTags();
+loadFeed().then(() => {
+  checkUrlForArticle();
+});
+
+window.addEventListener('hashchange', checkUrlForArticle, false);
+</script>
+</body>
+</html>

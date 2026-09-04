@@ -1,0 +1,33 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Дело: {{ personnel.name }}{% endblock %}
+
+{% block content %}
+        <h1>Личное дело: {{ personnel.name }} "{{ personnel.callsign }}"</h1>
+        <a href="{% url 'DZ_personnels' %}"><< Назад к реестру персонала</a>
+        <br>
+        <p><strong>Класс персонала:</strong> {{ personnel.personnel_class }}</p>
+        <p><strong>Должность:</strong> {{ personnel.position }}</p>
+        <p><strong>Статус:</strong> {{ personnel.get_status_display }}</p>
+
+        <hr style="border-color: var(--border-color); margin: 2rem 0;">
+
+        <h3>1. Биографическая справка</h3>
+        <p>{{ personnel.biography|safe }}</p>
+        
+        <h3>2. Психологический портрет</h3>
+        <p>{{ personnel.psych_profile|safe }}</p>
+        <blockquote>
+            <p><strong>Известная цитата:</strong> <em>"{{ personnel.quote }}".</em></p>
+        </blockquote>
+
+        <h3>3. Служебные отметки</h3>
+        <ul>
+            {% for service_mark in personnel.service_marks %}
+                <li>{{ service_mark }}</li>
+            {% endfor %}
+        </ul>
+
+        
+{% endblock %}

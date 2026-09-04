@@ -1,0 +1,25 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Архив документов{% endblock %}
+
+{% block content %}
+        <h1>// АРХИВ: ДОКУМЕНТЫ //</h1>
+        <a href="{% url 'DZ_dashboard' %}"><< Назад к панели управления</a>
+<br>
+<br>
+        <p>Доступные для просмотра файлы:</p>
+
+        <div class="entry-list">
+            {% for archive_material in archive_materials %}
+                <div class="list-entry">
+                    <h3><a href="{% url 'DZ_archive' archive_material.slug %}">{{ archive_material }}</a></h3>
+                    <p><strong>Тип файла:</strong> {{ archive_material.get_material_type }}. {% if archive_material.anomaly %}<strong>Связанный объект:</strong> {{ archive_material.anomaly.get_full_id }}.{% endif %}</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <br>
+{% endblock %}
+
+{% comment %} DostoevskiyFM {% endcomment %}

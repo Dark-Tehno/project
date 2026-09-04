@@ -1,0 +1,19 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Главная панель{% endblock %}
+
+{% block content %}
+<h1>// ГЛАВНАЯ ПАНЕЛЬ УПРАВЛЕНИЯ //</h1>
+<p>Добро пожаловать, оперативник. Выберите необходимый раздел базы данных.</p>
+<div class="dashboard">
+    <a href="{% url 'DZ_search' %}" class="dashboard-button">[База данных: Поиск]</a>
+    <a href="{% url 'DZ_objects' %}" class="dashboard-button">[База данных: Объекты]</a>
+    <a href="{% url 'DZ_archives' %}" class="dashboard-button">[Архив: Документы]</a>
+    <a href="{% url 'DZ_personnels' %}" class="dashboard-button">[Реестр: Персонал]</a>
+    <a href="{% url 'DZ_zones' %}" class="dashboard-button">[Реестр: Зоны]</a>
+    <a href="{% url 'DZ_organizations' %}" class="dashboard-button">[Справочник: Организации]</a>
+    <a href="{% url 'DZ_classifications' %}" class="dashboard-button">[Справочник: Классификации]</a>
+    <a href="{% url 'DZ_map' %}" class="dashboard-button">[Глобальная карта]</a>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}Реестр Зон{% endblock %}
+
+{% block content %}
+        <h1>// РЕЕСТР: ЗОНЫ И КОМПЛЕКСЫ //</h1>
+        <a href="{% url 'DZ_dashboard' %}"><< Назад к панели управления</a>
+<br>
+<br>
+        <p>Известные объекты организации "Дети Земли":</p>
+
+        <div class="entry-list">
+            {% for zone in zones %}
+                <div class="list-entry">
+                    <h3><a href="{% url 'DZ_zone' zone.slug %}">{{ zone }}</a></h3>
+                    <p><strong>Расположение:</strong> {{ zone.location }}. <strong>Статус:</strong> {{ zone.get_status_display }}.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <br>
+{% endblock %}

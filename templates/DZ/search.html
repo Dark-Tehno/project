@@ -1,0 +1,104 @@
+{% extends "DZ/base.html" %}
+{% load static %}
+
+{% block title %}База данных: Поиск{% endblock %}
+
+{% block content %}
+<h1>// БАЗА ДАННЫХ: ПОИСК //</h1>
+
+<a href="{% url 'DZ_dashboard' %}"><< Назад к панели управления</a>
+<br>
+<br>
+
+<form method="get" class="search-form" action="{% url 'DZ_search' %}">
+    <input type="text" name="query" placeholder="Искать по всем базам данных..." value="{{ query|default:'' }}">
+    <button type="submit">Поиск</button>
+</form>
+
+{% if query %}
+    <h2>Результаты поиска для "{{ query }}"</h2>
+
+    {% if zones_results %}
+        <h3>Зоны</h3>
+        <div class="entry-list">
+            {% for zone in zones_results %}
+                <div class="list-entry">
+                    <h4><a href="{% url 'DZ_zone' zone.slug %}">{{ zone.name }}</a></h4>
+                    <p>{{ zone.description|striptags|truncatechars:150 }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if anomalies_results %}
+        <h3>Аномалии</h3>
+        <div class="entry-list">
+            {% for anomaly in anomalies_results %}
+                <div class="list-entry">
+                    <h4><a href="{% url 'DZ_object' anomaly.slug %}">{{ anomaly.get_full_id }} "{{ anomaly.name }}"</a></h4>
+                    <p><strong>Класс угрозы:</strong> {{ anomaly.get_threat_class_display }}</p>
+                    <p>{{ anomaly.description|striptags|truncatechars:150 }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if personnel_results %}
+        <h3>Персонал</h3>
+        <div class="entry-list">
+            {% for personnel in personnel_results %}
+                <div class="list-entry">
+                    <h4><a href="{% url 'DZ_personnel' personnel.slug %}">{{ personnel.name }} ({{ personnel.callsign }})</a></h4>
+                    <p><strong>Должность:</strong> {{ personnel.position }}</p>
+                    <p>{{ personnel.biography|striptags|truncatechars:150 }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if incident_reports_results %}
+        <h3>Отчеты об инцидентах</h3>
+        <div class="entry-list">
+            {% for report in incident_reports_results %}
+                <div class="list-entry">
+                    <h4><a href="{% url 'DZ_archive' report.slug %}">{{ report.name }}</a></h4>
+                    <p>{{ report.description|striptags|truncatechars:150 }}</p>
+                    <p><strong>getStoredDate:</strong> {{ report.incident_date }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if interrogation_protocols_results %}
+        <h3>Протоколы допросов</h3>
+        <div class="entry-list">
+            {% for protocol in interrogation_protocols_results %}
+                <div class="list-entry">
+                    <h4><a href="{% url 'DZ_archive' protocol.slug %}">{{ protocol.name }}</a></h4>
+                    <p><strong>Допрашиваемый:</strong> {{ protocol.interrogated_person }}</p>
+                    <p><strong>Дата допроса:</strong> {{ protocol.interrogation_date }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if not_classified_materials_results %}
+        <h3>Неклассифицированные материалы</h3>
+        <div class="entry-list">
+            {% for material in not_classified_materials_results %}
+                <div class="list-entry">
+                    <h4><a href="{% url 'DZ_archive' material.slug %}">{{ material.name }}</a></h4>
+                    <p>{{ material.data|striptags|truncatechars:150 }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if not zones_results and not anomalies_results and not personnel_results and not incident_reports_results and not interrogation_protocols_results and not not_classified_materials_results %}
+        <p>По вашему запросу ничего не найдено.</p>
+    {% endif %}
+
+{% else %}
+    <p>Введите запрос для поиска по базам данных.</p>
+{% endif %}
+{% endblock %}
