@@ -76,8 +76,7 @@ User-agent: *
 
 Disallow: /admin/
 Disallow: /media/
-Allow: /account/*
-Allow: /mail/
+Disallow: /account/*
 Allow: /news/*
 Allow: /DZ/*
 Allow: /birthday/vsp210/21.01
