@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from account.utils import StandartAPIPermission
+from account.utils import DeviceTokenAuthentication, StandartAPIPermission
 from account.models import DarkAccount
 from account.serializers import DarkAccountSerializer
 from .models import Chat, ChatParticipant, Message, MessageRead, MessageReaction
@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 # Create your views here.
 class ChatView(APIView):
     permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
 
     def post(self, request):
         chat_type = request.data.get('chat_type', 'direct')
@@ -101,7 +102,7 @@ class ChatView(APIView):
             user = request.user,
             chat = chat
         )
-        participant_is_admin = True if participant.role is ['admin', 'owner'] else False
+        participant_is_admin = True if participant.role == 'admin' or participant.role == 'owner' else False
         if participant_is_admin:
             if new_participants is not None:
                 participant_names = new_participants.split(',')
@@ -139,7 +140,7 @@ class ChatView(APIView):
 
             if new_role is not None:
                 participant_username, role = new_role.split(':')
-                if role is ['admin', 'member']:
+                if role == 'admin' or role == 'member':
 
                     participant_user_account = DarkAccount.objects.get(username=participant_username)
                     participant_user = ChatParticipant.objects.get(
@@ -151,3 +152,65 @@ class ChatView(APIView):
             return Response({'status': 'success', 'chat_id': chat.id}, status=status.HTTP_200_OK)
         else:
             return Response({'status': 'error', 'message': 'INSUFFICIENT_ACCOUNT_PERMISSIONS'}, status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, id):
+        chat = get_object_or_404(
+            Chat,
+            id=id,
+            participant__user=request.user
+        )
+        participant = get_object_or_404(
+            ChatParticipant,
+            user = request.user,
+            chat = chat
+        )
+        participant_is_admin = True if participant.role == 'admin' or participant.role == 'owner' else False
+
+        if participant_is_admin:
+            chat.delete()
+            return Response({'status': 'success'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'status': 'error', 'message': 'INSUFFICIENT_ACCOUNT_PERMISSIONS'}, status=status.HTTP_403_FORBIDDEN)
+
+
+class ChatsView(APIView):
+    permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
+
+    def get(self, request):
+        user = request.user
+        participants = ChatParticipant.objects.filter(user=user)
+        print(participants)
+        chats = []
+        for participant in participants:
+            chats.append(Chat.objects.filter(participant=participant))
+        print(chats)
+        for i in chats:
+            print(i.__dict__)
+        return Response({
+            "chats": 'chats'
+            # 'chats': {
+            #     "id": i.id,
+            #     "chat_type": i.chat_type,
+            #     "title": i.title,
+            #     "description": i.description,
+            #     "avatar": i.avatar,
+            #     "created_by": i.created_by,
+            #     "created_at": i.created_at,
+            #     "updated_at": i.updated_at
+            #  } for i in chats
+            }, status=status.HTTP_200_OK)
+
+
+# class MessagesView(APIView):
+#     permission_classes = [StandartAPIPermission]
+#     authentication_classes = [DeviceTokenAuthentication]
+
+#     def post(self, request):
+#         chat_id = request.data.get('chat_id')
+
+#         reply_to = request.data.get('reply_to')
+#         message_type = request.data.get('message_type')
+#         text = request.data.get('text')
+#         attachment = request.data.get('attachment')
+
+        

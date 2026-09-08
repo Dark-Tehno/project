@@ -5,6 +5,8 @@ from news.models import DarkNews, Tags
 from news.v1.serializers import DarkNewsSerializer, TagsSerializer
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Q
+from rest_framework.permissions import AllowAny
+
 
 class NewsPagination(PageNumberPagination):
     page_size = 10
@@ -12,6 +14,7 @@ class NewsPagination(PageNumberPagination):
     max_page_size = 100
 
 class LatestsNewsView(APIView):
+    permission_classes = [AllowAny]
     pagination_class = NewsPagination
 
     def get(self, request):
@@ -22,6 +25,7 @@ class LatestsNewsView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 class NewsDetailView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, pk):
         try:
             news = DarkNews.objects.get(pk=pk)
@@ -31,6 +35,8 @@ class NewsDetailView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 class LikeView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, pk):
         try:
             news = DarkNews.objects.get(pk=pk)
@@ -41,6 +47,8 @@ class LikeView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 class UnlikeView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, pk):
         try:
             news = DarkNews.objects.get(pk=pk)
@@ -52,6 +60,8 @@ class UnlikeView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 class DislikeView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, pk):
         try:
             news = DarkNews.objects.get(pk=pk)
@@ -62,6 +72,8 @@ class DislikeView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 class UndislikeView(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, pk):
         try:
             news = DarkNews.objects.get(pk=pk)
@@ -73,6 +85,7 @@ class UndislikeView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 class SearchView(APIView):
+    permission_classes = [AllowAny]
     pagination_class = NewsPagination
 
     def get(self, request):
@@ -94,6 +107,8 @@ class SearchView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 class TagsView(APIView):
+    permission_classes = [AllowAny]
+    
     def get(self, request):
         tags = Tags.objects.all().order_by('?')
         serializer = TagsSerializer(tags, many=True)

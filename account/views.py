@@ -11,7 +11,7 @@ from .serializers import (
     DeviceUpdateSerializer,
     LoginHistorySerializer
 )
-from .utils import get_or_create_device, get_client_ip_address, StandartAPIPermission
+from .utils import DeviceTokenAuthentication, get_or_create_device, get_client_ip_address, StandartAPIPermission
 
 
 class RegisterView(APIView):
@@ -23,6 +23,7 @@ class RegisterView(APIView):
     и т.д. — парсятся сервером сами). Клиент ничего для этого делать
     не обязан; при желании может передать блок "device" с уточнениями.
     """
+    authentication_classes = [DeviceTokenAuthentication]
     permission_classes = [StandartAPIPermission]
     
     def post(self, request):
@@ -89,6 +90,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     """POST /api/auth/login/"""
+    authentication_classes = [DeviceTokenAuthentication]
     permission_classes = [StandartAPIPermission]
 
     def post(self, request):
@@ -153,6 +155,7 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
 
     def post(self, request):
         device_id = request.data.get('device_id', None)
@@ -182,6 +185,7 @@ class LogoutView(APIView):
 
 
 class ProfileView(APIView):
+    authentication_classes = [DeviceTokenAuthentication]
     permission_classes = [StandartAPIPermission]
 
     def get(self, request):
@@ -201,6 +205,7 @@ class DeviceViewSet(APIView):
     DELETE /api/devices/{id}/      — удалить устройство (разлогинить его)
     """
     permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
 
     def get(self, request, device_id):
         try:
@@ -239,6 +244,7 @@ class DeviceViewSet(APIView):
 
 class DeviceListView(APIView):
     permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
 
     def get(self, request):
         devices = Device.objects.filter(user=request.user)
@@ -251,6 +257,7 @@ class DeviceListView(APIView):
 
 class LoginHistoryListView(APIView):
     permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
 
     def get(self, request):
         login_history = LoginHistory.objects.filter(user=self.request.user).select_related('device')

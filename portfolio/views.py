@@ -79,10 +79,12 @@ Disallow: /media/
 Disallow: /account/*
 Allow: /news/*
 Allow: /DZ/*
+Allow: /dark-lang/
 Allow: /birthday/vsp210/21.01
 Allow: /
 
 Host: vsp210.ru
+Sitemap: https://vsp210.ru/sitemap.xml
 """
 
     return HttpResponse(robots_content, content_type='text/plain')
