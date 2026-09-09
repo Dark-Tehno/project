@@ -1,0 +1,45 @@
+{% extends "account/base.html" %}
+{% block title %}Безопасность — Dark.Talk{% endblock %}
+
+{% block content %}
+<div class="dash-grid">
+  {% include "account/_account_nav.html" %}
+  <div class="dash-main">
+
+    <div class="card">
+      <div class="card-head"><h2>Почта</h2></div>
+      {% if user.email_confirmed %}
+        <p><span class="badge badge-ok"><span class="sw"></span> Почта {{ user.email }} подтверждена</span></p>
+      {% else %}
+        <p><span class="badge badge-warn"><span class="sw"></span> Почта {{ user.email }} не подтверждена</span></p>
+        <a href="{% url 'email-confirm' %}" class="btn grad">Подтвердить почту</a>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Пароль</h2></div>
+      <p class="section-note">Хотите сменить пароль — запросите код на почту и задайте новый.</p>
+      <a href="{% url 'password-reset-request' %}" class="btn">Сменить пароль</a>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Двухфакторная аутентификация</h2>
+        {% if user.two_factor_enabled %}
+          <span class="badge badge-ok"><span class="sw"></span> Включена</span>
+        {% else %}
+          <span class="badge"><span class="sw"></span> Выключена</span>
+        {% endif %}
+      </div>
+      <p class="section-note">Дополнительный уровень защиты аккаунта при входе.</p>
+      <form method="post" action="{% url 'toggle-two-factor' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn {% if not user.two_factor_enabled %}grad{% endif %}">
+          {% if user.two_factor_enabled %}Выключить 2FA{% else %}Включить 2FA{% endif %}
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

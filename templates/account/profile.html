@@ -1,0 +1,99 @@
+{% extends "account/base.html" %}
+{% block title %}Профиль — Dark.Talk{% endblock %}
+
+{% block content %}
+<div class="dash-grid">
+  {% include "account/_account_nav.html" %}
+  <div class="dash-main">
+
+    <div class="card">
+      <div class="profile-head">
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="{{ user.username }}" class="avatar-preview">
+        {% endif %}
+        <div class="profile-head-meta">
+          <div class="username">{{ user.username }}</div>
+          <div class="sub">На платформе с {{ user.date_joined|date:"d.m.Y" }}</div>
+          <div class="badge-row">
+            {% if user.is_online %}
+              <span class="badge badge-ok"><span class="sw"></span> В сети</span>
+            {% else %}
+              <span class="badge"><span class="sw"></span> Не в сети{% if user.last_online %} · {{ user.last_online|date:"d.m.Y H:i" }}{% endif %}</span>
+            {% endif %}
+            {% if user.email_confirmed %}
+              <span class="badge badge-ok"><span class="sw"></span> Почта подтверждена</span>
+            {% else %}
+              <span class="badge badge-warn"><span class="sw"></span> Почта не подтверждена</span>
+            {% endif %}
+            {% if user.two_factor_enabled %}
+              <span class="badge badge-ok"><span class="sw"></span> 2FA включена</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-box"><div class="num">{{ devices_count }}</div><div class="label">Устройств</div></div>
+        <div class="stat-box"><div class="num">{{ tokens_count }}</div><div class="label">Активных токенов</div></div>
+        <div class="stat-box"><div class="num">{{ user.get_language_display }}</div><div class="label">Язык интерфейса</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Редактировать профиль</h2></div>
+      <p class="section-note">Эти данные видны другим согласно настройке доступа к аватару.</p>
+
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="{{ form.avatar.id_for_label }}">Аватар</label>
+          {{ form.avatar }}
+          {% if form.avatar.errors %}<div class="field-error">{{ form.avatar.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.avatar_access.id_for_label }}">Доступ к аватару</label>
+          {{ form.avatar_access }}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="{{ form.first_name.id_for_label }}">Имя</label>
+            {{ form.first_name }}
+          </div>
+          <div class="form-group">
+            <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
+            {{ form.last_name }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.email.id_for_label }}">Почта</label>
+          {{ form.email }}
+          {% if form.email.errors %}<div class="field-error">{{ form.email.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.info.id_for_label }}">О себе</label>
+          {{ form.info }}
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="{{ form.date_of_birth.id_for_label }}">Дата рождения</label>
+            {{ form.date_of_birth }}
+          </div>
+          <div class="form-group">
+            <label for="{{ form.language.id_for_label }}">Язык интерфейса</label>
+            {{ form.language }}
+          </div>
+        </div>
+
+        <button type="submit" class="btn grad">Сохранить изменения</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

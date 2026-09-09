@@ -1,0 +1,12 @@
+<nav class="dash-nav">
+  <div class="side-group-label">Аккаунт</div>
+  <a href="{% url 'profile-view' %}" class="tab-link {% if active_nav == 'profile' %}active{% endif %}"><span class="dot"></span> Профиль</a>
+  <a href="{% url 'security-view' %}" class="tab-link {% if active_nav == 'security' %}active{% endif %}"><span class="dot"></span> Безопасность</a>
+  <a href="{% url 'devices-view' %}" class="tab-link {% if active_nav == 'devices' %}active{% endif %}"><span class="dot"></span> Устройства</a>
+  <a href="{% url 'login-history-view' %}" class="tab-link {% if active_nav == 'history' %}active{% endif %}"><span class="dot"></span> История входов</a>
+  <div class="side-group-label">Действия</div>
+  <form method="post" action="{% url 'logout-view' %}">
+    {% csrf_token %}
+    <button type="submit" class="tab-link" style="cursor:pointer;"><span class="dot"></span> Выйти</button>
+  </form>
+</nav>

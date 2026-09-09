@@ -1,0 +1,58 @@
+{% extends "account/base.html" %}
+{% block title %}Устройства — Dark.Talk{% endblock %}
+
+{% block content %}
+<div class="dash-grid">
+  {% include "account/_account_nav.html" %}
+  <div class="dash-main">
+    <div class="card">
+      <div class="card-head"><h2>Устройства</h2></div>
+      <p class="section-note">Все устройства, с которых выполнялся вход в аккаунт. Заблокированное устройство не сможет войти заново.</p>
+
+      {% for device in devices %}
+        <div class="device-card {% if device.device_id == current_device_id %}current{% endif %}">
+          <div class="device-info">
+            <div class="name">
+              {{ device.name|default:"Неизвестное устройство" }}
+              {% if device.device_id == current_device_id %}
+                <span class="badge badge-info"><span class="sw"></span> Текущее</span>
+              {% endif %}
+              {% if device.trusted %}
+                <span class="badge badge-ok"><span class="sw"></span> Доверенное</span>
+              {% endif %}
+              {% if device.blocked %}
+                <span class="badge badge-danger"><span class="sw"></span> Заблокировано</span>
+              {% endif %}
+            </div>
+            <div class="device-meta">
+              {{ device.get_device_type_display }}{% if device.operating_system %} · {{ device.operating_system }}{% endif %}{% if device.browser %} · {{ device.browser }}{% endif %}<br>
+              IP: {{ device.last_ip }}{% if device.country %} · {{ device.country }}{% endif %}{% if device.city %}, {{ device.city }}{% endif %}<br>
+              Последняя активность: {{ device.last_seen|date:"d.m.Y H:i" }}
+            </div>
+          </div>
+          <div class="device-actions">
+            <form method="post" action="{% url 'device-toggle-trust' device.id %}" class="inline-form">
+              {% csrf_token %}
+              <button type="submit" class="btn small">{% if device.trusted %}Убрать доверие{% else %}Доверять{% endif %}</button>
+            </form>
+            <form method="post" action="{% url 'device-toggle-block' device.id %}" class="inline-form">
+              {% csrf_token %}
+              <button type="submit"
+                class="btn small {% if not device.blocked %}danger{% endif %}"
+                {% if device.device_id == current_device_id and not device.blocked %}disabled title="Нельзя заблокировать текущее устройство"{% endif %}>
+                {% if device.blocked %}Разблокировать{% else %}Заблокировать{% endif %}
+              </button>
+            </form>
+            <form method="post" action="{% url 'device-delete' device.id %}" class="inline-form" onsubmit="return confirm('Удалить это устройство из списка?');">
+              {% csrf_token %}
+              <button type="submit" class="btn small danger">Удалить</button>
+            </form>
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-row">Устройств пока нет.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

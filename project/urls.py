@@ -69,7 +69,7 @@ urlpatterns = [
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('news/', include('news.urls')),
     path('news/api/v1/', include('news.v1.urls')),
-    path('account/api/', include('account.urls')),
+    path('account/', include('account.urls')),
     path('chat/api/', include('chat.urls')),
     path('DZ/', include('DZ.urls')),
     path('mail/', include('mail.urls')),

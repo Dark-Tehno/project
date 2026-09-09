@@ -5,6 +5,7 @@ from email.utils import parseaddr, parsedate_to_datetime
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from django.db.models import Q
 from asgiref.sync import sync_to_async, async_to_sync
 from channels.layers import get_channel_layer
 from aiosmtpd.controller import Controller
@@ -33,7 +34,11 @@ class DjangoSmtpHandler:
 
     @sync_to_async
     def email_exists(self, address):
-        return TemporaryEmail.objects.filter(email_address=address, expires_at__gt=timezone.now()).exists()
+        return TemporaryEmail.objects.filter(
+            email_address=address,
+        ).filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
+        ).exists()
 
     @sync_to_async
     def save_email(self, envelope):
@@ -82,7 +87,7 @@ class DjangoSmtpHandler:
         try:
             temp_email = TemporaryEmail.objects.get(email_address=recipient_email)
 
-            if temp_email.expires_at < timezone.now():
+            if temp_email.expires_at and temp_email.expires_at < timezone.now():
                 print(f"Срок действия email {recipient_email} истек. Письмо проигнорировано.")
                 return
 

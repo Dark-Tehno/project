@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import DarkAccount, Device, LoginHistory
+from account.models import DarkAccount, Device, LoginHistory
 
 
 class DeviceSerializer(serializers.ModelSerializer):

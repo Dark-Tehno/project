@@ -140,8 +140,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--cyan); outline-offs
 }
 .timer-ring-wrap .ring-label{
   position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-mono); font-size:.92rem; font-weight:600; color:var(--text);
+    font-family:var(--font-mono); font-size:.92rem; font-weight:600; color:var(--text);
+    white-space:nowrap;
 }
+.timer-ring-wrap .ring-label.long-label{font-size:.68rem;}
 .timer-caption{text-transform:uppercase; letter-spacing:.07em; font-weight:600;}
 #extend-btn{margin-top:2px;}
 
@@ -201,6 +203,7 @@ footer a{color:var(--text-muted);}
             </div>
             <nav class="dm-topbar-links">
                 <a href="{% url 'portfolio' %}">На главную</a>
+                <a href="{% url 'mail_user' user.username %}">Ваша почта</a>
             </nav>
         </header>
 
@@ -237,8 +240,8 @@ footer a{color:var(--text-muted);}
                             </svg>
                             <span class="ring-label" id="countdown">10:00</span>
                         </div>
-                        <span class="timer-caption">До удаления</span>
-                        <button id="extend-btn" class="btn">+10 минут</button>
+                        <span class="timer-caption">{% if temp_email.expires_at %}До удаления{% else %}Постоянный адрес{% endif %}</span>
+                        {% if temp_email.expires_at %}<button id="extend-btn" class="btn">+10 минут</button>{% endif %}
                     </div>
                 </div>
 
@@ -338,7 +341,7 @@ footer a{color:var(--text-muted);}
                     }
                 });
 
-                let expiresAt = new Date("{{ temp_email.expires_at.isoformat }}");
+                let expiresAt = {% if temp_email.expires_at %}new Date("{{ temp_email.expires_at.isoformat }}"){% else %}null{% endif %};
                 const countdownElement = document.getElementById('countdown');
                 let timerInterval;
 
@@ -361,6 +364,12 @@ footer a{color:var(--text-muted);}
                 }
 
                 function updateTimer() {
+                    if (!expiresAt) {
+                        countdownElement.textContent = "Постоянный";
+                        countdownElement.classList.add('long-label');
+                        return;
+                    }
+
                     const now = new Date();
                     const timeLeft = expiresAt - now;
 
@@ -368,10 +377,12 @@ footer a{color:var(--text-muted);}
 
                     if (timeLeft <= 0) {
                         countdownElement.textContent = "Время истекло";
+                        countdownElement.classList.add('long-label');
                         if (timerInterval) clearInterval(timerInterval);
                         return;
                     }
 
+                    countdownElement.classList.remove('long-label');
                     const minutes = Math.floor((timeLeft / 1000 / 60) % 60);
                     const seconds = Math.floor((timeLeft / 1000) % 60);
                     countdownElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
@@ -384,7 +395,8 @@ footer a{color:var(--text-muted);}
                 }
                 startTimer();
 
-                document.getElementById('extend-btn').addEventListener('click', function() {
+                const extendButton = document.getElementById('extend-btn');
+                if (extendButton) extendButton.addEventListener('click', function() {
                     fetch("{% url 'extend_email_session' %}")
                         .then(response => {
                             if (!response.ok) {

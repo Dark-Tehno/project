@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-4&+&m8@eb7pn!oy6ao1kwvd9$&ju_hsm9j@6h@31&uhikv$ycc
 DARK_TALK_SECRET_KEY = 'dVCA_+*Wve9x+Ss*+]h4,}6vvps=L^ub/0}$S5B%q)t'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'vsp210.ru']
 CSRF_TRUSTED_ORIGINS = ['https://vsp210.ru']
@@ -114,7 +114,7 @@ CHANNEL_LAYERS = {
 #     }
 # }
 
-
+LOGIN_URL = '/account/login/'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

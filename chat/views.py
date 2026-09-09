@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 
 from account.utils import DeviceTokenAuthentication, StandartAPIPermission
 from account.models import DarkAccount
-from account.serializers import DarkAccountSerializer
+from account.api.serializers import DarkAccountSerializer
 from .models import Chat, ChatParticipant, Message, MessageRead, MessageReaction
 from django.shortcuts import get_object_or_404
 

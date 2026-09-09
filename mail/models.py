@@ -10,8 +10,15 @@ def default_expires_at():
 class TemporaryEmail(models.Model):
     session_key = models.CharField(max_length=40, unique=True, db_index=True)
     email_address = models.CharField(max_length=255, unique=True, db_index=True)
+    user = models.OneToOneField(
+        'account.DarkAccount',
+        on_delete=models.CASCADE,
+        related_name='mailbox',
+        null=True,
+        blank=True,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(default=default_expires_at)
+    expires_at = models.DateTimeField(default=default_expires_at, null=True, blank=True)
 
     def __str__(self):
         return self.email_address

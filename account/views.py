@@ -1,267 +1,484 @@
-from django.contrib.auth import authenticate
+import random
+import uuid
+from datetime import timedelta
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .models import DarkAccount, LoginHistory, Device, Version, Token
-from .serializers import (
-    DarkAccountSerializer,
-    DeviceSerializer,
-    DeviceUpdateSerializer,
-    LoginHistorySerializer
+from .forms import (
+    CodeConfirmForm,
+    LoginForm,
+    PasswordResetConfirmForm,
+    PasswordResetRequestForm,
+    ProfileEditForm,
+    RegisterForm,
 )
-from .utils import DeviceTokenAuthentication, get_or_create_device, get_client_ip_address, StandartAPIPermission
+from .models import (
+    DarkAccount,
+    Device,
+    EmailConfirmation,
+    LoginHistory,
+    PasswordReset,
+    Token,
+    Version,
+)
+
+DEVICE_COOKIE_NAME = "dtd_id"
+DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2  # 2 года
+FROM_EMAIL = getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@dark.talk")
 
 
-class RegisterView(APIView):
-    """
-    POST /api/auth/register/
+# ---------------------------------------------------------------------------
+# Вспомогательные функции
+# ---------------------------------------------------------------------------
 
-    Создаёт пользователя и АВТОМАТИЧЕСКИ создаёт запись Device со всей
-    доступной информацией (IP, User-Agent, ОС, браузер, тип устройства
-    и т.д. — парсятся сервером сами). Клиент ничего для этого делать
-    не обязан; при желании может передать блок "device" с уточнениями.
-    """
-    authentication_classes = [DeviceTokenAuthentication]
-    permission_classes = [StandartAPIPermission]
-    
-    def post(self, request):
-        email = request.data.get('email', None)
-        password = request.data.get('password', None)
-        username = request.data.get('username', email.split("@")[0] if email else None)
-        language = request.data.get('language', 'Russian')
-        date_of_birth = request.data.get('date_of_birth', None)
-        # device:
-        device_id = request.data.get('device_id', None)
-        application = request.app_version.split('|')[0]
-        application_version = request.app_version.split('|')[1]
+def get_client_ip(request):
+    forwarded = request.META.get("HTTP_X_FORWARDED_FOR")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR") or "0.0.0.0"
 
-        if email is None or password is None:
-            return Response({'status': 'error', 'message': 'EMAIL_PASSWORD_NOT_PROVIDED'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if language != "Russian" and language != "English":
-            return Response({'status': 'error', 'message': 'LANGUAGE_NOT_SUPPORTED'}, status=status.HTTP_400_BAD_REQUEST)
+def parse_user_agent(ua):
+    ua_l = (ua or "").lower()
 
-        user = DarkAccount.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            language=language,
-            date_of_birth=date_of_birth
-        )
+    if "edg/" in ua_l:
+        browser = "Edge"
+    elif "opr/" in ua_l or "opera" in ua_l:
+        browser = "Opera"
+    elif "chrome" in ua_l and "chromium" not in ua_l:
+        browser = "Chrome"
+    elif "firefox" in ua_l:
+        browser = "Firefox"
+    elif "safari" in ua_l:
+        browser = "Safari"
+    else:
+        browser = "Неизвестный браузер"
 
-        device_extra = {
-            "device_id": device_id,
-            "application": application,
-            "application_version": application_version
-        }
+    if "windows" in ua_l:
+        os_name = "Windows"
+    elif "mac os" in ua_l or "macintosh" in ua_l:
+        os_name = "macOS"
+    elif "android" in ua_l:
+        os_name = "Android"
+    elif "iphone" in ua_l or "ipad" in ua_l or "ios" in ua_l:
+        os_name = "iOS"
+    elif "linux" in ua_l:
+        os_name = "Linux"
+    else:
+        os_name = "Неизвестная ОС"
 
-        device = get_or_create_device(request, user, extra_data=device_extra)
+    if "ipad" in ua_l or "tablet" in ua_l:
+        device_type = Device.DeviceType.TABLET
+    elif "mobile" in ua_l:
+        device_type = Device.DeviceType.MOBILE
+    elif "bot" in ua_l or "spider" in ua_l or "crawler" in ua_l:
+        device_type = Device.DeviceType.BOT
+    elif ua_l:
+        device_type = Device.DeviceType.DESKTOP
+    else:
+        device_type = Device.DeviceType.UNKNOWN
 
-        version = Version.objects.filter(application=application, version=application_version).first()
-        device.app_version = version
+    return browser, os_name, device_type
+
+
+def get_or_create_device(request, user):
+    """Находит устройство по куке dtd_id или создаёт новое."""
+    ip = get_client_ip(request)
+    ua = request.META.get("HTTP_USER_AGENT", "")
+    browser, os_name, device_type = parse_user_agent(ua)
+
+    device_id = request.COOKIES.get(DEVICE_COOKIE_NAME)
+    is_new_cookie = False
+    if not device_id:
+        device_id = uuid.uuid4().hex
+        is_new_cookie = True
+
+    device, created = Device.objects.get_or_create(
+        user=user,
+        device_id=device_id,
+        defaults={
+            "name": f"{browser} · {os_name}",
+            "device_type": device_type,
+            "operating_system": os_name,
+            "browser": browser,
+            "user_agent": ua,
+            "first_ip": ip,
+            "last_ip": ip,
+        },
+    )
+    if not created:
+        device.last_ip = ip
+        device.user_agent = ua
+        device.browser = browser
+        device.operating_system = os_name
+        device.device_type = device_type
         device.save()
 
+    return device, device_id, is_new_cookie
+
+
+def generate_code():
+    return f"{random.randint(0, 999999):06d}"
+
+
+def send_code_email(email, subject, code):
+    if not email:
+        return
+    send_mail(
+        subject,
+        f"Ваш код: {code}\n\nЕсли вы не запрашивали это действие, просто проигнорируйте письмо.",
+        FROM_EMAIL,
+        [email],
+        fail_silently=True,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Регистрация / вход / выход
+# ---------------------------------------------------------------------------
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect("profile-view")
+
+    form = RegisterForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.save()
+
+        code = generate_code()
+        EmailConfirmation.objects.create(
+            user=user,
+            code=code,
+            expires_at=timezone.now() + timedelta(hours=24),
+        )
+        send_code_email(user.email, "Подтверждение почты — Dark.Talk", code)
+
+        login(request, user)
+        device, device_id, is_new_cookie = get_or_create_device(request, user)
         LoginHistory.objects.create(
             user=user,
             device=device,
-            ip=get_client_ip_address(request),
-            user_agent=request.META.get('HTTP_USER_AGENT', ''),
-            country=device.country,
-            city=device.city,
+            ip=get_client_ip(request),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
             status=LoginHistory.Status.SUCCESS,
-            reason='Регистрация',
+            reason="Регистрация",
         )
 
-        token, _ = Token.objects.get_or_create(device=device)
-        user.last_online = timezone.now()
-        user.save(update_fields=['last_online'])
-
-        return Response(
-            {
-                'status': 'success',
-                'token': token.key,
-                'user': DarkAccountSerializer(user).data,
-                'device': DeviceSerializer(device).data,
-            },
-            status=status.HTTP_201_CREATED,
+        messages.success(
+            request,
+            "Аккаунт создан. Мы отправили код подтверждения на вашу почту.",
         )
-
-class LoginView(APIView):
-    """POST /api/auth/login/"""
-    authentication_classes = [DeviceTokenAuthentication]
-    permission_classes = [StandartAPIPermission]
-
-    def post(self, request):
-        username = request.data.get("username", None)
-        password = request.data.get("password", None)
-        device_id = request.data.get('device_id', None)
-        application = request.app_version.split('|')[0]
-        application_version = request.app_version.split('|')[1]
-
-        if username is None or password is None:
-            return Response({'status': 'error', 'message': 'USERNAME_PASSWORD_NOT_PROVIDED'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = authenticate(username=username, password=password)
-        if user is None:
-            return Response({'status': 'error', 'message': 'INVALID_CREDENTIALS'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        device_extra = {
-            "device_id": device_id,
-            "application": application,
-            "application_version": application_version
-        }
-
-        device = get_or_create_device(request, user, extra_data=device_extra)
-
-        if device.blocked:
-            LoginHistory.objects.create(
-                user=user,
-                device=device,
-                ip=get_client_ip_address(request),
-                user_agent=request.META.get('HTTP_USER_AGENT', ''),
-                country=device.country,
-                city=device.city,
-                status=LoginHistory.Status.BLOCKED,
-                reason='Устройство заблокировано',
+        response = redirect("email-confirm")
+        if is_new_cookie:
+            response.set_cookie(
+                DEVICE_COOKIE_NAME, device_id,
+                max_age=DEVICE_COOKIE_MAX_AGE, httponly=True, samesite="Lax",
             )
-            return Response({'status': 'error', 'detail': 'Это устройство заблокировано.'}, status=status.HTTP_403_FORBIDDEN)
+        return response
 
-        LoginHistory.objects.create(
-            user=user,
-            device=device,
-            ip=get_client_ip_address(request),
-            user_agent=request.META.get('HTTP_USER_AGENT', ''),
-            country=device.country,
-            city=device.city,
-            status=LoginHistory.Status.SUCCESS,
-            reason='Вход выполнен',
-        )
-
-        token, _ = Token.objects.get_or_create(device=device)
-        user.last_online = timezone.now()
-        user.save(update_fields=['last_online'])
-
-        return Response(
-            {
-                'status': 'success',
-                'token': token.key,
-                'user': DarkAccountSerializer(user).data,
-                'device': DeviceSerializer(device).data,
-            }
-        )
+    return render(request, "account/register.html", {"form": form})
 
 
-class LogoutView(APIView):
-    permission_classes = [StandartAPIPermission]
-    authentication_classes = [DeviceTokenAuthentication]
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("profile-view")
 
-    def post(self, request):
-        device_id = request.data.get('device_id', None)
-        if device_id is None:
-            return Response({'status': 'error', 'message': 'DEVICE_ID_NOT_PROVIDED'}, status=status.HTTP_400_BAD_REQUEST)
+    form = LoginForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+        ip = get_client_ip(request)
+        ua = request.META.get("HTTP_USER_AGENT", "")
 
-        device = Device.objects.filter(user=request.user, device_id=device_id).first()
+        user = authenticate(request, username=username, password=password)
 
-        LoginHistory.objects.create(
-            user=request.user,
-            device=device,
-            ip=get_client_ip_address(request),
-            user_agent=request.META.get('HTTP_USER_AGENT', ''),
-            country=device.country,
-            city=device.city,
-            status=LoginHistory.Status.SUCCESS,
-            reason='Выход из аккаунта',
-        )
-        
-        request.user.is_online = False
-        request.user.last_online = timezone.now()
-        request.user.save(update_fields=['is_online', 'last_online'])
-
-        Token.objects.filter(device=device).delete()
-
-        return Response({'status': 'success'}, status=status.HTTP_204_NO_CONTENT)
-
-
-class ProfileView(APIView):
-    authentication_classes = [DeviceTokenAuthentication]
-    permission_classes = [StandartAPIPermission]
-
-    def get(self, request):
-        return Response(
-                    {
-                        'status': 'success',
-                        'user': DarkAccountSerializer(request.user).data,
-                    },
-                    status=status.HTTP_200_OK
+        if user is None:
+            candidate = DarkAccount.objects.filter(username=username).first()
+            if candidate:
+                LoginHistory.objects.create(
+                    user=candidate, ip=ip, user_agent=ua,
+                    status=LoginHistory.Status.FAILED,
+                    reason="Неверный логин или пароль",
                 )
-
-
-class DeviceViewSet(APIView):
-    """
-    GET    /api/devices/{id}/      — детали устройства
-    PATCH  /api/devices/{id}/      — переименовать / пометить доверенным
-    DELETE /api/devices/{id}/      — удалить устройство (разлогинить его)
-    """
-    permission_classes = [StandartAPIPermission]
-    authentication_classes = [DeviceTokenAuthentication]
-
-    def get(self, request, device_id):
-        try:
-            device = Device.objects.get(device_id=device_id)
-        except Device.DoesNotExist:
-            return Response({'status': 'error', 'message': 'DEVICE_NOT_FOUND'}, status=status.HTTP_404_NOT_FOUND)
-
-        return Response({
-            'status': 'success',
-            "device": DeviceSerializer(device).data
-        })
-
-    def patch(self, request, device_id):
-        try:
-            device = Device.objects.get(device_id=device_id)
-        except Device.DoesNotExist:
-            return Response({'status': 'error', 'message': 'DEVICE_NOT_FOUND'}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = DeviceUpdateSerializer(device, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'status': 'success',
-                "device": DeviceSerializer(device).data
-            })
+            form.add_error(None, "Неверное имя пользователя или пароль.")
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            existing_device_id = request.COOKIES.get(DEVICE_COOKIE_NAME)
+            existing_device = None
+            if existing_device_id:
+                existing_device = Device.objects.filter(
+                    user=user, device_id=existing_device_id
+                ).first()
 
-    def delete(self, request, device_id):
-        try:
-            Device.objects.delete(device_id=device_id)
-            return Response({'status': 'success'}, status=status.HTTP_204_NO_CONTENT)
-        except Device.DoesNotExist:
-            return Response({'status': 'error', 'message': 'DEVICE_NOT_FOUND'}, status=status.HTTP_404_NOT_FOUND)
+            if existing_device and existing_device.blocked:
+                LoginHistory.objects.create(
+                    user=user, device=existing_device, ip=ip, user_agent=ua,
+                    status=LoginHistory.Status.BLOCKED,
+                    reason="Устройство заблокировано пользователем",
+                )
+                form.add_error(
+                    None,
+                    "Это устройство заблокировано. Войдите с другого устройства, "
+                    "чтобы снять блокировку.",
+                )
+            else:
+                login(request, user)
+                device, device_id, is_new_cookie = get_or_create_device(request, user)
+                user.is_online = True
+                user.last_online = timezone.now()
+                user.save(update_fields=["is_online", "last_online"])
+                LoginHistory.objects.create(
+                    user=user, device=device, ip=ip, user_agent=ua,
+                    status=LoginHistory.Status.SUCCESS,
+                )
+                response = redirect("profile-view")
+                if is_new_cookie:
+                    response.set_cookie(
+                        DEVICE_COOKIE_NAME, device_id,
+                        max_age=DEVICE_COOKIE_MAX_AGE, httponly=True, samesite="Lax",
+                    )
+                return response
+
+    return render(request, "account/login.html", {"form": form})
 
 
-class DeviceListView(APIView):
-    permission_classes = [StandartAPIPermission]
-    authentication_classes = [DeviceTokenAuthentication]
+@login_required
+def logout_view(request):
+    if request.method == "POST":
+        user = request.user
+        user.is_online = False
+        user.last_online = timezone.now()
+        user.save(update_fields=["is_online", "last_online"])
+        logout(request)
+        messages.info(request, "Вы вышли из аккаунта.")
+        return redirect("login-view")
 
-    def get(self, request):
-        devices = Device.objects.filter(user=request.user)
-
-        return Response({
-            'status': 'success',
-            "devices": DeviceSerializer(devices, many=True).data
-        })
+    return render(request, "account/logout.html")
 
 
-class LoginHistoryListView(APIView):
-    permission_classes = [StandartAPIPermission]
-    authentication_classes = [DeviceTokenAuthentication]
+# ---------------------------------------------------------------------------
+# Профиль
+# ---------------------------------------------------------------------------
 
-    def get(self, request):
-        login_history = LoginHistory.objects.filter(user=self.request.user).select_related('device')
-        return Response({
-            'status': 'success',
-            'login_history': LoginHistorySerializer(login_history, many=True).data,
-        })
+@login_required
+def profile_view(request):
+    user = request.user
+
+    if request.method == "POST":
+        form = ProfileEditForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Профиль обновлён.")
+            return redirect("profile-view")
+    else:
+        form = ProfileEditForm(instance=user)
+
+    context = {
+        "form": form,
+        "devices_count": Device.objects.filter(user=user).count(),
+        "tokens_count": Token.objects.filter(device__user=user).count(),
+        "active_nav": "profile",
+    }
+    return render(request, "account/profile.html", context)
+
+
+@login_required
+def security_view(request):
+    context = {
+        "active_nav": "security",
+        "last_confirmation": EmailConfirmation.objects.filter(user=request.user)
+        .order_by("-created_at")
+        .first(),
+    }
+    return render(request, "account/security.html", context)
+
+
+@login_required
+def toggle_two_factor(request):
+    if request.method == "POST":
+        user = request.user
+        user.two_factor_enabled = not user.two_factor_enabled
+        user.save(update_fields=["two_factor_enabled"])
+        if user.two_factor_enabled:
+            messages.success(request, "Двухфакторная аутентификация включена.")
+        else:
+            messages.info(request, "Двухфакторная аутентификация выключена.")
+    return redirect("security-view")
+
+
+# ---------------------------------------------------------------------------
+# Устройства
+# ---------------------------------------------------------------------------
+
+@login_required
+def devices_view(request):
+    devices = Device.objects.filter(user=request.user)
+    context = {
+        "devices": devices,
+        "current_device_id": request.COOKIES.get(DEVICE_COOKIE_NAME),
+        "active_nav": "devices",
+    }
+    return render(request, "account/devices.html", context)
+
+
+@login_required
+def device_toggle_trust(request, device_id):
+    device = get_object_or_404(Device, id=device_id, user=request.user)
+    if request.method == "POST":
+        device.trusted = not device.trusted
+        device.save(update_fields=["trusted"])
+        messages.success(request, "Статус доверенного устройства обновлён.")
+    return redirect("devices-view")
+
+
+@login_required
+def device_toggle_block(request, device_id):
+    device = get_object_or_404(Device, id=device_id, user=request.user)
+    current_device_id = request.COOKIES.get(DEVICE_COOKIE_NAME)
+    if request.method == "POST":
+        if device.device_id == current_device_id and not device.blocked:
+            messages.error(request, "Нельзя заблокировать устройство, с которого вы сейчас работаете.")
+        else:
+            device.blocked = not device.blocked
+            device.save(update_fields=["blocked"])
+            messages.success(request, "Статус блокировки устройства обновлён.")
+    return redirect("devices-view")
+
+
+@login_required
+def device_delete(request, device_id):
+    device = get_object_or_404(Device, id=device_id, user=request.user)
+    current_device_id = request.COOKIES.get(DEVICE_COOKIE_NAME)
+    if request.method == "POST":
+        is_current = device.device_id == current_device_id
+        device.delete()
+        messages.success(request, "Устройство удалено.")
+        if is_current:
+            logout(request)
+            return redirect("login-view")
+    return redirect("devices-view")
+
+
+# ---------------------------------------------------------------------------
+# История входов
+# ---------------------------------------------------------------------------
+
+@login_required
+def login_history_view(request):
+    history = (
+        LoginHistory.objects.filter(user=request.user)
+        .select_related("device")
+        .order_by("-created_at")[:200]
+    )
+    context = {"login_history": history, "active_nav": "history"}
+    return render(request, "account/login_history.html", context)
+
+
+# ---------------------------------------------------------------------------
+# Подтверждение почты
+# ---------------------------------------------------------------------------
+
+@login_required
+def email_confirm_view(request):
+    user = request.user
+    if user.email_confirmed:
+        messages.info(request, "Почта уже подтверждена.")
+        return redirect("security-view")
+
+    form = CodeConfirmForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        code = form.cleaned_data["code"].strip()
+        confirmation = (
+            EmailConfirmation.objects.filter(user=user, code=code, confirmed=False)
+            .order_by("-created_at")
+            .first()
+        )
+        if confirmation and confirmation.expires_at >= timezone.now():
+            confirmation.confirmed = True
+            confirmation.confirmed_at = timezone.now()
+            confirmation.save()
+            user.email_confirmed = True
+            user.save(update_fields=["email_confirmed"])
+            messages.success(request, "Почта успешно подтверждена.")
+            return redirect("security-view")
+        form.add_error("code", "Неверный или истёкший код.")
+
+    return render(request, "account/email_confirm.html", {"form": form})
+
+
+@login_required
+def email_confirm_resend(request):
+    user = request.user
+    if request.method == "POST" and not user.email_confirmed and user.email:
+        code = generate_code()
+        EmailConfirmation.objects.create(
+            user=user, code=code, expires_at=timezone.now() + timedelta(hours=24)
+        )
+        send_code_email(user.email, "Подтверждение почты — Dark.Talk", code)
+        messages.success(request, "Новый код отправлен на почту.")
+    return redirect("email-confirm")
+
+
+# ---------------------------------------------------------------------------
+# Сброс пароля
+# ---------------------------------------------------------------------------
+
+def password_reset_request_view(request):
+    if request.user.is_authenticated:
+        return redirect("profile-view")
+
+    form = PasswordResetRequestForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        email = form.cleaned_data["email"]
+        user = DarkAccount.objects.filter(email=email).first()
+        if user:
+            code = generate_code()
+            PasswordReset.objects.create(
+                user=user, code=code, expires_at=timezone.now() + timedelta(minutes=30)
+            )
+            send_code_email(email, "Восстановление пароля — Dark.Talk", code)
+        messages.success(
+            request,
+            "Если аккаунт с такой почтой существует, мы отправили код для сброса пароля.",
+        )
+        return redirect("password-reset-confirm")
+
+    return render(request, "account/password_reset_request.html", {"form": form})
+
+
+def password_reset_confirm_view(request):
+    if request.user.is_authenticated:
+        return redirect("profile-view")
+
+    form = PasswordResetConfirmForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        email = form.cleaned_data["email"]
+        code = form.cleaned_data["code"].strip()
+        new_password = form.cleaned_data["new_password1"]
+
+        user = DarkAccount.objects.filter(email=email).first()
+        reset = None
+        if user:
+            reset = (
+                PasswordReset.objects.filter(user=user, code=code, used=False)
+                .order_by("-created_at")
+                .first()
+            )
+
+        if reset and reset.expires_at >= timezone.now():
+            user.set_password(new_password)
+            user.save()
+            reset.used = True
+            reset.used_at = timezone.now()
+            reset.save()
+            messages.success(request, "Пароль изменён. Теперь вы можете войти.")
+            return redirect("login-view")
+
+        form.add_error(None, "Неверная почта, код или срок его действия истёк.")
+
+    return render(request, "account/password_reset_confirm.html", {"form": form})

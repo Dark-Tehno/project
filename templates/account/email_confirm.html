@@ -1,0 +1,35 @@
+{% extends "account/base.html" %}
+{% block title %}Подтверждение почты — Dark.Talk{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card card">
+    <div class="eyebrow">Dark.Talk</div>
+    <h1>Подтвердите почту</h1>
+    <p>Мы отправили код на адрес <strong>{{ user.email }}</strong>. Введите его ниже.</p>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-error" style="margin-bottom:18px;">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.code.id_for_label }}">Код подтверждения</label>
+        {{ form.code }}
+        {% if form.code.errors %}<div class="field-error">{{ form.code.errors.0 }}</div>{% endif %}
+      </div>
+      <button type="submit" class="btn grad block">Подтвердить</button>
+    </form>
+
+    <form method="post" action="{% url 'email-confirm-resend' %}" style="margin-top:14px;">
+      {% csrf_token %}
+      <button type="submit" class="btn block">Отправить код ещё раз</button>
+    </form>
+
+    <div class="auth-links">
+      <a href="{% url 'security-view' %}">Сделать это позже</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
