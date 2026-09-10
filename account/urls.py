@@ -28,6 +28,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout-view'),
 
     # views: профиль и аккаунт
+    path('', views.profile_view, name='profile-view'),
     path('profile/', views.profile_view, name='profile-view'),
     path('profile/security/', views.security_view, name='security-view'),
     path('profile/security/2fa/', views.toggle_two_factor, name='toggle-two-factor'),

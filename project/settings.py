@@ -174,3 +174,17 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# email:
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "mail.vsp210.ru"
+EMAIL_PORT = 587
+
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "noreply@vsp210.ru"
+EMAIL_HOST_PASSWORD = "пароль"
+
+DEFAULT_FROM_EMAIL = "noreply@vsp210.ru"
