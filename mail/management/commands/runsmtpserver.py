@@ -131,7 +131,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         hostname = '0.0.0.0'
-        port = 25
+        port = 2525
         self.stdout.write(self.style.SUCCESS(f'Запуск SMTP-сервера на {hostname}:{port}...'))
         controller = Controller(DjangoSmtpHandler(), hostname=hostname, port=port)
         
