@@ -7,5 +7,6 @@ urlpatterns = [
     path('birthday/<str:name>/<str:date>', birthday, name='birthday'),
     
     path('favicon.ico', favicon, name='favicon'),
+    path('logo.svg', logo, name='logo'),
     path('robots.txt', robots, name='robots'),
 ]

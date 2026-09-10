@@ -64,6 +64,11 @@ def favicon(request):
     with open(favicon_path, 'rb') as favicon_file:
         return HttpResponse(favicon_file.read(), content_type='image/x-icon')
 
+def logo(request):
+    favicon_path = os.path.join(settings.BASE_DIR, 'logo.svg')
+    with open(favicon_path, 'rb') as favicon_file:
+        return HttpResponse(favicon_file.read(), content_type='image/svg+xml')
+
 def robots(request):
     """
     Генерирует содержимое файла robots.txt.
