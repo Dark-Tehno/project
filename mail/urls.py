@@ -7,4 +7,5 @@ urlpatterns = [
     path('<str:username>/', views.mail_user_view, name='mail_user'),
     path('webhook/', views.mail_webhook, name='mail_webhook'),
     path('api/extend-email/', views.extend_email_session, name='extend_email_session'),
+    path('test-send-mail/<str:email>/', views.test_send_mail)
 ]

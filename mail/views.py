@@ -8,6 +8,7 @@ from django.views.decorators.http import require_POST
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
 
 from .models import TemporaryEmail, IncomingEmail
 
@@ -105,3 +106,13 @@ def extend_email_session(request):
     temp_email.expires_at = timezone.now() + timedelta(minutes=10)
     temp_email.save()
     return JsonResponse({'status': 'ok', 'expires_at': temp_email.expires_at.isoformat()})
+
+
+def test_send_mail(request, email):
+    send_mail(
+        "Тест",
+        "Привет!",
+        "noreply@vsp210.ru",
+        [email],
+    )
+    return HttpResponse("отправленно!")
