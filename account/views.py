@@ -6,9 +6,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.html import strip_tags
 
 from .forms import (
     CodeConfirmForm,
@@ -32,7 +34,7 @@ from .models import (
 
 DEVICE_COOKIE_NAME = "dtd_id"
 DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2  # 2 года
-FROM_EMAIL = getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@dark.talk")
+FROM_EMAIL = getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@vsp210.ru")
 PENDING_2FA_SESSION_KEY = "pending_2fa_user_id"
 TWO_FACTOR_CODE_TTL_MINUTES = 10
 
@@ -170,20 +172,44 @@ def issue_two_factor_code(user):
         code=code,
         expires_at=timezone.now() + timedelta(minutes=TWO_FACTOR_CODE_TTL_MINUTES),
     )
-    send_code_email(user.email, "Код входа — Dark.Talk", code)
+    send_code_email(
+        user.email,
+        subject="Код входа — Dark.Account",
+        code=code,
+        heading="Подтвердите вход",
+        intro=(
+            "Кто-то (надеемся, что это вы) пытается войти в ваш аккаунт Dark.Account. "
+            "Введите этот код на странице входа, чтобы продолжить."
+        ),
+        ttl_text=f"Код действует {TWO_FACTOR_CODE_TTL_MINUTES} минут.",
+    )
     return code
 
 
-def send_code_email(email, subject, code):
+def send_code_email(email, subject, code, heading, intro, ttl_text):
+    """Единая точка отправки всех писем с кодом (подтверждение почты,
+    сброс пароля, вход по 2FA) — один и тот же красивый HTML-шаблон,
+    меняются только заголовок/текст/срок действия."""
     if not email:
         return
-    send_mail(
-        subject,
-        f"Ваш код: {code}\n\nЕсли вы не запрашивали это действие, просто проигнорируйте письмо.",
-        FROM_EMAIL,
-        [email],
-        fail_silently=True,
+
+    context = {
+        "subject": subject,
+        "heading": heading,
+        "intro": intro,
+        "code": code,
+        "ttl_text": ttl_text,
+        "year": timezone.now().year,
+    }
+    html_body = render_to_string("account/email/code_email.html", context)
+    text_body = strip_tags(
+        f"{heading}\n\n{intro}\n\nВаш код: {code}\n\n{ttl_text}\n\n"
+        "Если вы не запрашивали это действие, просто проигнорируйте письмо."
     )
+
+    message = EmailMultiAlternatives(subject, text_body, FROM_EMAIL, [email])
+    message.attach_alternative(html_body, "text/html")
+    message.send(fail_silently=True)
 
 
 # ---------------------------------------------------------------------------
@@ -204,7 +230,14 @@ def register_view(request):
             code=code,
             expires_at=timezone.now() + timedelta(hours=24),
         )
-        send_code_email(user.email, "Подтверждение почты — Dark.Talk", code)
+        send_code_email(
+            user.email,
+            subject="Подтверждение почты — Dark.Account",
+            code=code,
+            heading="Добро пожаловать в Dark.Account",
+            intro="Спасибо за регистрацию! Введите этот код, чтобы подтвердить вашу почту.",
+            ttl_text="Код действует 24 часа.",
+        )
 
         response = complete_login_response(
             request, user, redirect_to="email-confirm", reason="Регистрация"
@@ -478,7 +511,14 @@ def email_confirm_view(request):
     EmailConfirmation.objects.create(
         user=user, code=code, expires_at=timezone.now() + timedelta(hours=24)
     )
-    send_code_email(user.email, "Подтверждение почты — Dark.Talk", code)
+    send_code_email(
+        user.email,
+        subject="Подтверждение почты — Dark.Account",
+        code=code,
+        heading="Код подтверждения почты",
+        intro="Вот новый код для подтверждения вашей почты в Dark.Account.",
+        ttl_text="Код действует 24 часа.",
+    )
     messages.success(request, "Код отправлен на почту.")
 
     form = CodeConfirmForm(request.POST or None)
@@ -510,7 +550,14 @@ def email_confirm_resend(request):
         EmailConfirmation.objects.create(
             user=user, code=code, expires_at=timezone.now() + timedelta(hours=24)
         )
-        send_code_email(user.email, "Подтверждение почты — Dark.Talk", code)
+        send_code_email(
+            user.email,
+            subject="Подтверждение почты — Dark.Account",
+            code=code,
+            heading="Код подтверждения почты",
+            intro="Вот новый код для подтверждения вашей почты в Dark.Account.",
+            ttl_text="Код действует 24 часа.",
+        )
         messages.success(request, "Новый код отправлен на почту.")
     return redirect("email-confirm")
 
@@ -532,7 +579,14 @@ def password_reset_request_view(request):
             PasswordReset.objects.create(
                 user=user, code=code, expires_at=timezone.now() + timedelta(minutes=30)
             )
-            send_code_email(email, "Восстановление пароля — Dark.Talk", code)
+            send_code_email(
+                email,
+                subject="Восстановление пароля — Dark.Account",
+                code=code,
+                heading="Восстановление пароля",
+                intro="Вы запросили сброс пароля. Введите этот код, чтобы задать новый пароль.",
+                ttl_text="Код действует 30 минут.",
+            )
         messages.success(
             request,
             "Если аккаунт с такой почтой существует, мы отправили код для сброса пароля.",
