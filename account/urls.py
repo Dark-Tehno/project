@@ -25,6 +25,9 @@ urlpatterns = [
     # views: аутентификация
     path('register/', views.register_view, name='register-view'),
     path('login/', views.login_view, name='login-view'),
+    path('login/verify/', views.two_factor_verify_view, name='two-factor-verify'),
+    path('login/verify/resend/', views.two_factor_resend, name='two-factor-resend'),
+    path('login/verify/cancel/', views.two_factor_cancel, name='two-factor-cancel'),
     path('logout/', views.logout_view, name='logout-view'),
 
     # views: профиль и аккаунт

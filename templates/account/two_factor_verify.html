@@ -1,0 +1,35 @@
+{% extends "account/base.html" %}
+{% block title %}Подтверждение входа — Dark.Talk{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card card">
+    <div class="eyebrow">Dark.Talk</div>
+    <h1>Подтвердите вход</h1>
+    <p>У этого аккаунта включена двухфакторная аутентификация. Мы отправили код на почту{% if email %} <strong>{{ email }}</strong>{% endif %}.</p>
+
+    {% if form.non_field_errors %}
+      <div class="alert alert-error" style="margin-bottom:18px;">{{ form.non_field_errors.0 }}</div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.code.id_for_label }}">Код из письма</label>
+        {{ form.code }}
+        {% if form.code.errors %}<div class="field-error">{{ form.code.errors.0 }}</div>{% endif %}
+      </div>
+      <button type="submit" class="btn grad block">Подтвердить и войти</button>
+    </form>
+
+    <form method="post" action="{% url 'two-factor-resend' %}" style="margin-top:14px;">
+      {% csrf_token %}
+      <button type="submit" class="btn block">Отправить код ещё раз</button>
+    </form>
+
+    <div class="auth-links">
+      <a href="{% url 'two-factor-cancel' %}">Отменить вход</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

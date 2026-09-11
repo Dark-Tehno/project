@@ -17,6 +17,7 @@ from .forms import (
     PasswordResetRequestForm,
     ProfileEditForm,
     RegisterForm,
+    TwoFactorForm,
 )
 from .models import (
     DarkAccount,
@@ -25,12 +26,15 @@ from .models import (
     LoginHistory,
     PasswordReset,
     Token,
+    TwoFactorCode,
     Version,
 )
 
 DEVICE_COOKIE_NAME = "dtd_id"
 DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2  # 2 года
 FROM_EMAIL = getattr(settings, "DEFAULT_FROM_EMAIL", "no-reply@dark.talk")
+PENDING_2FA_SESSION_KEY = "pending_2fa_user_id"
+TWO_FACTOR_CODE_TTL_MINUTES = 10
 
 
 # ---------------------------------------------------------------------------
@@ -127,6 +131,49 @@ def generate_code():
     return f"{random.randint(0, 999999):06d}"
 
 
+def finish_authentication(request, user, reason=""):
+    """Заводит сессию Django, привязывает/обновляет устройство и пишет
+    запись в LoginHistory. Возвращает (device_id, is_new_cookie) — вызывающий
+    код сам решает, куда редиректить, и вешает cookie при необходимости."""
+    ip = get_client_ip(request)
+    ua = request.META.get("HTTP_USER_AGENT", "")
+
+    login(request, user)
+    device, device_id, is_new_cookie = get_or_create_device(request, user)
+    user.is_online = True
+    user.last_online = timezone.now()
+    user.save(update_fields=["is_online", "last_online"])
+    LoginHistory.objects.create(
+        user=user, device=device, ip=ip, user_agent=ua,
+        status=LoginHistory.Status.SUCCESS, reason=reason,
+    )
+    return device_id, is_new_cookie
+
+
+def complete_login_response(request, user, redirect_to="profile-view", reason=""):
+    """Удобная обёртка над finish_authentication для случаев, когда сразу
+    нужен HttpResponse с редиректом и (при необходимости) cookie устройства."""
+    device_id, is_new_cookie = finish_authentication(request, user, reason=reason)
+    response = redirect(redirect_to)
+    if is_new_cookie:
+        response.set_cookie(
+            DEVICE_COOKIE_NAME, device_id,
+            max_age=DEVICE_COOKIE_MAX_AGE, httponly=True, samesite="Lax",
+        )
+    return response
+
+
+def issue_two_factor_code(user):
+    code = generate_code()
+    TwoFactorCode.objects.create(
+        user=user,
+        code=code,
+        expires_at=timezone.now() + timedelta(minutes=TWO_FACTOR_CODE_TTL_MINUTES),
+    )
+    send_code_email(user.email, "Код входа — Dark.Talk", code)
+    return code
+
+
 def send_code_email(email, subject, code):
     if not email:
         return
@@ -159,27 +206,13 @@ def register_view(request):
         )
         send_code_email(user.email, "Подтверждение почты — Dark.Talk", code)
 
-        login(request, user)
-        device, device_id, is_new_cookie = get_or_create_device(request, user)
-        LoginHistory.objects.create(
-            user=user,
-            device=device,
-            ip=get_client_ip(request),
-            user_agent=request.META.get("HTTP_USER_AGENT", ""),
-            status=LoginHistory.Status.SUCCESS,
-            reason="Регистрация",
+        response = complete_login_response(
+            request, user, redirect_to="email-confirm", reason="Регистрация"
         )
-
         messages.success(
             request,
             "Аккаунт создан. Мы отправили код подтверждения на вашу почту.",
         )
-        response = redirect("email-confirm")
-        if is_new_cookie:
-            response.set_cookie(
-                DEVICE_COOKIE_NAME, device_id,
-                max_age=DEVICE_COOKIE_MAX_AGE, httponly=True, samesite="Lax",
-            )
         return response
 
     return render(request, "account/register.html", {"form": form})
@@ -226,25 +259,76 @@ def login_view(request):
                     "Это устройство заблокировано. Войдите с другого устройства, "
                     "чтобы снять блокировку.",
                 )
+            elif user.two_factor_enabled:
+                # Пароль верный, но нужен второй фактор — код с почты.
+                # login() пока не вызываем: сессия остаётся неавторизованной.
+                request.session[PENDING_2FA_SESSION_KEY] = str(user.pk)
+                issue_two_factor_code(user)
+                return redirect("two-factor-verify")
             else:
-                login(request, user)
-                device, device_id, is_new_cookie = get_or_create_device(request, user)
-                user.is_online = True
-                user.last_online = timezone.now()
-                user.save(update_fields=["is_online", "last_online"])
-                LoginHistory.objects.create(
-                    user=user, device=device, ip=ip, user_agent=ua,
-                    status=LoginHistory.Status.SUCCESS,
-                )
-                response = redirect("profile-view")
-                if is_new_cookie:
-                    response.set_cookie(
-                        DEVICE_COOKIE_NAME, device_id,
-                        max_age=DEVICE_COOKIE_MAX_AGE, httponly=True, samesite="Lax",
-                    )
-                return response
+                return complete_login_response(request, user)
 
     return render(request, "account/login.html", {"form": form})
+
+
+def _get_pending_2fa_user(request):
+    user_id = request.session.get(PENDING_2FA_SESSION_KEY)
+    if not user_id:
+        return None
+    user = DarkAccount.objects.filter(pk=user_id).first()
+    if not user or not user.two_factor_enabled:
+        request.session.pop(PENDING_2FA_SESSION_KEY, None)
+        return None
+    return user
+
+
+def two_factor_verify_view(request):
+    user = _get_pending_2fa_user(request)
+    if not user:
+        return redirect("login-view")
+
+    form = TwoFactorForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        code = form.cleaned_data["code"].strip()
+        entry = (
+            TwoFactorCode.objects.filter(user=user, code=code, used=False)
+            .order_by("-created_at")
+            .first()
+        )
+        if entry and entry.expires_at >= timezone.now():
+            entry.used = True
+            entry.used_at = timezone.now()
+            entry.save()
+            request.session.pop(PENDING_2FA_SESSION_KEY, None)
+            return complete_login_response(
+                request, user, reason="Вход подтверждён кодом 2FA"
+            )
+
+        LoginHistory.objects.create(
+            user=user,
+            ip=get_client_ip(request),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
+            status=LoginHistory.Status.FAILED,
+            reason="Неверный код 2FA",
+        )
+        form.add_error("code", "Неверный или истёкший код.")
+
+    return render(
+        request, "account/two_factor_verify.html", {"form": form, "email": user.email}
+    )
+
+
+def two_factor_resend(request):
+    user = _get_pending_2fa_user(request)
+    if user and request.method == "POST":
+        issue_two_factor_code(user)
+        messages.success(request, "Новый код отправлен на почту.")
+    return redirect("two-factor-verify")
+
+
+def two_factor_cancel(request):
+    request.session.pop(PENDING_2FA_SESSION_KEY, None)
+    return redirect("login-view")
 
 
 @login_required

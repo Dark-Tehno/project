@@ -106,6 +106,14 @@ class CodeConfirmForm(StyledFormMixin, forms.Form):
         self._style()
 
 
+class TwoFactorForm(StyledFormMixin, forms.Form):
+    code = forms.CharField(label="Код из письма", max_length=10)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._style()
+
+
 class PasswordResetRequestForm(StyledFormMixin, forms.Form):
     email = forms.EmailField(label="Почта, указанная при регистрации")
 

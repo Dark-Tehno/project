@@ -303,6 +303,41 @@ class PasswordReset(models.Model):
         return self.user.username
 
 
+class TwoFactorCode(models.Model):
+    """Одноразовый код, который запрашивается при входе, если у аккаунта
+    включена двухфакторная аутентификация (DarkAccount.two_factor_enabled)."""
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+
+    user = models.ForeignKey(
+        DarkAccount,
+        on_delete=models.CASCADE,
+        related_name="two_factor_codes"
+    )
+
+    code = models.CharField(
+        max_length=10
+    )
+
+    expires_at = models.DateTimeField()
+
+    used = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    used_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return self.user.username
+
+
 class LoginHistory(models.Model):
     class Status(models.TextChoices):
         SUCCESS = "success", "Успешно"
