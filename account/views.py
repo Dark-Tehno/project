@@ -473,6 +473,13 @@ def email_confirm_view(request):
     if user.email_confirmed:
         messages.info(request, "Почта уже подтверждена.")
         return redirect("security-view")
+    code = generate_code()
+
+    EmailConfirmation.objects.create(
+        user=user, code=code, expires_at=timezone.now() + timedelta(hours=24)
+    )
+    send_code_email(user.email, "Подтверждение почты — Dark.Talk", code)
+    messages.success(request, "Код отправлен на почту.")
 
     form = CodeConfirmForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
