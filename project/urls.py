@@ -73,6 +73,7 @@ urlpatterns = [
     path('chat/api/', include('chat.urls')),
     path('DZ/', include('DZ.urls')),
     path('mail/', include('mail.urls')),
+    path('stlm/', include('stlm.urls')),
     
     path('', include('portfolio.urls')),
     

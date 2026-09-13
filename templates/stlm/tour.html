@@ -1,0 +1,85 @@
+{% extends "stlm/base.html" %}
+{% block content %}
+
+    <div class="hb-page">
+        <section class="hb-hero" style="grid-template-columns:1fr; padding-bottom:24px;">
+            <div>
+                <div class="hb-eyebrow">Тур 2026</div>
+                <h1>Концерты</h1>
+                <p class="hb-tagline" style="max-width:60ch;">Даты обновляются по мере анонсов. Билеты — по кнопке рядом с городом.</p>
+            </div>
+        </section>
+
+        <section id="upcoming" class="hb-section">
+            <h2>Ближайшие даты</h2>
+            <div class="hb-shows">
+                <div class="hb-show">
+                    <div class="hb-show-date"><span class="day">14</span>окт, ср</div>
+                    <div>
+                        <div class="hb-show-city">Москва</div>
+                        <div class="hb-show-venue">Клуб «Заря», 19:00</div>
+                    </div>
+                    <a class="hb-btn grad" href="#">Билеты</a>
+                </div>
+                <div class="hb-show">
+                    <div class="hb-show-date"><span class="day">22</span>окт, чт</div>
+                    <div>
+                        <div class="hb-show-city">Санкт-Петербург</div>
+                        <div class="hb-show-venue">Площадка «Сердце», 20:00</div>
+                    </div>
+                    <a class="hb-btn grad" href="#">Билеты</a>
+                </div>
+                <div class="hb-show">
+                    <div class="hb-show-date"><span class="day">05</span>ноя, чт</div>
+                    <div>
+                        <div class="hb-show-city">Казань</div>
+                        <div class="hb-show-venue">Дом культуры №3, 19:30</div>
+                    </div>
+                    <a class="hb-btn grad" href="#">Билеты</a>
+                </div>
+                <div class="hb-show">
+                    <div class="hb-show-date"><span class="day">18</span>ноя, ср</div>
+                    <div>
+                        <div class="hb-show-city">Екатеринбург</div>
+                        <div class="hb-show-venue">Клуб «Подвал», 19:00</div>
+                    </div>
+                    <a class="hb-btn grad" href="#">Билеты</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="past" class="hb-section">
+            <h2>Прошедшие концерты</h2>
+            <div class="hb-shows">
+                <div class="hb-show hb-past">
+                    <div class="hb-show-date"><span class="day">30</span>авг, вс</div>
+                    <div>
+                        <div class="hb-show-city">Нижний Новгород</div>
+                        <div class="hb-show-venue">Фестиваль «Тёплый шум»</div>
+                    </div>
+                    <a class="hb-btn" href="#">Прошло</a>
+                </div>
+                <div class="hb-show hb-past">
+                    <div class="hb-show-date"><span class="day">12</span>июл, вс</div>
+                    <div>
+                        <div class="hb-show-city">Москва</div>
+                        <div class="hb-show-venue">Открытая площадка «Флигель»</div>
+                    </div>
+                    <a class="hb-btn" href="#">Прошло</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="riders" class="hb-section">
+            <h2>Организаторам</h2>
+            <p style="max-width:70ch; font-size:1.02rem; line-height:1.75;">
+                Хотите позвать группу к себе? Райдер, технические требования и контакты тур-менеджера — по запросу.
+            </p>
+            <div class="hb-contact" style="margin-top:16px;">
+                <a href="#">Написать тур-менеджеру</a>
+            </div>
+        </section>
+    </div>
+
+
+{% endblock %}

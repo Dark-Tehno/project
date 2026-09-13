@@ -1,0 +1,104 @@
+{% extends "stlm/base.html" %}
+{% load static %}
+{% block content %}
+    <div class="hb-page">
+        <section class="hb-hero">
+            <div>
+                <div class="hb-eyebrow">Дрим-поп / шугейз-группа</div>
+                <h1>Скажи что<br>любишь меня 💕</h1>
+                <p class="hb-role">Новый альбом «Между строк» уже вышел</p>
+                <p class="hb-tagline">Тёплый шум гитар, шёпот вокала и признания, которые проще спеть, чем сказать. Слушайте, приходите на концерты и забирайте мерч — здесь всё в одном месте.</p>
+                <div class="hb-links">
+                    <a class="hb-btn grad" href="{% url 'stlm_albums' %}">Слушать альбомы</a>
+                    <a class="hb-btn" href="{% url 'stlm_tour' %}">Концерты рядом</a>
+                </div>
+            </div>
+            <div class="hb-logo-slot">
+                <img src="{% static 'images/stlm/logo.jpg' %}" alt="Логотип группы" width="200" height="200" style="border-radius:16px;object-fit:cover;"/>
+            </div>
+        </section>
+
+        <section id="quick" class="hb-section">
+            <div class="hb-eyebrow">Навигация по сайту</div>
+            <h2>С чего начать</h2>
+            <div class="hb-grid" style="margin-top:18px;">
+                <div class="hb-card">
+                    <h3><a href="{% url 'stlm_about' %}">О группе</a></h3>
+                    <p class="desc">Кто мы, как появились и во что верим.</p>
+                    <p class="hb-tech"><b>Внутри:</b> история, участники, звучание.</p>
+                </div>
+                <div class="hb-card">
+                    <h3><a href="{% url 'stlm_albums' %}">Альбомы и песни</a></h3>
+                    <p class="desc">Вся дискография с треклистами.</p>
+                    <p class="hb-tech"><b>Внутри:</b> 3 альбома, синглы, тексты.</p>
+                </div>
+                <div class="hb-card">
+                    <h3><a href="{% url 'stlm_tour' %}">Концерты</a></h3>
+                    <p class="desc">Ближайшие даты и города тура.</p>
+                    <p class="hb-tech"><b>Внутри:</b> билеты, площадки, афиши.</p>
+                </div>
+                <div class="hb-card">
+                    <h3><a href="{% url 'stlm_merch' %}">Мерч</a></h3>
+                    <p class="desc">Одежда и атрибутика группы.</p>
+                    <p class="hb-tech"><b>Внутри:</b> футболки, виниллы, значки.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="genres" class="hb-section">
+            <h2>Звучание группы</h2>
+            <div class="hb-scroller">
+                <div class="hb-track">
+                    <div class="hb-track-group">
+                        <span class="hb-pill">Дрим-поп</span>
+                        <span class="hb-pill">Шугейз</span>
+                        <span class="hb-pill">Инди-рок</span>
+                        <span class="hb-pill">Леди-фолк мотивы</span>
+                        <span class="hb-pill">Синт-подклад</span>
+                        <span class="hb-pill">Тёплый вокал</span>
+                        <span class="hb-pill">Русский текст</span>
+                    </div>
+                    <div class="hb-track-group" aria-hidden="true">
+                        <span class="hb-pill">Дрим-поп</span>
+                        <span class="hb-pill">Шугейз</span>
+                        <span class="hb-pill">Инди-рок</span>
+                        <span class="hb-pill">Леди-фолк мотивы</span>
+                        <span class="hb-pill">Синт-подклад</span>
+                        <span class="hb-pill">Тёплый вокал</span>
+                        <span class="hb-pill">Русский текст</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="featured" class="hb-section">
+            <div class="hb-eyebrow">Новый релиз</div>
+            <h2>«Между строк»</h2>
+            <div class="hb-whoami" style="max-width:520px;">
+                <div class="hb-whoami-bar">альбом · 2026</div>
+                <div class="hb-whoami-body">
+                    <div class="cmd">$ npnp --now-playing<span class="cursor"></span></div>
+                    <div class="hb-row"><span class="k">трек</span><span class="v">Скажи, а не молчи</span></div>
+                    <div class="hb-row"><span class="k">длина</span><span class="v">3:42</span></div>
+                    <div class="hb-row"><span class="k">альбом</span><span class="v">Между строк</span></div>
+                    <div class="hb-row"><span class="k">статус</span><span class="v">доступно везде</span></div>
+                </div>
+            </div>
+            <div class="hb-links" style="margin-top:18px;">
+                <a class="hb-btn grad" href="{% url 'stlm_albums' %}">Открыть треклист</a>
+            </div>
+        </section>
+
+        <section id="follow" class="hb-section">
+            <h2>Мы в сети</h2>
+            <div class="hb-contact">
+                <a href="#">Telegram-канал</a>
+                <a href="#">ВКонтакте</a>
+                <a href="#">Яндекс Музыка</a>
+                <a href="#">Spotify</a>
+            </div>
+        </section>
+    </div>
+
+
+{% endblock %}

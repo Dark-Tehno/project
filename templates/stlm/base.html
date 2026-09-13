@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{% endblock %} — Скажи что любишь меня 💕</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/stlm/style.css' %}">
+</head>
+<body>
+    <header class="hb-topbar">
+        <div class="hb-brand">
+            <a href="{% url 'stlm_index' %}">
+                <svg width="22" height="22" viewBox="0 0 26 26" fill="none">
+                    <defs><linearGradient id="hbMark" x1="2" y1="2" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#e3283f"/><stop offset="1" stop-color="#ff90a6"/>
+                    </linearGradient></defs>
+                    <path d="M13 22.5C13 22.5 3 16.6 3 9.9C3 6.6 5.6 4 8.8 4C10.7 4 12.3 4.9 13 6.3C13.7 4.9 15.3 4 17.2 4C20.4 4 23 6.6 23 9.9C23 16.6 13 22.5 13 22.5Z" fill="url(#hbMark)"/>
+                </svg>
+                Скажи что любишь меня 💕
+            </a>
+        </div>
+        <nav class="hb-nav">
+            <a href="{% url 'stlm_index' %}"{% if request.path == '/stlm/' %} class="active"{% endif %}>Главная</a>
+            <a href="{% url 'stlm_about' %}"{% if request.path == '/stlm/about/' %} class="active"{% endif %}>О группе</a>
+            <a href="{% url 'stlm_albums' %}"{% if request.path == '/stlm/albums/' %} class="active"{% endif %}>Альбомы</a>
+            <a href="{% url 'stlm_tour' %}"{% if request.path == '/stlm/tour/' %} class="active"{% endif %}>Концерты</a>
+            <a href="{% url 'stlm_merch' %}"{% if request.path == '/stlm/merch/' %} class="active"{% endif %}>Мерч</a>
+            <a href="{% url 'stlm_news' %}"{% if request.path == '/stlm/news/' %} class="active"{% endif %}>Новости</a>
+        </nav>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <footer>
+        <p>&copy; 2026 «Скажи что любишь меня 💕». Все права защищены.</p>
+        <span class="draft-note">Черновой макет · права на дизайн защищены Dark.Tehno</span>
+    </footer>
+
+</body>
+</html>

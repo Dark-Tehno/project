@@ -1,0 +1,88 @@
+{% extends "stlm/base.html" %}
+{% block content %}
+
+    <div class="hb-page">
+        <section class="hb-hero" style="grid-template-columns:1fr; padding-bottom:24px;">
+            <div>
+                <div class="hb-eyebrow">Дискография</div>
+                <h1>Альбомы и песни</h1>
+                <p class="hb-tagline" style="max-width:60ch;">Три альбома и несколько синглов — от первых записей в общаге до студийного звука.</p>
+            </div>
+        </section>
+
+        <section id="album-1" class="hb-section">
+            <span class="hb-ver">2026 · новый альбом</span>
+            <h2>Между строк</h2>
+            <div class="hb-grid" style="grid-template-columns:220px 1fr; margin-top:16px; align-items:start;">
+                <div class="hb-cover">ОБЛОЖКА<br>«МЕЖДУ СТРОК»</div>
+                <div>
+                    <ol class="hb-tracklist">
+                        <li><span><span class="t-num">01</span>Скажи, а не молчи</span><span class="t-len">3:42</span></li>
+                        <li><span><span class="t-num">02</span>Между строк</span><span class="t-len">4:05</span></li>
+                        <li><span><span class="t-num">03</span>Не в тот вагон</span><span class="t-len">3:18</span></li>
+                        <li><span><span class="t-num">04</span>Тёплая зима</span><span class="t-len">3:55</span></li>
+                        <li><span><span class="t-num">05</span>Последний трамвай</span><span class="t-len">4:20</span></li>
+                    </ol>
+                    <div class="hb-links">
+                        <a class="hb-btn grad" href="#">Слушать</a>
+                        <a class="hb-btn" href="{% url 'stlm_merch' %}">Виниловая версия</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="album-2" class="hb-section">
+            <span class="hb-ver">2024</span>
+            <h2>Свет в окне напротив</h2>
+            <div class="hb-grid" style="grid-template-columns:220px 1fr; margin-top:16px; align-items:start;">
+                <div class="hb-cover">ОБЛОЖКА<br>«СВЕТ В ОКНЕ НАПРОТИВ»</div>
+                <div>
+                    <ol class="hb-tracklist">
+                        <li><span><span class="t-num">01</span>Свет в окне напротив</span><span class="t-len">3:30</span></li>
+                        <li><span><span class="t-num">02</span>Останься ещё</span><span class="t-len">3:47</span></li>
+                        <li><span><span class="t-num">03</span>Город без тебя</span><span class="t-len">4:02</span></li>
+                        <li><span><span class="t-num">04</span>Не отпускай</span><span class="t-len">3:15</span></li>
+                    </ol>
+                    <div class="hb-links">
+                        <a class="hb-btn grad" href="#">Слушать</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="album-3" class="hb-section">
+            <span class="hb-ver">2022 · дебют</span>
+            <h2>Скажи что любишь меня</h2>
+            <div class="hb-grid" style="grid-template-columns:220px 1fr; margin-top:16px; align-items:start;">
+                <div class="hb-cover">ОБЛОЖКА<br>«СКАЖИ ЧТО ЛЮБИШЬ МЕНЯ»</div>
+                <div>
+                    <ol class="hb-tracklist">
+                        <li><span><span class="t-num">01</span>Скажи что любишь меня</span><span class="t-len">3:12</span></li>
+                        <li><span><span class="t-num">02</span>Подъезд</span><span class="t-len">2:58</span></li>
+                        <li><span><span class="t-num">03</span>Записка</span><span class="t-len">3:40</span></li>
+                    </ol>
+                    <div class="hb-links">
+                        <a class="hb-btn grad" href="#">Слушать</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="singles" class="hb-section">
+            <h2>Синглы вне альбомов</h2>
+            <div class="hb-grid">
+                <div class="hb-card">
+                    <div class="hb-cover" style="aspect-ratio:auto; height:120px;">СИНГЛ</div>
+                    <h3><a href="#">Не молчи (акустика)</a></h3>
+                    <p class="desc">Акустическая версия трека с альбома «Между строк».</p>
+                </div>
+                <div class="hb-card">
+                    <div class="hb-cover" style="aspect-ratio:auto; height:120px;">СИНГЛ</div>
+                    <h3><a href="#">Новогодняя</a></h3>
+                    <p class="desc">Сезонный сингл, выходит каждый декабрь.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+{% endblock %}

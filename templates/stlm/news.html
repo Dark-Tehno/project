@@ -1,0 +1,51 @@
+{% extends "stlm/base.html" %}
+{% block content %}
+
+    <div class="hb-page">
+        <section class="hb-hero" style="grid-template-columns:1fr; padding-bottom:24px;">
+            <div>
+                <div class="hb-eyebrow">Лента</div>
+                <h1>Новости группы</h1>
+                <p class="hb-tagline" style="max-width:60ch;">Анонсы релизов, закулисье записи и объявления о концертах.</p>
+            </div>
+        </section>
+
+        <section id="feed" class="hb-section">
+            <div class="hb-news">
+                <div class="hb-news-item">
+                    <div class="hb-news-date">10 сентября 2026</div>
+                    <h3>Альбом «Между строк» вышел на всех площадках</h3>
+                    <p>Пять треков, три месяца записи в маленькой студии и один долгий разговор о том, зачем вообще говорить вслух. Слушайте на странице альбомов.</p>
+                </div>
+                <div class="hb-news-item">
+                    <div class="hb-news-date">2 сентября 2026</div>
+                    <h3>Открыта продажа билетов на осенний тур</h3>
+                    <p>Москва, Санкт-Петербург, Казань и Екатеринбург — четыре города в октябре и ноябре. Билеты на странице концертов.</p>
+                </div>
+                <div class="hb-news-item">
+                    <div class="hb-news-date">20 августа 2026</div>
+                    <h3>Новый мерч к выходу альбома</h3>
+                    <p>Худи, футболки и лимитированный бордовый винил — уже в разделе «Мерч».</p>
+                </div>
+                <div class="hb-news-item">
+                    <div class="hb-news-date">30 августа 2026</div>
+                    <h3>Отыграли фестиваль «Тёплый шум» в Нижнем Новгороде</h3>
+                    <p>Спасибо всем, кто пришёл под дождь — это был один из самых тёплых вечеров тура.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="subscribe" class="hb-section">
+            <h2>Не пропустить анонсы</h2>
+            <p style="max-width:70ch; font-size:1.02rem; line-height:1.75;">
+                Все новости дублируются в Telegram-канале и ВКонтакте — там же выходят закулисные фото и черновики новых песен.
+            </p>
+            <div class="hb-contact" style="margin-top:16px;">
+                <a href="#">Telegram-канал</a>
+                <a href="#">ВКонтакте</a>
+            </div>
+        </section>
+    </div>
+
+
+{% endblock %}

@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'DZ',
     'mail',
     'account',
-    'chat'
+    'chat',
+    'stlm'
 ]
 
 AUTH_USER_MODEL = "account.DarkAccount"
