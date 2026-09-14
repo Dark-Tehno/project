@@ -1,15 +1,28 @@
 {% extends "stlm/base.html" %}
+{% load static %}
+{% block title %}О группе{% endblock %}
 {% block content %}
 
     <div class="hb-page">
-        <section class="hb-hero" style="grid-template-columns:1fr;">
-            <div>
+        <section class="hb-hero hb-about-hero">
+            <div class="hb-hero-copy">
                 <div class="hb-eyebrow">О группе</div>
                 <h1>Скажи что любишь меня 💕</h1>
                 <p class="hb-role">Четыре человека, одна привычка не договаривать</p>
                 <p class="hb-tagline" style="max-width:70ch;">
-                    Мы играем музыку про то, что сложно произнести вслух. Началось всё в 2022 году с одной песни, записанной на телефон в подъезде — с тех пор мы выпустили три альбома и объехали больше двадцати городов.
+                    «Скажи что любишь меня❤️» - тульская поп-панк группа, которая говорит о патриотизме на языке, который понятен каждому: через истории о детстве, друзьях, закатах на горизонте. 🥰<br>
+                    Наша музыка - это энергия юности: яркие гитары, бодрые барабаны и мелодии которые, застревают в голове. ❤️‍🔥<br>
+                    Однако за лёгким звучанием стоят глубокие тексты: о том что любить страну значит видеть все недостатки и всё равно верить в неё, о гордости за город который, дорог сердцу. <br>
+                    Наши концерты - это место, где можно попрыгать под весёлую музыку и осознать что любить страну это прежде всего любить тех, кто рядом .🌟
                 </p>
+            </div>
+
+            <div class="hb-group-photo" aria-label="Фото участников группы">
+                <img
+                    src="{% static 'images/stlm/1.jpg' %}"
+                    alt="Фото участников группы"
+                    class="hb-group-image"
+                >
             </div>
         </section>
 
@@ -24,7 +37,24 @@
         <section id="members" class="hb-section">
             <h2>Участники</h2>
             <div class="hb-members">
-                <div class="hb-member">
+                {% comment %} participants {% endcomment %}
+                {% for participant in participants %}
+                    <div class="hb-member">
+                        <div class="hb-member-photo{% if not participant.avatar %} is-fallback{% endif %}">
+                            {% if participant.avatar %}
+                                <img
+                                    src="{{ participant.avatar.url }}"
+                                    alt="{{ participant.name }}"
+                                    onerror="this.hidden=true; this.nextElementSibling.hidden=false; this.parentElement.classList.add('is-fallback');"
+                                >
+                            {% endif %}
+                            <span class="hb-member-fallback"{% if participant.avatar %} hidden{% endif %}>{{ participant.member_photo|default:"💕" }}</span>
+                        </div>
+                        <h3>{{ participant.name }}</h3>
+                        <p class="role">{{ participant.get_role_display }}</p>
+                    </div>
+                {% endfor %}
+                {% comment %} <div class="hb-member">
                     <div class="hb-member-photo">💕</div>
                     <h3>Имя Фамилия</h3>
                     <p class="role">вокал, тексты</p>
@@ -43,7 +73,7 @@
                     <div class="hb-member-photo">🥁</div>
                     <h3>Имя Фамилия</h3>
                     <p class="role">барабаны</p>
-                </div>
+                </div> {% endcomment %}
             </div>
         </section>
 

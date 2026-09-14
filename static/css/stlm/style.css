@@ -68,6 +68,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose); outline-offs
   display:grid; grid-template-columns:1.2fr 1fr; gap:36px; align-items:center;
   padding:clamp(48px,8vw,80px) 0 clamp(36px,6vw,56px);
 }
+.hb-about-hero{grid-template-columns:minmax(0,1.35fr) minmax(220px,.85fr);}
+.hb-hero-copy{min-width:0;}
 .hb-eyebrow{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:12px;}
 .hb-hero h1{font-size:clamp(2.1rem,5.4vw,3.1rem); font-weight:800; line-height:1.08;}
 .hb-role{
@@ -75,6 +77,15 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose); outline-offs
   background:var(--gradient); -webkit-background-clip:text; background-clip:text; color:transparent;
 }
 .hb-tagline{margin-top:16px; font-size:1.02rem; max-width:46ch;}
+.hb-group-photo{
+  display:flex; align-items:center; justify-content:center;
+  min-height:260px; max-width:360px; width:100%; margin:0 auto;
+}
+.hb-group-image{
+  width:100%; max-width:320px; max-height:420px; height:auto; object-fit:cover;
+  border-radius:var(--radius); border:1px solid var(--border-soft); background:var(--surface);
+  box-shadow:0 20px 40px -26px rgba(0,0,0,.7); display:block;
+}
 .hb-links{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px;}
 .hb-btn{
   font-family:var(--font-body); font-weight:600; font-size:.86rem;
@@ -188,8 +199,12 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose); outline-offs
 .hb-member-photo{
   width:84px; height:84px; border-radius:50%; margin:0 auto 12px; background:var(--gradient-soft);
   border:1px dashed var(--border); display:flex; align-items:center; justify-content:center;
+  overflow:hidden;
   font-family:var(--font-mono); font-size:1.3rem; color:var(--rose);
 }
+.hb-member-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+.hb-member-fallback{font-size:1.8rem; line-height:1;}
+.hb-member-photo.is-fallback{background:var(--gradient-soft);}
 .hb-member h3{font-size:1rem;}
 .hb-member .role{font-size:.82rem; color:var(--text-faint); margin-top:2px;}
 

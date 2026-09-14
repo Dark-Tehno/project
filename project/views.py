@@ -28,6 +28,13 @@ class SecureMediaView(APIView):
             return FileResponse(open(full_path, "rb"))
 
         # --------------------
+        # STLM
+        # --------------------
+
+        if file_path.startswith("stlm/"):
+            return FileResponse(open(full_path, "rb"))
+
+        # --------------------
         # PUBLIC
         # --------------------
 

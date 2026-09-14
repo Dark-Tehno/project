@@ -1,5 +1,6 @@
 {% extends "stlm/base.html" %}
 {% load static %}
+{% block title %}Официальный сайт{% endblock %}
 {% block content %}
     <div class="hb-page">
         <section class="hb-hero">
@@ -30,7 +31,7 @@
                 <div class="hb-card">
                     <h3><a href="{% url 'stlm_albums' %}">Альбомы и песни</a></h3>
                     <p class="desc">Вся дискография с треклистами.</p>
-                    <p class="hb-tech"><b>Внутри:</b> 3 альбома, синглы, тексты.</p>
+                    <p class="hb-tech"><b>Внутри:</b> альбомы, синглы, тексты.</p>
                 </div>
                 <div class="hb-card">
                     <h3><a href="{% url 'stlm_tour' %}">Концерты</a></h3>
@@ -40,7 +41,7 @@
                 <div class="hb-card">
                     <h3><a href="{% url 'stlm_merch' %}">Мерч</a></h3>
                     <p class="desc">Одежда и атрибутика группы.</p>
-                    <p class="hb-tech"><b>Внутри:</b> футболки, виниллы, значки.</p>
+                    <p class="hb-tech"><b>Внутри:</b> одежда, плакат, стикер.</p>
                 </div>
             </div>
         </section>
@@ -81,7 +82,6 @@
                     <div class="hb-row"><span class="k">трек</span><span class="v">Скажи, а не молчи</span></div>
                     <div class="hb-row"><span class="k">длина</span><span class="v">3:42</span></div>
                     <div class="hb-row"><span class="k">альбом</span><span class="v">Между строк</span></div>
-                    <div class="hb-row"><span class="k">статус</span><span class="v">доступно везде</span></div>
                 </div>
             </div>
             <div class="hb-links" style="margin-top:18px;">
@@ -92,10 +92,10 @@
         <section id="follow" class="hb-section">
             <h2>Мы в сети</h2>
             <div class="hb-contact">
-                <a href="#">Telegram-канал</a>
-                <a href="#">ВКонтакте</a>
-                <a href="#">Яндекс Музыка</a>
-                <a href="#">Spotify</a>
+                <a href="https://t.me/tellmeyouloveme67">Telegram-канал</a>
+                <a href="https://vk.ru/tell_me_you_love_me4">ВКонтакте</a>
+                {% comment %} <a href="#">Яндекс Музыка</a> {% endcomment %}
+                {% comment %} <a href="#">Spotify</a> {% endcomment %}
             </div>
         </section>
     </div>
