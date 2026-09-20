@@ -16,13 +16,16 @@ from mail.models import TemporaryEmail, IncomingEmail
 class Command(BaseCommand):
     help = "Получение входящего письма от Postfix"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "recipient",
+            type=str,
+            help="Email получателя",
+        )
+
     def handle(self, *args, **options):
 
-        if len(sys.argv) < 3:
-            self.stderr.write("Recipient not specified")
-            sys.exit(75)
-
-        recipient_email = sys.argv[2].lower()
+        recipient_email = options["recipient"].lower()
 
         try:
             temp_email = TemporaryEmail.objects.get(
