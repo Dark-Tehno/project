@@ -1,0 +1,46 @@
+{% extends "stlm/base.html" %}
+{% block title %}{{ track.title }}{% endblock %}
+{% block content %}
+    <div class="hb-page">
+        <section class="hb-hero hb-detail-hero">
+            <div>
+                <div class="hb-eyebrow">Трек · {{ track.release_date|date:"d.m.Y" }}</div>
+                <h1>{{ track.title }}</h1>
+                {% if track.description %}<p class="hb-tagline" style="max-width:60ch;">{{ track.description }}</p>{% endif %}
+                {% if albums %}<p class="hb-role">{% for album in albums %}<a href="{% url 'stlm_album_detail' album.id %}">{{ album.title }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+            </div>
+            <div class="hb-player-panel">
+                {% if track.image %}<img class="hb-player-image" src="{{ track.image.url }}" alt="Обложка трека «{{ track.title }}»">{% endif %}
+                {% if track.file %}
+                    <div class="hb-custom-player" data-audio-player>
+                        <audio class="hb-audio" preload="metadata">
+                            <source src="{{ track.file.url }}">
+                            Ваш браузер не поддерживает воспроизведение аудио.
+                        </audio>
+                        <div class="hb-player-heading">
+                            <span class="hb-player-label">Сейчас звучит</span>
+                            <span class="hb-player-status" data-player-status>Готов к воспроизведению</span>
+                        </div>
+                        <div class="hb-player-controls">
+                            <button class="hb-player-button" type="button" data-player-toggle aria-label="Воспроизвести трек">▶</button>
+                            <div class="hb-player-timeline">
+                                <input class="hb-player-progress" type="range" min="0" max="100" value="0" step="0.1" data-player-progress aria-label="Перемотка трека">
+                                <div class="hb-player-times"><span data-player-current>0:00</span><span data-player-duration>0:00</span></div>
+                            </div>
+                            <label class="hb-player-volume" aria-label="Громкость">
+                                <span aria-hidden="true">🔊</span>
+                                <input type="range" min="0" max="1" value="1" step="0.01" data-player-volume aria-label="Громкость">
+                            </label>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="hb-empty">Аудиофайл для этого трека ещё не загружен.</div>
+                {% endif %}
+            </div>
+        </section>
+        <section class="hb-section">
+            <a class="hb-btn" href="{% url 'stlm_albums' %}">Вернуться к музыке</a>
+        </section>
+    </div>
+    {% if track.file %}<script src="{% load static %}{% static 'js/stlm/player.js' %}"></script>{% endif %}
+{% endblock %}

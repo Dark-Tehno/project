@@ -107,6 +107,35 @@ class Concert(models.Model):
     def __str__(self):
         return f"{self.city} - {self.date} ({self.status})"
 
+    def date_month(self):
+        months = {
+            1: 'янв',
+            2: 'фев',
+            3: 'мар',
+            4: 'апр',
+            5: 'мая',
+            6: 'июн',
+            7: 'июл',
+            8: 'авг',
+            9: 'сен',
+            10: 'окт',
+            11: 'ноя',
+            12: 'дек'
+        }
+        return months[self.date.month]
+
+    def date_day_of_week(self):
+        days = {
+            0: 'Пн',
+            1: 'Вт',
+            2: 'Ср',
+            3: 'Чт',
+            4: 'Пт',
+            5: 'Сб',
+            6: 'Вс'
+        }
+        return days[self.date.weekday()]
+
     class Meta:
         verbose_name = 'Концерт'
         verbose_name_plural = 'Концерты'
@@ -121,7 +150,6 @@ class Merch(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Цена')
     image = models.ImageField(upload_to='stlm/merch/', blank=True, null=True, verbose_name='Изображение')
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
-    stock_quantity = models.PositiveIntegerField(default=0, verbose_name='Количество на складе')
     type = models.CharField(
         max_length=50,
         choices=[

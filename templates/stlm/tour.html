@@ -14,7 +14,7 @@
         <section id="upcoming" class="hb-section">
             <h2>Ближайшие даты</h2>
             <div class="hb-shows">
-                <div class="hb-show">
+                {% comment %} <div class="hb-show">
                     <div class="hb-show-date"><span class="day">14</span>окт, ср</div>
                     <div>
                         <div class="hb-show-city">Москва</div>
@@ -37,37 +37,37 @@
                         <div class="hb-show-venue">Дом культуры №3, 19:30</div>
                     </div>
                     <a class="hb-btn grad" href="#">Билеты</a>
-                </div>
-                <div class="hb-show">
-                    <div class="hb-show-date"><span class="day">18</span>ноя, ср</div>
-                    <div>
-                        <div class="hb-show-city">Екатеринбург</div>
-                        <div class="hb-show-venue">Клуб «Подвал», 19:00</div>
-                    </div>
-                    <a class="hb-btn grad" href="#">Билеты</a>
-                </div>
+                </div> {% endcomment %}
+                {% for concert in concerts %}
+                    {% if concert.status == "upcoming" %}
+                        <div class="hb-show">
+                            <div class="hb-show-date"><span class="day">{{ concert.date|date:"d" }}</span>{{ concert.date_month }}, {{ concert.date_day_of_week }}</div>
+                            <div>
+                                <div class="hb-show-city">{{ concert.city }}</div>
+                                <div class="hb-show-venue">{{ concert.location }}, {{ concert.start_time }}</div>
+                            </div>
+                            <a class="hb-btn grad" href="#">Билеты</a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
         </section>
 
         <section id="past" class="hb-section">
             <h2>Прошедшие концерты</h2>
             <div class="hb-shows">
-                <div class="hb-show hb-past">
-                    <div class="hb-show-date"><span class="day">30</span>авг, вс</div>
-                    <div>
-                        <div class="hb-show-city">Нижний Новгород</div>
-                        <div class="hb-show-venue">Фестиваль «Тёплый шум»</div>
-                    </div>
-                    <a class="hb-btn" href="#">Прошло</a>
-                </div>
-                <div class="hb-show hb-past">
-                    <div class="hb-show-date"><span class="day">12</span>июл, вс</div>
-                    <div>
-                        <div class="hb-show-city">Москва</div>
-                        <div class="hb-show-venue">Открытая площадка «Флигель»</div>
-                    </div>
-                    <a class="hb-btn" href="#">Прошло</a>
-                </div>
+                {% for concert in concerts %}
+                    {% if concert.status != "upcoming" %}
+                        <div class="hb-show hb-past">
+                            <div class="hb-show-date"><span class="day">{{ concert.date|date:"d" }}</span>{{ concert.date_month }}, {{ concert.date_day_of_week }}</div>
+                            <div>
+                                <div class="hb-show-city">{{ concert.city }}</div>
+                                <div class="hb-show-venue">{{ concert.location }}</div>
+                            </div>
+                            <a class="hb-btn" href="#">Прошло</a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             </div>
         </section>
 

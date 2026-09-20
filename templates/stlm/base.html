@@ -45,7 +45,7 @@
             <a href="{% url 'stlm_albums' %}"{% if request.path == '/stlm/albums/' %} class="active"{% endif %}>Альбомы</a>
             <a href="{% url 'stlm_tour' %}"{% if request.path == '/stlm/tour/' %} class="active"{% endif %}>Концерты</a>
             <a href="{% url 'stlm_merch' %}"{% if request.path == '/stlm/merch/' %} class="active"{% endif %}>Мерч</a>
-            <a href="{% url 'stlm_news' %}"{% if request.path == '/stlm/news/' %} class="active"{% endif %}>Новости</a>
+            {% comment %} <a href="{% url 'stlm_news' %}"{% if request.path == '/stlm/news/' %} class="active"{% endif %}>Новости</a> {% endcomment %}
         </nav>
     </header>
 

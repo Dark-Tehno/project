@@ -165,6 +165,40 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose); outline-offs
   display:flex; align-items:center; justify-content:center;
   font-family:var(--font-mono); font-size:.68rem; color:var(--text-faint); text-align:center; padding:10px;
 }
+.hb-cover-image{display:block; width:100%; max-width:240px; object-fit:cover; border-style:solid;}
+.hb-album-card{display:flex; flex-direction:column; align-items:flex-start;}
+.hb-album-card .hb-btn{margin-top:auto;}
+.hb-empty{padding:18px; border:1px dashed var(--border); border-radius:var(--radius-sm); color:var(--text-faint); background:var(--elevated);}
+.hb-track-catalog{display:flex; flex-direction:column; border-top:1px solid var(--border-soft);}
+.hb-track-item{display:flex; align-items:center; gap:14px; padding:14px 4px; border-bottom:1px solid var(--border-soft); color:var(--text-muted);}
+.hb-track-item:hover{color:var(--cream); text-decoration:none; background:rgba(255,255,255,.02);}
+.hb-track-play{width:30px; height:30px; display:grid; place-items:center; border:1px solid var(--border); border-radius:50%; color:var(--rose); font-size:.7rem; flex:0 0 auto;}
+.hb-track-main{display:flex; flex-direction:column; min-width:0; flex:1;}
+.hb-track-main strong{color:var(--cream); font-weight:600;}
+.hb-track-main small{color:var(--text-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.hb-track-duration{font-family:var(--font-mono); color:var(--text-faint); font-size:.8rem;}
+.hb-detail-cover{width:100%; max-width:320px; margin:0 auto; aspect-ratio:1/1; border-radius:var(--radius); object-fit:cover; display:block;}
+.hb-player-panel{background:var(--elevated); border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px; max-width:360px; width:100%; margin:0 auto;}
+.hb-player-panel img.hb-player-image{display:block; width:100%; max-width:320px; height:auto; max-height:320px; aspect-ratio:1/1; object-fit:cover; border-radius:8px; margin:0 auto 16px;}
+.hb-custom-player{background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.01)); border:1px solid var(--border-soft); border-radius:12px; padding:14px;}
+.hb-audio{position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;}
+.hb-player-heading{display:flex; flex-direction:column; gap:2px; margin-bottom:14px;}
+.hb-player-label{font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--rose);}
+.hb-player-status{font-size:.83rem; color:var(--cream); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.hb-player-controls{display:flex; align-items:center; gap:10px;}
+.hb-player-button{width:38px; height:38px; display:grid; place-items:center; flex:0 0 auto; border:0; border-radius:50%; background:var(--gradient); color:#2a070c; font-size:.82rem; cursor:pointer; padding:0;}
+.hb-player-button:hover{filter:brightness(1.1);}
+.hb-player-timeline{min-width:0; flex:1;}
+.hb-player-progress,.hb-player-volume{accent-color:var(--rose); cursor:pointer;}
+.hb-player-progress{display:block; width:100%; height:20px; margin:0; appearance:none; background:transparent;}
+.hb-player-progress::-webkit-slider-runnable-track{height:4px; border-radius:4px; background:var(--border);}
+.hb-player-progress::-webkit-slider-thumb{width:14px; height:14px; margin-top:-5px; appearance:none; border:2px solid var(--cream); border-radius:50%; background:var(--rose);}
+.hb-player-progress::-moz-range-track{height:4px; border-radius:4px; background:var(--border);}
+.hb-player-progress::-moz-range-progress{height:4px; border-radius:4px; background:var(--rose);}
+.hb-player-progress::-moz-range-thumb{width:10px; height:10px; border:2px solid var(--cream); border-radius:50%; background:var(--rose);}
+.hb-player-times{display:flex; justify-content:space-between; margin-top:5px; color:var(--text-faint); font-family:var(--font-mono); font-size:.67rem;}
+.hb-player-volume{display:flex; align-items:center; gap:5px; color:var(--text-muted); font-size:.78rem;}
+.hb-player-volume input{width:58px; height:4px;}
 
 /* tracklist */
 .hb-tracklist{list-style:none; margin:0 0 12px; padding:0; font-size:.88rem;}
@@ -236,6 +270,7 @@ footer .draft-note{display:block; margin-top:6px; font-size:.72rem; color:var(--
   .hb-hero{grid-template-columns:1fr;}
   .hb-show{grid-template-columns:72px 1fr; row-gap:8px;}
   .hb-show .hb-btn{grid-column:1/-1; justify-self:start;}
+  .hb-detail-hero{align-items:start;}
 }
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto;}

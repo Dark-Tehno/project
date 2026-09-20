@@ -1,0 +1,36 @@
+{% extends "stlm/base.html" %}
+{% block title %}{{ album.title }}{% endblock %}
+{% block content %}
+    <div class="hb-page">
+        <section class="hb-hero hb-detail-hero">
+            <div>
+                <div class="hb-eyebrow">{{ album.get_type_display }} · {{ album.release_date|date:"Y" }}</div>
+                <h1>{{ album.title }}</h1>
+                {% if album.description %}<p class="hb-tagline" style="max-width:60ch;">{{ album.description }}</p>{% endif %}
+                <div class="hb-links"><a class="hb-btn" href="{% url 'stlm_albums' %}">Все записи</a></div>
+            </div>
+            <div>
+                {% if album.image %}
+                    <img class="hb-detail-cover" src="{{ album.image.url }}" alt="Обложка альбома «{{ album.title }}»">
+                {% else %}
+                    <div class="hb-cover hb-detail-cover">{{ album.title|upper }}</div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="hb-section">
+            <h2>Треклист</h2>
+            <div class="hb-track-catalog">
+                {% for track in album.music.all %}
+                    <a class="hb-track-item" href="{% url 'stlm_track_detail' track.id %}">
+                        <span class="hb-track-play">▶</span>
+                        <span class="hb-track-main"><strong>{{ track.title }}</strong><small>{{ track.description|default:"Информация о треке"|truncatewords:12 }}</small></span>
+                        {% if track.duration %}<span class="hb-track-duration">{{ track.duration }}</span>{% endif %}
+                    </a>
+                {% empty %}
+                    <div class="hb-empty">В этом альбоме пока нет треков.</div>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+{% endblock %}
