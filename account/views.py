@@ -1,16 +1,11 @@
-import random
 import uuid
 from datetime import timedelta
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.html import strip_tags
 
 from .forms import (
     CodeConfirmForm,
@@ -31,12 +26,16 @@ from .models import (
     TwoFactorCode,
     Version,
 )
+from .two_factor import (
+    TWO_FACTOR_CODE_TTL_MINUTES,
+    generate_code,
+    issue_two_factor_code,
+    send_code_email,
+)
 
 DEVICE_COOKIE_NAME = "dtd_id"
 DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2  # 2 года
-FROM_EMAIL = getattr(settings, "DEFAULT_FROM_EMAIL", "noreply@vsp210.ru")
 PENDING_2FA_SESSION_KEY = "pending_2fa_user_id"
-TWO_FACTOR_CODE_TTL_MINUTES = 10
 
 
 # ---------------------------------------------------------------------------
@@ -129,10 +128,6 @@ def get_or_create_device(request, user):
     return device, device_id, is_new_cookie
 
 
-def generate_code():
-    return f"{random.randint(0, 999999):06d}"
-
-
 def finish_authentication(request, user, reason=""):
     """Заводит сессию Django, привязывает/обновляет устройство и пишет
     запись в LoginHistory. Возвращает (device_id, is_new_cookie) — вызывающий
@@ -163,53 +158,6 @@ def complete_login_response(request, user, redirect_to="profile-view", reason=""
             max_age=DEVICE_COOKIE_MAX_AGE, httponly=True, samesite="Lax",
         )
     return response
-
-
-def issue_two_factor_code(user):
-    code = generate_code()
-    TwoFactorCode.objects.create(
-        user=user,
-        code=code,
-        expires_at=timezone.now() + timedelta(minutes=TWO_FACTOR_CODE_TTL_MINUTES),
-    )
-    send_code_email(
-        user.email,
-        subject="Код входа — Dark.Account",
-        code=code,
-        heading="Подтвердите вход",
-        intro=(
-            "Кто-то (надеемся, что это вы) пытается войти в ваш аккаунт Dark.Account. "
-            "Введите этот код на странице входа, чтобы продолжить."
-        ),
-        ttl_text=f"Код действует {TWO_FACTOR_CODE_TTL_MINUTES} минут.",
-    )
-    return code
-
-
-def send_code_email(email, subject, code, heading, intro, ttl_text):
-    """Единая точка отправки всех писем с кодом (подтверждение почты,
-    сброс пароля, вход по 2FA) — один и тот же красивый HTML-шаблон,
-    меняются только заголовок/текст/срок действия."""
-    if not email:
-        return
-
-    context = {
-        "subject": subject,
-        "heading": heading,
-        "intro": intro,
-        "code": code,
-        "ttl_text": ttl_text,
-        "year": timezone.now().year,
-    }
-    html_body = render_to_string("account/email/code_email.html", context)
-    text_body = strip_tags(
-        f"{heading}\n\n{intro}\n\nВаш код: {code}\n\n{ttl_text}\n\n"
-        "Если вы не запрашивали это действие, просто проигнорируйте письмо."
-    )
-
-    message = EmailMultiAlternatives(subject, text_body, FROM_EMAIL, [email])
-    message.attach_alternative(html_body, "text/html")
-    message.send(fail_silently=True)
 
 
 # ---------------------------------------------------------------------------

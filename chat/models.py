@@ -19,7 +19,7 @@ class Chat(models.Model):
     title = models.CharField(max_length=150, blank=True, verbose_name='Название')
     description = models.TextField(blank=True, verbose_name='Описание')
     avatar = models.ImageField(
-        upload_to='chat_avatars/',
+        upload_to='chat/avatars/',
         blank=True,
         null=True,
         verbose_name='Аватар чата',
@@ -85,6 +85,7 @@ class ChatParticipant(models.Model):
 class Message(models.Model):
     class MessageType(models.TextChoices):
         TEXT = 'text', 'Текст'
+        VOICE_MESSAGE = 'voice_message', 'Голосовое сообщение'
         IMAGE = 'image', 'Изображение'
         FILE = 'file', 'Файл'
         SYSTEM = 'system', 'Системное'
@@ -106,9 +107,9 @@ class Message(models.Model):
         related_name='replies',
         verbose_name='Ответ на сообщение',
     )
-    message_type = models.CharField(max_length=10, choices=MessageType.choices, default=MessageType.TEXT, verbose_name='Тип сообщения')
+    message_type = models.CharField(max_length=20, choices=MessageType.choices, default=MessageType.TEXT, verbose_name='Тип сообщения')
     text = models.TextField(blank=True, verbose_name='Текст')
-    attachment = models.FileField(upload_to='chat_files/%Y/%m/', blank=True, null=True, verbose_name='Вложение')
+    attachment = models.FileField(upload_to='chat/files/%Y/%m/', blank=True, null=True, verbose_name='Вложение')
     attachment_name = models.CharField(max_length=255, blank=True, verbose_name='Название вложения')
     attachment_size = models.PositiveBigIntegerField(null=True, blank=True, validators=[MinValueValidator(0)], verbose_name='Размер вложения')
     metadata = models.JSONField(default=dict, blank=True, verbose_name='Метаданные')

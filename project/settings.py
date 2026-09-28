@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'portfolio',
     'news',
     'DZ',
-    'mail',
     'account',
     'chat',
     'stlm'
@@ -60,6 +59,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_THROTTLE_RATES": {
+        "login": "10/minute",
+        "two_factor": "10/minute",
+    },
 }
 
 APPEND_SLASH=False

@@ -6,6 +6,7 @@ from DZ.models import *
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.db.models import Q
+from rest_framework.permissions import AllowAny
 
 
 urls = {
@@ -132,11 +133,13 @@ urls = {
 }
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_urls(request):
     return Response(urls)
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_anomalies(request):
     anomalies = Anomaly.objects.all()
     data = []
@@ -158,6 +161,7 @@ def api_anomalies(request):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_anomaly_detail(request, slug):
     anomaly = get_object_or_404(Anomaly, slug=slug)
     data = {
@@ -177,6 +181,7 @@ def api_anomaly_detail(request, slug):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_personnels(request):
     personnels = Personnel.objects.all()
     data = []
@@ -199,6 +204,7 @@ def api_personnels(request):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_personnel_detail(request, slug):
     personnel = get_object_or_404(Personnel, slug=slug)
     data = {
@@ -219,6 +225,7 @@ def api_personnel_detail(request, slug):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_zones(request):
     zones = Zone.objects.all()
     data = []
@@ -244,6 +251,7 @@ def api_zones(request):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_zone_detail(request, slug):
     zone = get_object_or_404(Zone, slug=slug)
     data = {
@@ -267,6 +275,7 @@ def api_zone_detail(request, slug):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_organizations(request):
     return Response({
         'silver_hand': {
@@ -288,6 +297,7 @@ def api_organizations(request):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_organization_detail(request, slug):
     org_data = {
         'silver_hand': {
@@ -413,6 +423,7 @@ def api_organization_detail(request, slug):
     
     
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_archives(request):
     incident_reports = IncidentReport.objects.all()
     interrogation_protocols = InterrogationProtocol.objects.all()
@@ -457,6 +468,7 @@ def api_archives(request):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_archive_detail(request, slug):
     try:
         archive_item = IncidentReport.objects.get(slug=slug)
@@ -502,6 +514,7 @@ def api_archive_detail(request, slug):
     
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def api_search(request):
     query = request.GET.get('query', '')
     results = []
@@ -553,6 +566,7 @@ def api_search(request):
 
 
 @api_view(['GET'])
+@permission_classes(AllowAny)
 def classifications(request):
     return Response(
         {

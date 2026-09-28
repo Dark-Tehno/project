@@ -7,7 +7,10 @@ from account.api.views import (
     ProfileAPIView,
     LoginHistoryListAPIView,
     DeviceListAPIView,
-    DeviceAPIViewSet
+    DeviceAPIViewSet,
+    TwoFactorSettingsAPIView,
+    TwoFactorVerifyAPIView,
+    TwoFactorResendAPIView,
 )
 from . import views
 
@@ -16,6 +19,9 @@ urlpatterns = [
     # api:
     path('api/auth/register/', RegisterAPIView.as_view(), name='register'),
     path('api/auth/login/', LoginAPIView.as_view(), name='login'),
+    path('api/2fa/', TwoFactorSettingsAPIView.as_view(), name='two-factor-settings-api'),
+    path('api/auth/2fa/verify/', TwoFactorVerifyAPIView.as_view(), name='two-factor-verify-api'),
+    path('api/auth/2fa/resend/', TwoFactorResendAPIView.as_view(), name='two-factor-resend-api'),
     path('api/auth/logout/', LogoutAPIView.as_view(), name='logout'),
     path('api/profile/', ProfileAPIView.as_view(), name='profile'),
     path('api/login-history/', LoginHistoryListAPIView.as_view(), name='login-history'),

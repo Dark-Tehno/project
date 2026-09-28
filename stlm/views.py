@@ -31,6 +31,3 @@ def tour(request):
 def merch(request):
     merchs = Merch.objects.all()
     return render(request, 'stlm/merch.html', {"merchs": merchs})
-
-# def news(request):
-#     return render(request, 'stlm/news.html')
