@@ -158,7 +158,7 @@ class SecureMediaView(APIView):
         # CHAT FILES
         # --------------------
 
-        if file_path.startswith("chat_files/"):
+        if file_path.startswith("chat/files/"):
 
             message = (
                 Message.objects

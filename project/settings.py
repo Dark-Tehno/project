@@ -26,7 +26,7 @@ DARK_TALK_SECRET_KEY = 'dVCA_+*Wve9x+Ss*+]h4,}6vvps=L^ub/0}$S5B%q)t'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'vsp210.ru']
+ALLOWED_HOSTS = ['127.0.0.1', 'vsp210.ru', "209.142.100.9"]
 CSRF_TRUSTED_ORIGINS = ['https://vsp210.ru']
 
 
