@@ -100,7 +100,7 @@ class SecureMediaView(APIView):
 
         # Всё остальное требует авторизации
 
-        if request.user is None:
+        if not request.user.is_authenticated:
             raise Http404
 
         # --------------------
