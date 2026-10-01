@@ -1,3 +1,13 @@
+# Игнорировать всё в media
+media/*
+
+# Но оставить папку defaults
+!media/defaults/
+!media/defaults/**
+
+# Если нужно оставить пустую папку media
+!media/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
