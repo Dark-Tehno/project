@@ -34,6 +34,34 @@ class DarkAccountSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'email', 'is_online', 'last_online', 'email_confirmed', 'date_joined')
 
 
+class AccountUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DarkAccount
+        fields = ('username', 'avatar', 'avatar_access', 'info', 'date_of_birth', 'language')
+
+    def to_internal_value(self, data):
+        unsupported_fields = set(data) - set(self.fields)
+        if unsupported_fields:
+            raise serializers.ValidationError({
+                field: ['This field is not editable.']
+                for field in unsupported_fields
+            })
+        return super().to_internal_value(data)
+
+
+class UserSearchSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DarkAccount
+        fields = ('id', 'username', 'avatar')
+
+    def get_avatar(self, user):
+        if user.avatar_access == DarkAccount.AccessChoices.NOBODY or not user.avatar:
+            return None
+        return user.avatar.url
+
+
 class LoginHistorySerializer(serializers.ModelSerializer):
     device_name = serializers.CharField(source='device.name', read_only=True, default='')
 

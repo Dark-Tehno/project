@@ -6,6 +6,7 @@ from django.test import TransactionTestCase, override_settings
 from rest_framework.test import APIClient
 
 from account.models import DarkAccount, Device, Token
+from .consumers import serialize_message
 from .models import Chat, ChatParticipant, Message, MessageRead
 from .routing import websocket_urlpatterns
 
@@ -89,6 +90,14 @@ class ChatConsumerTests(TransactionTestCase):
         self.assertEqual(chats_event['type'], 'message_created')
         self.assertEqual(chats_event['chat_id'], self.chat.id)
         self.assertEqual(Message.objects.filter(chat=self.chat, text='hello').count(), 1)
+
+    def test_message_serializer_returns_json_safe_timestamps(self):
+        message = Message.objects.create(chat=self.chat, sender=self.user, text='timestamp check')
+
+        serialized = serialize_message(message)
+
+        self.assertIsInstance(serialized['created_at'], str)
+        self.assertIsInstance(serialized['updated_at'], str)
 
     def test_non_member_is_rejected(self):
         outsider = DarkAccount.objects.create_user(username='socket-outsider', password='test-password')

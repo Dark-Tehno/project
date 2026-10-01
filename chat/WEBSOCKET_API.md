@@ -34,7 +34,8 @@ Authorization: Token <device-token>
 | `POST` | `/account/api/auth/2fa/verify/` | Проверить код 2FA и завершить вход |
 | `POST` | `/account/api/auth/2fa/resend/` | Выпустить новый код для challenge |
 | `POST` | `/account/api/auth/logout/` | Отозвать токен устройства |
-| `GET` | `/account/api/profile/` | Получить профиль текущего пользователя |
+| `GET`, `PATCH` | `/account/api/profile/` | Получить или изменить профиль текущего пользователя |
+| `GET` | `/account/api/users/search/?username={query}` | Найти активные аккаунты по username |
 | `GET` | `/account/api/login-history/` | Получить историю входов |
 | `GET` | `/account/api/devices/` | Получить устройства текущего пользователя |
 | `GET`, `PATCH`, `DELETE` | `/account/api/devices/{device_id}/` | Получить, изменить или удалить устройство |
@@ -100,6 +101,8 @@ Authorization: Token <device-token>
 #### Профиль, история входов и устройства
 
 - `GET /account/api/profile/` возвращает `{"status":"success","user":{...}}` для текущего токена.
+- `PATCH /account/api/profile/` частично обновляет профиль текущего пользователя. Допустимые поля: `username`, `avatar` (multipart-файл), `avatar_access` (`all`, `authenticated` или `nobody`), `info`, `date_of_birth` (формат `YYYY-MM-DD` или `null`) и `language` (`Russian` или `English`). Пример JSON: `{"username":"new-name","info":"О себе","language":"English"}`. Ответ содержит обновлённый `user` в формате `DarkAccountSerializer`. Неподдерживаемые поля, включая `email` и `password`, и значения с неверным форматом дают `400`.
+- `GET /account/api/users/search/?username={query}` ищет активные аккаунты по частичному совпадению username без учёта регистра; возвращает не более 20 результатов в алфавитном порядке: `{"status":"success","users":[{"id":7,"username":"user","avatar":"/media/..."}]}`. Email и другие приватные данные не выдаются. `avatar` будет `null`, если владелец запретил его показ (`avatar_access: nobody`) или аватар не задан. Пустой параметр `username` даёт `400 USERNAME_NOT_PROVIDED`.
 - `GET /account/api/login-history/` возвращает `{"status":"success","login_history":[...]}`. Элемент содержит ID записи, устройство и его имя, IP, страну, город, статус, причину и время.
 - `GET /account/api/devices/` возвращает `{"status":"success","devices":[...]}`. Список ограничен устройствами текущего пользователя.
 - `GET /account/api/devices/{device_id}/` возвращает `{"status":"success","device":{...}}`; неизвестный ID даёт `404 DEVICE_NOT_FOUND`.

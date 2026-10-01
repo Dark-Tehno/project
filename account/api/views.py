@@ -12,9 +12,11 @@ from rest_framework.views import APIView
 from account.models import DarkAccount, LoginHistory, Device, Version, Token, TwoFactorCode
 from account.api.serializers import (
     DarkAccountSerializer,
+    AccountUpdateSerializer,
     DeviceSerializer,
     DeviceUpdateSerializer,
-    LoginHistorySerializer
+    LoginHistorySerializer,
+    UserSearchSerializer,
 )
 from account.utils import DeviceTokenAuthentication, get_or_create_device, get_client_ip_address, StandartAPIPermission
 from account.two_factor import issue_two_factor_code
@@ -454,6 +456,40 @@ class ProfileAPIView(APIView):
                     },
                     status=status.HTTP_200_OK
                 )
+
+    def patch(self, request):
+        serializer = AccountUpdateSerializer(request.user, data=request.data, partial=True)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
+        return Response(
+            {
+                'status': 'success',
+                'user': DarkAccountSerializer(request.user).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class UserSearchAPIView(APIView):
+    permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
+
+    def get(self, request):
+        username = request.query_params.get('username', '').strip()
+        if not username:
+            return Response(
+                {'status': 'error', 'message': 'USERNAME_NOT_PROVIDED'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        users = DarkAccount.objects.filter(
+            username__icontains=username,
+            is_active=True,
+        ).order_by('username')[:20]
+        return Response({
+            'status': 'success',
+            'users': UserSearchSerializer(users, many=True).data,
+        }, status=status.HTTP_200_OK)
 
 
 class DeviceAPIViewSet(APIView):

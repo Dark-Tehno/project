@@ -27,14 +27,14 @@ def serialize_message(message):
         'metadata': message.metadata,
         'is_edited': message.is_edited,
         'is_deleted': message.is_deleted,
-        'created_at': message.created_at,
-        'updated_at': message.updated_at,
+        'created_at': message.created_at.isoformat(),
+        'updated_at': message.updated_at.isoformat(),
         'reactions': [
             {
                 'id': reaction.id,
                 'user_id': reaction.user_id,
                 'emoji': reaction.emoji,
-                'created_at': reaction.created_at,
+                'created_at': reaction.created_at.isoformat(),
             }
             for reaction in message.reactions.all()
         ],

@@ -5,13 +5,16 @@ from django.conf import settings
 from django.http import FileResponse, Http404, HttpResponse, StreamingHttpResponse
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from rest_framework.authentication import SessionAuthentication
 
 from account.models import DarkAccount
+from account.utils import DeviceTokenAuthentication
 from chat.models import ChatParticipant, Message, Chat
 
 
 class SecureMediaView(APIView):
     permission_classes = [AllowAny]
+    authentication_classes = [DeviceTokenAuthentication, SessionAuthentication]
 
     @staticmethod
     def _serve_file(request, full_path):
@@ -134,7 +137,7 @@ class SecureMediaView(APIView):
         # CHAT AVATARS
         # --------------------
 
-        if file_path.startswith("chat_avatars/"):
+        if file_path.startswith("chat/avatars/"):
 
             chat = (
                 Chat.objects
@@ -159,7 +162,6 @@ class SecureMediaView(APIView):
         # --------------------
 
         if file_path.startswith("chat/files/"):
-
             message = (
                 Message.objects
                 .select_related("chat")

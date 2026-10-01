@@ -184,4 +184,71 @@ class AccountTwoFactorApiTests(TestCase):
 		self.assertEqual(resend_response.data['challenge_id'], str(replacement.id))
 		self.assertEqual(send_code_email.call_count, 2)
 
+
+class AccountProfileApiTests(TestCase):
+	def setUp(self):
+		self.client = APIClient()
+		self.client.defaults['HTTP_DARK_TALK_SECRET_KEY'] = (
+			f'{settings.DARK_TALK_SECRET_KEY}--test|1'
+		)
+		self.user = DarkAccount.objects.create_user(
+			username='profile-user',
+			email='profile@example.com',
+			password='test-password',
+		)
+		device = Device.objects.create(
+			user=self.user,
+			device_id='profile-device',
+			name='Profile device',
+			first_ip='127.0.0.1',
+			last_ip='127.0.0.1',
+		)
+		token = Token.objects.create(key='profile-device-token', device=device)
+		self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+	def test_authenticated_user_can_update_allowed_profile_fields(self):
+		response = self.client.patch(
+			'/account/api/profile/',
+			{'username': 'renamed-user', 'info': 'About me', 'language': 'English'},
+			format='json',
+		)
+
+		self.user.refresh_from_db()
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.data['user']['username'], 'renamed-user')
+		self.assertEqual(self.user.info, 'About me')
+		self.assertEqual(self.user.language, 'English')
+
+	def test_profile_update_rejects_non_editable_fields(self):
+		response = self.client.patch(
+			'/account/api/profile/',
+			{'email': 'changed@example.com'},
+			format='json',
+		)
+
+		self.user.refresh_from_db()
+		self.assertEqual(response.status_code, 400)
+		self.assertEqual(self.user.email, 'profile@example.com')
+
+	def test_user_search_matches_username_without_exposing_email(self):
+		DarkAccount.objects.create_user(
+			username='another-profile-user',
+			email='another@example.com',
+			password='test-password',
+		)
+		response = self.client.get('/account/api/users/search/?username=PROFILE')
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(
+			{user['username'] for user in response.data['users']},
+			{'profile-user', 'another-profile-user'},
+		)
+		self.assertNotIn('email', response.data['users'][0])
+
+	def test_user_search_requires_username(self):
+		response = self.client.get('/account/api/users/search/')
+
+		self.assertEqual(response.status_code, 400)
+		self.assertEqual(response.data['message'], 'USERNAME_NOT_PROVIDED')
+
 # Create your tests here.
