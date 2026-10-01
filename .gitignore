@@ -1,9 +1,11 @@
 # Игнорировать всё в media
 media/*
 
-# Но оставить папку defaults
+# Но оставить папку defaults и public
 !media/defaults/
 !media/defaults/**
+!media/public/
+!media/public/**
 
 # Если нужно оставить пустую папку media
 !media/.gitkeep
