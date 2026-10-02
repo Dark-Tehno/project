@@ -172,3 +172,25 @@ class MessageReaction(models.Model):
         verbose_name_plural = 'Реакции на сообщения'
 
 
+class BlockedUser(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='blocked_users',
+        verbose_name='Пользователь',
+    )
+    blocked_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='blocked_by',
+        verbose_name='Заблокированный пользователь',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата блокировки')
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('user', 'blocked_user'), name='unique_blocked_user'),
+        ]
+        indexes = [models.Index(fields=('user', 'blocked_user'))]
+        verbose_name = 'Заблокированный пользователь'
+        verbose_name_plural = 'Заблокированные пользователи'

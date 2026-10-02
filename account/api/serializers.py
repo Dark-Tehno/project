@@ -33,6 +33,15 @@ class DarkAccountSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('id', 'email', 'is_online', 'last_online', 'email_confirmed', 'date_joined')
 
+class DarkAccountPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DarkAccount
+        fields = (
+            'id', 'username', 'email', 'avatar', 'info', 'date_of_birth',
+            'language', 'is_online', 'last_online', 'date_joined',
+        )
+        read_only_fields = ('id', 'email', 'is_online', 'last_online', 'date_joined')
+
 
 class AccountUpdateSerializer(serializers.ModelSerializer):
     class Meta:

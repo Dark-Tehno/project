@@ -7,7 +7,7 @@ from django.db import transaction
 
 from account.utils import DeviceTokenAuthentication, StandartAPIPermission
 from account.models import DarkAccount
-from account.api.serializers import DarkAccountSerializer
+from account.api.serializers import DarkAccountPublicSerializer, DarkAccountSerializer
 from .models import Chat, ChatParticipant, Message, MessageRead, MessageReaction
 from .events import publish_chat_event
 from django.shortcuts import get_object_or_404
@@ -249,13 +249,13 @@ class ChatsView(APIView):
                     ),
                     "description": chat.description,
                     "avatar": chat.avatar.url if chat.avatar else None,
-                    "created_by": DarkAccountSerializer(chat.created_by).data if chat.created_by else None,
+                    "created_by": DarkAccountPublicSerializer(chat.created_by).data if chat.created_by else None,
                     "created_at": chat.created_at,
                     "updated_at": chat.updated_at,
                     "unread_count": chat.unread_count,
                     "participants": [
                         {
-                            'user': DarkAccountSerializer(participant.user).data,
+                            'user': DarkAccountPublicSerializer(participant.user).data,
                             'role': participant.role,
                             'is_muted': participant.is_muted,
                         }
