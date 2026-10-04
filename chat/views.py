@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count, F, Q, Value
@@ -42,6 +43,32 @@ def serialize_message(message):
     }
 
 
+def schedule_chat_created_event(chat):
+    payload = {
+        'type': 'chat_created',
+        'chat_id': chat.id,
+        'chat': {
+            'id': chat.id,
+            'chat_type': chat.chat_type,
+            'title': chat.title if chat.chat_type == Chat.ChatType.GROUP else None,
+            'description': chat.description,
+            'avatar': chat.avatar.url if chat.avatar else None,
+            'created_by': DarkAccountPublicSerializer(chat.created_by).data if chat.created_by else None,
+            'created_at': chat.created_at,
+            'updated_at': chat.updated_at,
+            'participants': [
+                {
+                    'user': DarkAccountPublicSerializer(participant.user).data,
+                    'role': participant.role,
+                    'is_muted': participant.is_muted,
+                }
+                for participant in chat.participant.select_related('user').all()
+            ],
+        },
+    }
+    transaction.on_commit(lambda: publish_chat_event(chat.id, payload))
+
+
 # Create your views here.
 class ChatView(APIView):
     permission_classes = [StandartAPIPermission]
@@ -68,6 +95,7 @@ class ChatView(APIView):
             chat = Chat.objects.create(chat_type=chat_type, created_by=user)
             ChatParticipant.objects.create(user=user, chat=chat, role='owner')
             ChatParticipant.objects.create(user=participant, chat=chat, role='member')
+            schedule_chat_created_event(chat)
             return Response({'status': 'success', 'chat_id': chat.id}, status=status.HTTP_201_CREATED)
         elif chat_type == 'group':
             participant_names = request.data.get('participant_names', None)
@@ -93,10 +121,13 @@ class ChatView(APIView):
                     ChatParticipant.objects.create(user=participant, chat=chat, role='member')
                 except DarkAccount.DoesNotExist:
                     continue
+            schedule_chat_created_event(chat)
             return Response({'status': 'success', 'chat_id': chat.id}, status=status.HTTP_201_CREATED)
         return Response({'status': 'error', 'message': 'INVALID_CHAT_TYPE'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, id):
+    def get(self, request, id=None):
+        if id is None:
+            raise MethodNotAllowed('GET')
         chat = get_object_or_404(
             Chat,
             id=id,

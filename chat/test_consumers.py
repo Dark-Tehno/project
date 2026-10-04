@@ -200,3 +200,50 @@ class ChatConsumerTests(TransactionTestCase):
         self.assertEqual(event['type'], 'message_created')
         self.assertEqual(event['message']['text'], 'sent through HTTP')
         self.assertEqual(event['client_message_id'], 'http-client-1')
+
+    def test_http_chat_creation_is_delivered_to_participant_chat_streams(self):
+        owner_communicator = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            '/ws/chats/',
+            headers=self.headers,
+        )
+        member_communicator = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            '/ws/chats/',
+            headers=self.other_headers,
+        )
+
+        async def create_chat():
+            owner_connected, _ = await owner_communicator.connect()
+            member_connected, _ = await member_communicator.connect()
+            if not owner_connected or not member_connected:
+                return None, None, None
+            await owner_communicator.receive_json_from()
+            await member_communicator.receive_json_from()
+            response = await sync_to_async(self.api_client.post, thread_sensitive=True)(
+                '/chat/api/chats/create/',
+                {
+                    'chat_type': 'group',
+                    'participant_names': self.other_user.username,
+                    'title': 'WebSocket test chat',
+                },
+                format='json',
+            )
+            owner_event = await owner_communicator.receive_json_from()
+            member_event = await member_communicator.receive_json_from()
+            await owner_communicator.disconnect()
+            await member_communicator.disconnect()
+            return response, owner_event, member_event
+
+        response, owner_event, member_event = async_to_sync(create_chat)()
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(owner_event['type'], 'chat_created')
+        self.assertEqual(owner_event['chat_id'], response.data['chat_id'])
+        self.assertEqual(owner_event['chat']['chat_type'], Chat.ChatType.GROUP)
+        self.assertEqual(owner_event['chat']['title'], 'WebSocket test chat')
+        self.assertEqual(
+            {participant['user']['id'] for participant in owner_event['chat']['participants']},
+            {self.user.id, self.other_user.id},
+        )
+        self.assertEqual(member_event, owner_event)
