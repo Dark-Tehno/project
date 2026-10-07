@@ -34,13 +34,17 @@ class DarkAccountSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'email', 'is_online', 'last_online', 'email_confirmed', 'date_joined')
 
 class DarkAccountPublicSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField()
+
     class Meta:
         model = DarkAccount
-        fields = (
-            'id', 'username', 'email', 'avatar', 'info', 'date_of_birth',
-            'language', 'is_online', 'last_online', 'date_joined',
-        )
-        read_only_fields = ('id', 'email', 'is_online', 'last_online', 'date_joined')
+        fields = ('id', 'username', 'avatar', 'is_online', 'last_online', 'info', 'date_of_birth', 'language')
+        read_only_fields = fields
+
+    def get_avatar(self, user):
+        if user.avatar_access == DarkAccount.AccessChoices.NOBODY or not user.avatar:
+            return None
+        return user.avatar.url
 
 
 class AccountUpdateSerializer(serializers.ModelSerializer):

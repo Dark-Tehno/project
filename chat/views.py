@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework import status
 from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.response import Response
@@ -8,8 +9,8 @@ from django.db import transaction
 
 from account.utils import DeviceTokenAuthentication, StandartAPIPermission
 from account.models import DarkAccount
-from account.api.serializers import DarkAccountPublicSerializer, DarkAccountSerializer
-from .models import Chat, ChatParticipant, Message, MessageRead, MessageReaction
+from account.api.serializers import DarkAccountPublicSerializer
+from .models import BlockedUser, Chat, ChatParticipant, Message, MessageRead, MessageReaction
 from .events import publish_chat_event
 from django.shortcuts import get_object_or_404
 
@@ -18,7 +19,7 @@ def serialize_message(message):
     return {
         'id': message.id,
         'chat_id': message.chat_id,
-        'sender': DarkAccountSerializer(message.sender).data if message.sender else None,
+        'sender': DarkAccountPublicSerializer(message.sender).data if message.sender else None,
         'reply_to': message.reply_to_id,
         'message_type': message.message_type,
         'text': '' if message.is_deleted else message.text,
@@ -141,13 +142,13 @@ class ChatView(APIView):
             'description': chat.description if chat.chat_type == "group" else None,
             'avatar': chat.avatar.url if chat.chat_type == "group" and chat.avatar else None,
             'created_by': {
-                'user': DarkAccountSerializer(chat.created_by).data
+                'user': DarkAccountPublicSerializer(chat.created_by).data
             } if chat.chat_type == "group" else None,
             'created_at': chat.created_at,
             'updated_at': chat.updated_at,
             'participants': [
                 {
-                    'user': DarkAccountSerializer(participant.user).data,
+                    'user': DarkAccountPublicSerializer(participant.user).data,
                     'role': participant.role,
                     'joined_at': participant.joined_at,
                     'is_muted': participant.is_muted,
@@ -268,7 +269,10 @@ class ChatsView(APIView):
                 ),
                 distinct=True,
             ),
-        ).distinct()
+            last_message = models.Subquery(
+                Message.objects.filter(chat=models.OuterRef('pk')).order_by('-id').values('id')[:1]
+            )
+        ).distinct().order_by("-last_message")
         return Response({
             'chats': [
                 {
@@ -284,6 +288,7 @@ class ChatsView(APIView):
                     "created_at": chat.created_at,
                     "updated_at": chat.updated_at,
                     "unread_count": chat.unread_count,
+                    "last_message_id": chat.last_message,
                     "participants": [
                         {
                             'user': DarkAccountPublicSerializer(participant.user).data,
@@ -611,3 +616,35 @@ class ChatParticipantsView(APIView):
             'role': target.role,
             'is_muted': target.is_muted,
         }, status=status.HTTP_200_OK)
+
+
+class ChatBlockedView(APIView):
+    permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
+
+    def post(self, request, username):
+        blocked_user = get_object_or_404(DarkAccount, username=username)
+        if blocked_user.id == request.user.id:
+            return Response(
+                {'status': 'error', 'message': 'CANNOT_BLOCK_SELF'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        BlockedUser.objects.get_or_create(user=request.user, blocked_user=blocked_user)
+        return Response(
+            {'status': 'success', 'username': blocked_user.username},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ChatUnBlockedView(APIView):
+    permission_classes = [StandartAPIPermission]
+    authentication_classes = [DeviceTokenAuthentication]
+
+    def post(self, request, username):
+        blocked_user = get_object_or_404(DarkAccount, username=username)
+        BlockedUser.objects.filter(user=request.user, blocked_user=blocked_user).delete()
+        return Response(
+            {'status': 'success', 'username': blocked_user.username},
+            status=status.HTTP_200_OK,
+        )

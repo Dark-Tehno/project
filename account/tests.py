@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from uuid import uuid4
 
 from django.conf import settings
 from django.core.cache import cache
@@ -37,7 +38,6 @@ class AccountTwoFactorApiTests(TestCase):
 		self.assertNotIn('token', response.data)
 		self.assertFalse(Token.objects.filter(device__user=self.user).exists())
 		send_code_email.assert_called_once()
-
 	@patch('account.two_factor.send_code_email')
 	def test_login_without_two_factor_still_returns_token(self, send_code_email):
 		self.user.two_factor_enabled = False
@@ -252,3 +252,59 @@ class AccountProfileApiTests(TestCase):
 		self.assertEqual(response.data['message'], 'USERNAME_NOT_PROVIDED')
 
 # Create your tests here.
+
+
+class DeviceApiPrivacyTests(TestCase):
+	def setUp(self):
+		self.client = APIClient()
+		self.owner = DarkAccount.objects.create_user(
+			username='device-owner',
+			password='test-password',
+		)
+		self.other_user = DarkAccount.objects.create_user(
+			username='device-other-user',
+			password='test-password',
+		)
+		self.owner_device_id = str(uuid4())
+		self.owner_device = Device.objects.create(
+			user=self.owner,
+			device_id=self.owner_device_id,
+			name='Owner device',
+			first_ip='127.0.0.1',
+			last_ip='127.0.0.1',
+		)
+		self.other_device_id = str(uuid4())
+		self.other_device = Device.objects.create(
+			user=self.other_user,
+			device_id=self.other_device_id,
+			name='Other device',
+			first_ip='127.0.0.1',
+			last_ip='127.0.0.1',
+		)
+		self.client.force_authenticate(self.owner)
+		self.client.defaults['HTTP_DARK_TALK_SECRET_KEY'] = (
+			f'{settings.DARK_TALK_SECRET_KEY}--test|1'
+		)
+
+	def test_user_cannot_read_update_or_delete_another_users_device(self):
+		url = f'/account/api/devices/{self.other_device_id}/'
+
+		get_response = self.client.get(url)
+		patch_response = self.client.patch(url, {'name': 'Changed'}, format='json')
+		delete_response = self.client.delete(url)
+
+		self.assertEqual(get_response.status_code, 404)
+		self.assertEqual(patch_response.status_code, 404)
+		self.assertEqual(delete_response.status_code, 404)
+		self.other_device.refresh_from_db()
+		self.assertEqual(self.other_device.name, 'Other device')
+		self.assertTrue(Device.objects.filter(pk=self.other_device.pk).exists())
+
+	def test_user_can_delete_own_device_and_revoke_its_token(self):
+		token = Token.objects.create(key='owner-device-token', device=self.owner_device)
+
+		response = self.client.delete(f'/account/api/devices/{self.owner_device_id}/')
+
+		self.assertEqual(response.status_code, 204)
+		self.assertFalse(Device.objects.filter(pk=self.owner_device.pk).exists())
+		self.assertFalse(Token.objects.filter(pk=token.pk).exists())

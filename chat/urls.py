@@ -9,6 +9,8 @@ urlpatterns = [
     path('chats/<int:id>/participants/', views.ChatParticipantsView.as_view(), name='chat_participants'),
     path('chats/<int:id>/participants/<int:user_id>/', views.ChatParticipantsView.as_view(), name='chat_participant'),
     path('chats/<int:id>/read/', views.ChatReadView.as_view(), name='chat_read'),
+    path('chats/blocked/<str:username>/', views.ChatBlockedView.as_view(), name='chat_blocked'),
+    path('chats/unblocked/<str:username>/', views.ChatUnBlockedView.as_view(), name='chat_unblocked'),
 
     path('messages/create/', views.MessagesCreateView.as_view(), name='message_create'),
     path('messages/<int:id>/', views.MessageView.as_view(), name='message_detail'),

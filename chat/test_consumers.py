@@ -98,6 +98,10 @@ class ChatConsumerTests(TransactionTestCase):
 
         self.assertIsInstance(serialized['created_at'], str)
         self.assertIsInstance(serialized['updated_at'], str)
+        self.assertEqual(
+            set(serialized['sender']),
+            {'id', 'username', 'avatar', 'is_online'},
+        )
 
     def test_non_member_is_rejected(self):
         outsider = DarkAccount.objects.create_user(username='socket-outsider', password='test-password')

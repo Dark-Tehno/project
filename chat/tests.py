@@ -1,9 +1,11 @@
+from datetime import date
+
 from django.conf import settings
 from django.test import TestCase
 from rest_framework.test import APIClient
 
 from account.models import DarkAccount
-from .models import Chat, ChatParticipant, Message, MessageRead, MessageReaction
+from .models import BlockedUser, Chat, ChatParticipant, Message, MessageRead, MessageReaction
 
 
 class ChatApiTests(TestCase):
@@ -81,6 +83,40 @@ class ChatApiTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.data['chats'][0]['unread_count'], 1)
 
+	def test_chat_responses_only_include_public_account_fields(self):
+		self.owner.email = 'private@example.com'
+		self.owner.info = 'Private profile information'
+		self.owner.date_of_birth = date(1990, 1, 1)
+		self.owner.two_factor_enabled = True
+		self.owner.avatar_access = DarkAccount.AccessChoices.NOBODY
+		self.owner.save()
+
+		list_response = self.client.get('/chat/api/chats/')
+		detail_response = self.client.get(f'/chat/api/chats/{self.chat.id}/')
+		message = Message.objects.create(chat=self.chat, sender=self.owner, text='hello')
+		messages_response = self.client.get(f'/chat/api/chats/{self.chat.id}/messages/')
+
+		self.assertEqual(list_response.status_code, 200)
+		self.assertEqual(detail_response.status_code, 200)
+		self.assertEqual(messages_response.status_code, 200)
+		public_users = [
+			participant['user']
+			for participant in list_response.data['chats'][0]['participants']
+		]
+		public_users.extend(
+			participant['user']
+			for participant in detail_response.data['participants']
+		)
+		public_users.extend([
+			detail_response.data['created_by']['user'],
+			messages_response.data['messages'][0]['sender'],
+		])
+		for public_user in public_users:
+			self.assertEqual(set(public_user), {'id', 'username', 'avatar', 'is_online'})
+			self.assertNotIn('private@example.com', str(public_user))
+		self.assertIsNone(next(user for user in public_users if user['id'] == self.owner.id)['avatar'])
+		self.assertEqual(messages_response.data['messages'][0]['id'], message.id)
+
 	def test_user_can_remove_own_reaction(self):
 		message = Message.objects.create(chat=self.chat, sender=self.owner, text='hello')
 		reaction = MessageReaction.objects.create(message=message, user=self.member, emoji='❤️')
@@ -106,3 +142,33 @@ class ChatApiTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(response.data['role'], ChatParticipant.Role.ADMIN)
 		self.assertTrue(response.data['is_muted'])
+
+	def test_user_can_block_and_unblock_another_user(self):
+		block_url = '/chat/api/chats/blocked/outsider/'
+		unblock_url = '/chat/api/chats/unblocked/outsider/'
+
+		block_response = self.client.post(block_url)
+		repeated_block_response = self.client.post(block_url)
+
+		self.assertEqual(block_response.status_code, 200)
+		self.assertEqual(repeated_block_response.status_code, 200)
+		self.assertTrue(
+			BlockedUser.objects.filter(user=self.member, blocked_user=self.outsider).exists()
+		)
+		self.assertEqual(
+			BlockedUser.objects.filter(user=self.member, blocked_user=self.outsider).count(),
+			1,
+		)
+
+		unblock_response = self.client.post(unblock_url)
+
+		self.assertEqual(unblock_response.status_code, 200)
+		self.assertFalse(
+			BlockedUser.objects.filter(user=self.member, blocked_user=self.outsider).exists()
+		)
+
+	def test_user_cannot_block_themselves(self):
+		response = self.client.post('/chat/api/chats/blocked/member/')
+
+		self.assertEqual(response.status_code, 400)
+		self.assertFalse(BlockedUser.objects.filter(user=self.member).exists())

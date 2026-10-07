@@ -2,7 +2,7 @@ from pathlib import Path
 import mimetypes
 
 from django.conf import settings
-from django.http import FileResponse, Http404, HttpResponse, StreamingHttpResponse
+from django.http import FileResponse, Http404, HttpResponse, JsonResponse, StreamingHttpResponse
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authentication import SessionAuthentication
@@ -10,6 +10,8 @@ from rest_framework.authentication import SessionAuthentication
 from account.models import DarkAccount
 from account.utils import DeviceTokenAuthentication
 from chat.models import ChatParticipant, Message, Chat
+
+from datetime import datetime
 
 
 class SecureMediaView(APIView):
@@ -192,3 +194,14 @@ class SecureMediaView(APIView):
             return FileResponse(open(full_path, "rb"))
 
         raise Http404
+
+
+def ping(request):
+    return JsonResponse(
+        {
+            "status": "OK",
+            "server_time": datetime.now().isoformat(),
+            "server_utc": "+3",
+        },
+        status=200,
+    )

@@ -503,7 +503,7 @@ class DeviceAPIViewSet(APIView):
 
     def get(self, request, device_id):
         try:
-            device = Device.objects.get(device_id=device_id)
+            device = Device.objects.get(user=request.user, device_id=device_id)
         except Device.DoesNotExist:
             return Response({'status': 'error', 'message': 'DEVICE_NOT_FOUND'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -514,7 +514,7 @@ class DeviceAPIViewSet(APIView):
 
     def patch(self, request, device_id):
         try:
-            device = Device.objects.get(device_id=device_id)
+            device = Device.objects.get(user=request.user, device_id=device_id)
         except Device.DoesNotExist:
             return Response({'status': 'error', 'message': 'DEVICE_NOT_FOUND'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -530,10 +530,12 @@ class DeviceAPIViewSet(APIView):
 
     def delete(self, request, device_id):
         try:
-            Device.objects.delete(device_id=device_id)
-            return Response({'status': 'success'}, status=status.HTTP_204_NO_CONTENT)
+            device = Device.objects.get(user=request.user, device_id=device_id)
         except Device.DoesNotExist:
             return Response({'status': 'error', 'message': 'DEVICE_NOT_FOUND'}, status=status.HTTP_404_NOT_FOUND)
+        Token.objects.filter(device=device).delete()
+        device.delete()
+        return Response({'status': 'success'}, status=status.HTTP_204_NO_CONTENT)
 
 
 class DeviceListAPIView(APIView):

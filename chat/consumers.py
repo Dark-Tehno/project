@@ -7,7 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
 from django.utils.crypto import constant_time_compare
 
-from account.api.serializers import DarkAccountSerializer
+from account.api.serializers import DarkAccountPublicSerializer
 from account.models import Token
 from .events import chat_group_name, chats_user_name
 from .models import ChatParticipant, Message, MessageRead
@@ -17,7 +17,7 @@ def serialize_message(message):
     return {
         'id': message.id,
         'chat_id': message.chat_id,
-        'sender': DarkAccountSerializer(message.sender).data if message.sender else None,
+        'sender': DarkAccountPublicSerializer(message.sender).data if message.sender else None,
         'reply_to': message.reply_to_id,
         'message_type': message.message_type,
         'text': '' if message.is_deleted else message.text,
