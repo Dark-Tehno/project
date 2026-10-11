@@ -32,9 +32,10 @@ from .two_factor import (
     issue_two_factor_code,
     send_code_email,
 )
+from .utils import get_geo_by_ip
 
 DEVICE_COOKIE_NAME = "dtd_id"
-DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365 * 2  # 2 года
+DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 182  # 182 дня (примерно полгода)
 PENDING_2FA_SESSION_KEY = "pending_2fa_user_id"
 
 
@@ -97,6 +98,7 @@ def get_or_create_device(request, user):
     ip = get_client_ip(request)
     ua = request.META.get("HTTP_USER_AGENT", "")
     browser, os_name, device_type = parse_user_agent(ua)
+    country, city, _ = get_geo_by_ip(ip)
 
     device_id = request.COOKIES.get(DEVICE_COOKIE_NAME)
     is_new_cookie = False
@@ -115,6 +117,8 @@ def get_or_create_device(request, user):
             "user_agent": ua,
             "first_ip": ip,
             "last_ip": ip,
+            "country": country,
+            "city": city,
         },
     )
     if not created:
@@ -123,6 +127,10 @@ def get_or_create_device(request, user):
         device.browser = browser
         device.operating_system = os_name
         device.device_type = device_type
+        if country:
+            device.country = country
+        if city:
+            device.city = city
         device.save()
 
     return device, device_id, is_new_cookie
@@ -142,6 +150,7 @@ def finish_authentication(request, user, reason=""):
     user.save(update_fields=["is_online", "last_online"])
     LoginHistory.objects.create(
         user=user, device=device, ip=ip, user_agent=ua,
+        country=device.country, city=device.city,
         status=LoginHistory.Status.SUCCESS, reason=reason,
     )
     return device_id, is_new_cookie

@@ -3,10 +3,11 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from rest_framework.test import APIClient
 
 from .models import DarkAccount, Device, LoginHistory, Token, TwoFactorCode
+from .views import finish_authentication
 
 
 class AccountTwoFactorApiTests(TestCase):
@@ -183,6 +184,50 @@ class AccountTwoFactorApiTests(TestCase):
 		self.assertTrue(TwoFactorCode.objects.get(pk=original.pk).used)
 		self.assertEqual(resend_response.data['challenge_id'], str(replacement.id))
 		self.assertEqual(send_code_email.call_count, 2)
+
+
+class AccountWebGeoIPTests(TestCase):
+	def test_successful_login_saves_device_and_history_location(self):
+		user = DarkAccount.objects.create_user(
+			username='geoip-user',
+			email='geoip@example.com',
+			password='test-password',
+		)
+		request = RequestFactory().post('/account/login/')
+		request.META['REMOTE_ADDR'] = '81.2.69.142'
+
+		with patch('account.views.get_geo_by_ip', return_value=('United Kingdom', 'London', '')):
+			with patch('account.views.login'):
+				finish_authentication(request, user)
+
+		device = Device.objects.get(user=user)
+		history = LoginHistory.objects.get(user=user, status=LoginHistory.Status.SUCCESS)
+		self.assertEqual((device.country, device.city), ('United Kingdom', 'London'))
+		self.assertEqual((history.country, history.city), ('United Kingdom', 'London'))
+
+	def test_successful_login_backfills_location_for_existing_device(self):
+		user = DarkAccount.objects.create_user(
+			username='existing-geoip-user',
+			email='existing-geoip@example.com',
+			password='test-password',
+		)
+		device = Device.objects.create(
+			user=user,
+			device_id='existing-device',
+			name='Existing device',
+			first_ip='81.2.69.142',
+			last_ip='81.2.69.142',
+		)
+		request = RequestFactory().post('/account/login/')
+		request.COOKIES['dtd_id'] = device.device_id
+		request.META['REMOTE_ADDR'] = '81.2.69.142'
+
+		with patch('account.views.get_geo_by_ip', return_value=('United Kingdom', 'London', '')):
+			with patch('account.views.login'):
+				finish_authentication(request, user)
+
+		device.refresh_from_db()
+		self.assertEqual((device.country, device.city), ('United Kingdom', 'London'))
 
 
 class AccountProfileApiTests(TestCase):

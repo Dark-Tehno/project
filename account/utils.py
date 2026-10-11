@@ -10,7 +10,11 @@ django-ipware -> корректное определение реального 
 """
 
 import uuid
-from django.contrib.gis.geoip2 import GeoIP2
+import logging
+
+from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
+from geoip2.errors import AddressNotFoundError, GeoIP2Error
+from maxminddb.errors import InvalidDatabaseError
 from django.utils import timezone
 from rest_framework.permissions import BasePermission
 from django.conf import settings
@@ -28,6 +32,8 @@ except ImportError:
     get_client_ip = None
 
 from .models import Device, Token
+
+logger = logging.getLogger(__name__)
 
 
 def get_client_ip_address(request):
@@ -50,7 +56,13 @@ def get_geo_by_ip(ip):
         g = GeoIP2()
         data = g.city(ip)
         return data.get('country_name') or '', data.get('city') or '', ''
-    except Exception:
+    except AddressNotFoundError:
+        return '', '', ''
+    except (GeoIP2Error, GeoIP2Exception, InvalidDatabaseError, OSError, ValueError) as exc:
+        logger.warning(
+            "GeoIP lookup failed (%s); country and city will be empty",
+            type(exc).__name__,
+        )
         return '', '', ''
 
 
