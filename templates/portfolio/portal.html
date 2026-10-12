@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мастерская — Dark.Tehno</title>
+<meta name="description" content="Рабочий стол Dark.Tehno: чертежи и схемы проектов Dark.Lang, Dark.Talk, Dark.Account, Dark.Terminal и дополнительные проекты Dark.Tehno.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d18; --elevated:#121729; --surface:#161c33; --surface-2:#1d2440;
+  --border:#262d4d; --border-soft:#1c2340;
+  --text:#e8eaf6; --text-muted:#9aa2c7; --text-faint:#5d6690;
+  --violet:#7c5cff; --blue:#3e7bfa; --cyan:#22d3e8;
+  --gradient:linear-gradient(120deg,var(--violet) 0%,var(--blue) 55%,var(--cyan) 100%);
+  --font-display:'Unbounded',sans-serif; --font-body:'Golos Text',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  --task-h:54px;
+  --bp-bg:#0a2a52; --bp-line:#9fd8ff;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%; margin:0; overflow:hidden;}
+body{
+  background:
+    radial-gradient(900px 520px at 92% -8%, rgba(126,224,92,.14), transparent 60%),
+    radial-gradient(1000px 600px at 5% 105%, rgba(124,92,255,.14), transparent 60%),
+    var(--bg);
+  color:var(--text-muted); font-family:var(--font-body); font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased; user-select:none; -webkit-user-select:none;
+}
+button{font:inherit; color:inherit;}
+a{color:var(--cyan); text-decoration:none;}
+::selection{background:rgba(124,92,255,.4); color:#fff;}
+:focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:6px;}
+
+/* ---------- стол ---------- */
+.desk{
+  position:fixed; inset:0 0 var(--task-h) 0; overflow:hidden;
+  background-image:
+    linear-gradient(rgba(124,152,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,152,255,.06) 1px, transparent 1px),
+    linear-gradient(rgba(124,152,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,152,255,.035) 1px, transparent 1px);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;
+}
+.desk-label{
+  position:absolute; right:22px; top:16px; font-family:var(--font-mono); font-size:.7rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--text-faint); text-align:right; line-height:1.7; pointer-events:none;
+}
+.desk-label b{color:#7fe7a0; font-weight:500;}
+.icons{
+  position:absolute; left:14px; top:14px; bottom:14px; display:flex; flex-direction:column; flex-wrap:wrap;
+  align-content:flex-start; gap:6px 10px;
+}
+.icon{
+  width:104px; padding:10px 6px 8px; background:transparent; border:1px solid transparent; border-radius:12px;
+  cursor:pointer; text-align:center; color:var(--text-muted); transition:background .15s,border-color .15s;
+}
+.icon:hover{background:rgba(255,255,255,.04);}
+.icon.sel{background:rgba(124,92,255,.16); border-color:rgba(124,92,255,.5); color:var(--text);}
+.icon svg{display:block; margin:0 auto 6px; width:58px; height:58px; overflow:visible; filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));}
+.icon .nm{display:block; font-family:var(--font-display); font-weight:600; font-size:.7rem; color:var(--text); line-height:1.25; word-break:break-word;}
+.icon .sb{display:block; font-family:var(--font-mono); font-size:.62rem; color:var(--text-faint); margin-top:2px;}
+.hint{
+  position:absolute; left:50%; bottom:22px; transform:translateX(-50%); font-family:var(--font-mono); font-size:.78rem;
+  color:var(--text-muted); background:rgba(18,23,41,.85); border:1px solid var(--border-soft); border-radius:20px;
+  padding:8px 16px; pointer-events:none; transition:opacity .5s; white-space:nowrap;
+}
+.hint.gone{opacity:0;}
+
+/* ---------- окна ---------- */
+.win{
+  position:fixed; width:min(860px,94vw); max-height:calc(100vh - var(--task-h) - 24px);
+  display:flex; flex-direction:column; background:var(--elevated); border:1px solid var(--border);
+  border-radius:14px; box-shadow:0 40px 80px -30px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.02);
+  overflow:hidden; animation:winIn .28s cubic-bezier(.2,.9,.3,1.15);
+  --acc:#7c5cff;
+}
+@keyframes winIn{from{opacity:0; transform:scale(.92) translateY(10px);} to{opacity:1; transform:none;}}
+.win.focused{border-color:color-mix(in srgb, var(--acc) 60%, var(--border)); box-shadow:0 40px 90px -30px rgba(0,0,0,.85), 0 0 0 1px color-mix(in srgb, var(--acc) 35%, transparent);}
+.win.min{display:none;}
+.win.max{left:8px !important; top:8px !important; width:calc(100vw - 16px) !important; max-height:calc(100vh - var(--task-h) - 16px) !important; height:calc(100vh - var(--task-h) - 16px);}
+.win-bar{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,.025);
+  border-bottom:1px solid var(--border-soft); cursor:grab; touch-action:none; flex:0 0 auto;
+}
+.win-bar:active{cursor:grabbing;}
+.win-dots{display:flex; gap:7px;}
+.dotbtn{width:13px; height:13px; border-radius:50%; border:none; padding:0; cursor:pointer; position:relative;}
+.dotbtn.c{background:#ff6159;} .dotbtn.m{background:#ffbd2e;} .dotbtn.x{background:#28c840;}
+.dotbtn:hover{filter:brightness(1.2);}
+.win-title{font-family:var(--font-mono); font-size:.76rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.win-body{flex:1 1 auto; overflow:auto; display:grid; grid-template-columns:1.55fr 1fr; user-select:text; -webkit-user-select:text;}
+.bp{
+  background-color:var(--bp-bg);
+  background-image:
+    linear-gradient(rgba(159,216,255,.22) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(159,216,255,.22) 1px, transparent 1px),
+    linear-gradient(rgba(159,216,255,.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(159,216,255,.09) 1px, transparent 1px);
+  background-size:100px 100px,100px 100px,20px 20px,20px 20px;
+  padding:10px; display:flex; align-items:center; border-right:1px solid var(--border-soft);
+}
+.bp-svg{width:100%; height:auto; display:block; overflow:visible;}
+.bp-frame{fill:none; stroke:var(--bp-line); stroke-width:1.2; opacity:.55;}
+.bp-title{font-family:var(--font-mono); font-size:9.5px; fill:var(--bp-line); text-anchor:end; opacity:.8; letter-spacing:.06em;}
+.bp-edge{fill:none; stroke:var(--bp-line); stroke-width:1.6; stroke-linejoin:round; stroke-dasharray:1; stroke-dashoffset:1; animation:draw .9s ease forwards; animation-delay:var(--d,0s); transition:stroke .15s, stroke-width .15s;}
+@keyframes draw{to{stroke-dashoffset:0;}}
+.bp-edge.hot{stroke:#fff; stroke-width:2.6;}
+.bp-node{cursor:pointer; opacity:0; animation:fadeNode .5s ease forwards; animation-delay:var(--d,0s);}
+@keyframes fadeNode{to{opacity:1;}}
+.bp-node rect{fill:rgba(8,32,68,.92); stroke:var(--bp-line); stroke-width:1.4; transition:stroke .15s, fill .15s;}
+.bp-node text{font-family:var(--font-mono); font-size:11px; fill:#e8f6ff; text-anchor:middle; dominant-baseline:central; pointer-events:none;}
+.bp-node:hover rect,.bp-node:focus rect,.bp-node.hot rect{stroke:var(--acc-l,#fff); fill:rgba(20,60,120,.95); stroke-width:2;}
+.bp-node.hot text{fill:#fff;}
+.bp-note{font-family:var(--font-mono); font-size:10px; fill:var(--bp-line); opacity:.8;}
+.sk{fill:none; stroke:var(--bp-line); stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round;}
+.sk-d{fill:none; stroke:var(--bp-line); stroke-width:1; stroke-dasharray:4 4; opacity:.75;}
+.sk-t{font-family:var(--font-mono); font-size:11px; fill:#e8f6ff;}
+.sk-k{fill:#c9a8ff;} .sk-s{fill:#7fe7c4;} .sk-c{fill:#79d4ff;} .sk-m{fill:#8fb5dc;}
+.sk-cur{fill:#22d3e8; animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+.win-info{padding:20px 22px 22px; display:flex; flex-direction:column; min-width:0;}
+.win-info h3{font-family:var(--font-display); font-size:1.15rem; margin:0 0 4px; color:var(--text); letter-spacing:-.01em;}
+.win-info .kind{font-family:var(--font-mono); font-size:.76rem; color:var(--text-faint); margin:0 0 14px;}
+.win-info .quote{
+  margin:0 0 16px; padding:10px 14px; border-left:3px solid var(--acc); background:var(--surface);
+  border-radius:0 10px 10px 0; color:var(--text); font-size:.95rem;
+}
+.win-info h4{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--text-faint); margin:0 0 8px; font-weight:500;}
+.win-info ul{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px;}
+.win-info li{
+  font-family:var(--font-mono); font-size:.76rem; color:var(--cyan); background:var(--surface);
+  border:1px solid var(--border-soft); border-radius:20px; padding:4px 11px; cursor:default;
+}
+.win-info li.hot{border-color:var(--acc); color:#fff; background:var(--surface-2);}
+.win-status{
+  margin-top:auto; padding-top:16px; font-family:var(--font-mono); font-size:.72rem; color:var(--text-faint); min-height:2.4em;
+}
+
+/* ---------- панель задач ---------- */
+.taskbar{
+  position:fixed; left:0; right:0; bottom:0; height:var(--task-h); z-index:150;
+  display:flex; align-items:center; gap:8px; padding:0 14px;
+  background:rgba(10,13,24,.86); backdrop-filter:blur(14px); border-top:1px solid var(--border-soft);
+}
+.brand{
+  display:flex; align-items:center; gap:9px; font-family:var(--font-display); font-weight:700; font-size:.88rem; color:var(--text);
+  padding:7px 12px 7px 8px; border-radius:10px; border:1px solid var(--border-soft); background:var(--surface); white-space:nowrap;
+}
+.brand:hover{border-color:var(--border); text-decoration:none;}
+.brand span.sm{font-family:var(--font-mono); font-weight:400; font-size:.7rem; color:var(--text-faint);}
+.tasks{display:flex; gap:6px; flex:1; overflow-x:auto; scrollbar-width:none; min-width:0;}
+.tasks::-webkit-scrollbar{display:none;}
+.task{
+  display:flex; align-items:center; gap:8px; padding:7px 12px; border-radius:9px; background:transparent;
+  border:1px solid var(--border-soft); color:var(--text-muted); cursor:pointer; font-family:var(--font-mono); font-size:.76rem; white-space:nowrap;
+}
+.task i{width:8px; height:8px; border-radius:50%; background:var(--c);}
+.task:hover{background:var(--surface);}
+.task.on{background:var(--surface-2); color:var(--text); border-color:var(--border);}
+.task.min{opacity:.55;}
+.clock{font-family:var(--font-mono); font-size:.8rem; color:var(--text-muted); padding:0 4px; white-space:nowrap;}
+
+/* ---------- прибытие через портал ---------- */
+.arrive,.arrive-ring{position:fixed; z-index:300; pointer-events:none;}
+.arrive{
+  inset:0;
+  background:radial-gradient(circle at 50% 50%, #f1ffc9 0, #8be860 9%, #2fae3d 26%, #1b7a2a 55%, #14602a 100%);
+  clip-path:circle(80vmax at 50% 50%);
+  animation:arrIn 1.5s cubic-bezier(.65,0,.25,1) .15s forwards;
+}
+.arrive::after{
+  content:""; position:absolute; inset:-50%;
+  background:conic-gradient(from 0deg, transparent, rgba(255,255,255,.18), transparent 25%, rgba(0,0,0,.25) 50%, transparent 75%);
+  animation:spin 1.4s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes arrIn{to{clip-path:circle(0 at 50% 50%);}}
+.arrive-ring{
+  left:50%; top:50%; width:160vmax; height:160vmax; margin:-80vmax 0 0 -80vmax; border-radius:50%;
+  border:clamp(5px,.8vmax,12px) solid #c8ff86;
+  box-shadow:0 0 40px 10px rgba(150,255,100,.8), inset 0 0 50px 10px rgba(150,255,100,.6);
+  transform:scale(1); animation:ringIn 1.5s cubic-bezier(.65,0,.25,1) .15s forwards;
+}
+@keyframes ringIn{to{transform:scale(0);}}
+
+@media (max-width:760px){
+  .win{left:8px !important; top:8px !important; width:calc(100vw - 16px) !important; max-height:calc(100vh - var(--task-h) - 16px);}
+  .win-body{grid-template-columns:1fr;}
+  .bp{border-right:none; border-bottom:1px solid var(--border-soft);}
+  .brand span.sm,.desk-label,.hint{display:none;}
+  .dotbtn.x{display:none;}
+  .icon{width:92px;}
+}
+@media (prefers-reduced-motion: reduce){
+  .arrive{animation:arrFade .5s ease forwards; clip-path:none;}
+  .arrive::after,.arrive-ring{display:none;}
+  @keyframes arrFade{to{opacity:0;}}
+  .win{animation:none;} .bp-edge{animation:none; stroke-dashoffset:0;} .bp-node{animation:none; opacity:1;} .sk-cur{animation:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="desk" id="desk">
+  <div class="desk-label"><b>dark-tehno://workshop</b><br>рабочий стол · чертежи<br>8 листов</div>
+  <div class="icons" id="icons" role="list"></div>
+  <div class="hint" id="hint">двойной клик (или тап) по листу — открыть чертёж</div>
+</div>
+
+<div class="taskbar">
+  <a class="brand" href="/" title="Вернуться на главную">
+    <svg width="22" height="22" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+      <defs><linearGradient id="tm" x1="2" y1="2" x2="24" y2="24" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#7c5cff"/><stop offset=".55" stop-color="#3e7bfa"/><stop offset="1" stop-color="#22d3e8"/></linearGradient></defs>
+      <circle cx="13" cy="13" r="11" stroke="url(#tm)" stroke-width="2.4"/>
+      <path d="M9.5 7.5H13.2C15.9 7.5 18 9.7 18 13C18 16.3 15.9 18.5 13.2 18.5H9.5V7.5Z" stroke="url(#tm)" stroke-width="1.8" stroke-linejoin="round"/>
+    </svg>
+    Dark.Tehno <span class="sm">← главная</span>
+  </a>
+  <div class="tasks" id="tasks"></div>
+  <div class="clock" id="clock"></div>
+</div>
+
+<div class="arrive-ring" id="arrRing"></div>
+<div class="arrive" id="arrive"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= данные чертежей ================= */
+  // узлы: [id, подпись, x, y, w, h]; рёбра: [от, до, режим?, y-излома?]
+  function N(id,label,x,y,w,h){ return {id:id,label:label,x:x,y:y,w:w||130,h:h||50}; }
+
+  var PROJECTS = [
+    { id:'lang', name:'Dark.Lang', file:'lang.dwg', color:'#7c5cff', light:'#c9a8ff',
+      kind:'Чертёж структуры языка программирования.',
+      quote:'Интерпретатор следующего поколения.',
+      listTitle:'Содержимое',
+      nodes:[
+        N('lexer','Lexer',30,40), N('parser','Parser',180,40), N('analyzer','Analyzer',330,40), N('interp','Interpreter',480,40),
+        N('bytecode','Bytecode',180,170), N('runtime','Runtime',480,170),
+        N('dpm','DPM',30,300), N('denv','DENV',180,300), N('modules','Modules',330,300), N('mem','Memory Manager',480,300)
+      ],
+      edges:[['lexer','parser'],['parser','analyzer'],['analyzer','interp'],['analyzer','bytecode'],
+             ['bytecode','runtime'],['interp','runtime'],['runtime','mem'],
+             ['dpm','denv'],['denv','modules'],['modules','bytecode']]
+    },
+    { id:'talk', name:'Dark.Talk', file:'talk.dwg', color:'#3e7bfa', light:'#9cc0ff',
+      kind:'Схема архитектуры защищённого мессенджера.',
+      quote:'Безопасная платформа общения.',
+      listTitle:'На схеме',
+      nodes:['Client','Gateway','Authentication','Chats','Media','Notifications','Database'].map(function(t,i){ return N(t.toLowerCase(),t,240,20+i*56,160,38); }),
+      edges:[['client','gateway'],['gateway','authentication'],['authentication','chats'],['chats','media'],['media','notifications'],['notifications','database']]
+    },
+    { id:'account', name:'Dark.Account', file:'account.dwg', color:'#22d3e8', light:'#9cf0ff',
+      kind:'Схема системы авторизации.',
+      quote:'Единая система идентификации.',
+      listTitle:'Показано',
+      nodes:[
+        N('login','Login',40,30), N('register','Register',255,30), N('sessions','Sessions',470,30),
+        N('perm','Permissions',40,170), N('core','Dark.Account',250,165,140,60), N('twofa','Two-factor Auth',470,170),
+        N('devices','Devices',130,310), N('tokens','API Tokens',380,310)
+      ],
+      edges:[['core','login'],['core','register'],['core','sessions'],['core','perm'],['core','twofa'],['core','devices'],['core','tokens']],
+      list:['Login','Register','Sessions','Devices','API Tokens','Two-factor Auth','Permissions']
+    },
+    { id:'terminal', name:'Dark.Terminal', file:'terminal.dwg', color:'#ffcf7a', light:'#ffe6b0',
+      kind:'Концепт собственной терминальной оболочки. Наброски интерфейса.',
+      quote:'Консоль будущего.',
+      listTitle:'Наброски',
+      sketch:true,
+      list:['Вкладки','Подсветка синтаксиса','Строка ввода','Статус-бар']
+    },
+    { id:'minecraft-launcher', name:'Dark.Base.Minecraft.Launcher', file:'minecraft-launcher.dwg', color:'#55d68b', light:'#a7f3c4',
+      kind:'Проект лаунчера Minecraft.',
+      quote:'Точка входа в Minecraft.',
+      listTitle:'Репозиторий',
+      quoteLink:'https://github.com/Dark-Tehno/Dark.Base.Minecraft.Launcher',
+      list:['Minecraft','Launcher','GitHub']
+    },
+    { id:'hornycraft-cheat', name:'DarkCheat-for-HornyCraft', file:'hornycraft-cheat.dwg', color:'#ff7aa8', light:'#ffc1d7',
+      kind:'Проект DarkCheat для HornyCraft.',
+      quote:'Инструменты для HornyCraft.',
+      listTitle:'Репозиторий',
+      quoteLink:'https://github.com/Dark-Tehno/DarkCheat-for-HornyCraft',
+      list:['DarkCheat','HornyCraft','GitHub']
+    },
+    { id:'darkbot', name:'DarkBot', file:'darkbot.dwg', color:'#7cc8ff', light:'#c0e7ff',
+      kind:'Проект бота DarkBot.',
+      quote:'Автоматизация задач.',
+      listTitle:'Репозиторий',
+      quoteLink:'https://github.com/Dark-Tehno/DarkBot',
+      list:['Bot','Automation','GitHub']
+    },
+    { id:'darkcustom', name:'DarkCustom', file:'darkcustom.dwg', color:'#c5a0ff', light:'#e1d0ff',
+      kind:'Проект DarkCustom.',
+      quote:'Настраиваемый проект Dark.',
+      listTitle:'Репозиторий',
+      quoteLink:'https://github.com/Dark-Tehno/DarkCustom',
+      list:['DarkCustom','GitHub']
+    },
+  ];
+  var BY = {}; PROJECTS.forEach(function(p,i){ p.n = i+1; BY[p.id]=p; });
+
+  /* ================= рендер чертежа ================= */
+  var W=640, H=420;
+  function route(a,b,mode){
+    var ax=a.x+a.w/2, ay=a.y+a.h/2, bx=b.x+b.w/2, by=b.y+b.h/2;
+    if(mode==='h'){
+      var sx=a.x+a.w, mx=(sx+b.x)/2;
+      return 'M'+sx+' '+ay+'H'+mx+'V'+by+'H'+b.x;
+    }
+    if(Math.abs(ay-by)<10){
+      return bx>ax ? 'M'+(a.x+a.w)+' '+ay+'H'+b.x : 'M'+a.x+' '+ay+'H'+(b.x+b.w);
+    }
+    var down=by>ay, y1=down?a.y+a.h:a.y, y2=down?b.y:b.y+b.h, my=(y1+y2)/2;
+    if(Math.abs(ax-bx)<4) return 'M'+ax+' '+y1+'V'+y2;
+    return 'M'+ax+' '+y1+'V'+my+'H'+bx+'V'+y2;
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function sketchTerminal(p){
+    return '<svg class="bp-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Набросок интерфейса Dark.Terminal">'+
+      '<rect class="bp-frame" x="6" y="6" width="'+(W-12)+'" height="'+(H-12)+'" rx="4"/>'+
+      // окно
+      '<rect class="sk" x="30" y="40" width="430" height="310" rx="10" fill="rgba(6,24,52,.85)"/>'+
+      '<line class="sk" x1="30" y1="96" x2="460" y2="96"/>'+
+      '<circle class="sk" cx="50" cy="58" r="4.5"/><circle class="sk" cx="66" cy="58" r="4.5"/><circle class="sk" cx="82" cy="58" r="4.5"/>'+
+      '<text class="sk-t sk-m" x="112" y="62">dark-term — ~/projects</text>'+
+      // вкладки
+      '<path class="sk" d="M40 96V84a6 6 0 0 1 6-6h92a6 6 0 0 1 6 6v12"/>'+
+      '<text class="sk-t" x="56" y="91">repl</text>'+
+      '<path class="sk" d="M154 96V86a5 5 0 0 1 5-5h86a5 5 0 0 1 5 5v10" opacity=".6"/>'+
+      '<text class="sk-t sk-m" x="168" y="92">server.dark</text>'+
+      '<text class="sk-t sk-m" x="262" y="92">+</text>'+
+      // текст
+      '<text class="sk-t" x="48" y="126"><tspan class="sk-s">vsp210@dark</tspan><tspan class="sk-m">:~$ </tspan>dark --repl</text>'+
+      '<text class="sk-t" x="48" y="152"><tspan class="sk-m">&gt; </tspan><tspan class="sk-k">import</tspan> <tspan class="sk-s">"os"</tspan></text>'+
+      '<text class="sk-t" x="48" y="176"><tspan class="sk-m">&gt; </tspan><tspan class="sk-c">println</tspan>(<tspan class="sk-s">"Привет"</tspan>)</text>'+
+      '<text class="sk-t" x="48" y="200">Привет</text>'+
+      '<text class="sk-t" x="48" y="226"><tspan class="sk-m">&gt; </tspan><tspan class="sk-k">function</tspan> <tspan class="sk-c">add</tspan>(a, b) <tspan class="sk-k">do</tspan></text>'+
+      '<text class="sk-t" x="48" y="250"><tspan class="sk-m">… </tspan>    <tspan class="sk-k">return</tspan> a + b</text>'+
+      '<text class="sk-t" x="48" y="274"><tspan class="sk-m">… </tspan><tspan class="sk-k">end</tspan></text>'+
+      '<text class="sk-t" x="48" y="298"><tspan class="sk-m">&gt; </tspan></text><rect class="sk-cur" x="64" y="287" width="7" height="14"/>'+
+      // статус-бар
+      '<line class="sk" x1="30" y1="324" x2="460" y2="324"/>'+
+      '<text class="sk-t sk-m" x="42" y="342" style="font-size:10px">dark 2.0.0  │  denv: active  │  utf-8</text>'+
+      // выноски
+      '<path class="sk-d" d="M290 84H318L338 72"/><text class="bp-note" x="342" y="72">вкладки</text>'+
+      '<path class="sk-d" d="M244 152H340L360 136"/><text class="bp-note" x="364" y="136" style="display:none"></text>'+
+      '<path class="sk-d" d="M470 176H488"/><text class="bp-note" x="492" y="162">подсветка</text><text class="bp-note" x="492" y="176">синтаксиса</text>'+
+      '<path class="sk-d" d="M470 298H488"/><text class="bp-note" x="492" y="294">строка</text><text class="bp-note" x="492" y="308">ввода</text>'+
+      '<path class="sk-d" d="M470 338H488"/><text class="bp-note" x="492" y="334">статус-бар</text>'+
+      '<text class="bp-title" x="'+(W-18)+'" y="'+(H-14)+'">DARK.TEHNO · '+p.name.toUpperCase()+' · SH.0'+p.n+'</text>'+
+      '</svg>';
+  }
+
+  function sketchProject(p){
+    return '<svg class="bp-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Проект '+esc(p.name)+'">'+
+      '<rect class="bp-frame" x="6" y="6" width="'+(W-12)+'" height="'+(H-12)+'" rx="4"/>'+
+      '<rect class="sk" x="60" y="110" width="520" height="200" rx="10" fill="rgba(6,24,52,.85)"/>'+
+      '<text class="bp-note" x="320" y="158" text-anchor="middle">РЕПОЗИТОРИЙ · DARK.TEHNO</text>'+
+      '<text class="sk-t" x="320" y="210" text-anchor="middle" style="font-size:16px">'+esc(p.name)+'</text>'+
+      '<text class="sk-t sk-m" x="320" y="250" text-anchor="middle">'+esc(p.file)+'</text>'+
+      '<text class="bp-title" x="'+(W-18)+'" y="'+(H-14)+'">DARK.TEHNO · '+p.name.toUpperCase()+' · SH.0'+p.n+'</text>'+
+      '</svg>';
+  }
+
+  function renderBlueprint(p){
+    if(p.sketch) return sketchTerminal(p);
+    if(!p.nodes || !p.nodes.length) return sketchProject(p);
+    var nodes=p.nodes, edges=p.edges || [];
+    var byId={}; nodes.forEach(function(n){ byId[n.id]=n; });
+    var mid='ar-'+p.id;
+    var s='<svg class="bp-svg" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Схема '+esc(p.name)+'">'+
+      '<defs><marker id="'+mid+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1.5L9 5L1 8.5Z" fill="#9fd8ff"/></marker></defs>'+
+      '<rect class="bp-frame" x="6" y="6" width="'+(W-12)+'" height="'+(H-12)+'" rx="4"/>';
+    edges.forEach(function(e,i){
+      s+='<path class="bp-edge" pathLength="1" data-a="'+e[0]+'" data-b="'+e[1]+'" d="'+route(byId[e[0]],byId[e[1]],e[2])+'" marker-end="url(#'+mid+')" style="--d:'+(0.25+i*0.1)+'s"/>';
+    });
+    nodes.forEach(function(n,i){
+      s+='<g class="bp-node" tabindex="0" data-id="'+n.id+'" data-label="'+esc(n.label)+'" style="--d:'+(i*0.07)+'s">'+
+         '<rect x="'+n.x+'" y="'+n.y+'" width="'+n.w+'" height="'+n.h+'" rx="6"/>'+
+         '<text x="'+(n.x+n.w/2)+'" y="'+(n.y+n.h/2)+'">'+esc(n.label)+'</text></g>';
+    });
+    s+='<text class="bp-title" x="'+(W-18)+'" y="'+(H-14)+'">DARK.TEHNO · '+p.name.toUpperCase()+' · SH.0'+p.n+'</text></svg>';
+    return s;
+  }
+
+  /* ================= иконки на столе ================= */
+  function iconSvg(c){
+    return '<svg viewBox="0 0 58 58" aria-hidden="true">'+
+      '<path d="M10 4h26l12 12v38H10z" fill="#0d2b55" stroke="'+c+'" stroke-width="2" stroke-linejoin="round"/>'+
+      '<path d="M36 4v12h12" fill="none" stroke="'+c+'" stroke-width="2" stroke-linejoin="round"/>'+
+      '<rect x="16" y="24" width="12" height="7" rx="1.5" fill="none" stroke="'+c+'" stroke-width="1.6"/>'+
+      '<rect x="32" y="24" width="10" height="7" rx="1.5" fill="none" stroke="'+c+'" stroke-width="1.6"/>'+
+      '<rect x="22" y="40" width="14" height="7" rx="1.5" fill="none" stroke="'+c+'" stroke-width="1.6"/>'+
+      '<path d="M28 27.5h4M22 31v5h7v4M37 31v5h-1.5" fill="none" stroke="'+c+'" stroke-width="1.2" opacity=".8"/></svg>';
+  }
+  var iconsEl=document.getElementById('icons');
+  var isCoarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  PROJECTS.forEach(function(p){
+    var b=document.createElement('button');
+    b.className='icon'; b.type='button'; b.dataset.id=p.id; b.setAttribute('role','listitem');
+    b.innerHTML=iconSvg(p.color)+'<span class="nm">'+esc(p.name)+'</span><span class="sb">'+p.file+'</span>';
+    b.addEventListener('click',function(){
+      selectIcon(b);
+      if(isCoarse) openProject(p.id);
+    });
+    b.addEventListener('dblclick',function(){ openProject(p.id); });
+    b.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); openProject(p.id); } });
+    iconsEl.appendChild(b);
+  });
+  function selectIcon(el){
+    iconsEl.querySelectorAll('.icon').forEach(function(i){ i.classList.toggle('sel', i===el); });
+  }
+  document.getElementById('desk').addEventListener('pointerdown',function(e){
+    if(!e.target.closest('.icon')) selectIcon(null);
+  });
+
+  /* ================= окна ================= */
+  var desk=document.getElementById('desk');
+  var tasksEl=document.getElementById('tasks');
+  var hint=document.getElementById('hint');
+  var wins={}, zTop=20, order=[];
+  function isMobile(){ return window.innerWidth<=760; }
+
+  function openProject(id){
+    var p=BY[id]; if(!p) return;
+    hint.classList.add('gone');
+    if(wins[id]){ wins[id].el.classList.remove('min'); focusWin(id); return; }
+
+    var el=document.createElement('div');
+    el.className='win'; el.id='w-'+id; el.style.setProperty('--acc',p.color); el.style.setProperty('--acc-l',p.light);
+    var items=(p.list || (p.nodes || []).map(function(n){ return n.label; }));
+    el.innerHTML=
+      '<div class="win-bar">'+
+        '<div class="win-dots"><button class="dotbtn c" type="button" aria-label="Закрыть"></button><button class="dotbtn m" type="button" aria-label="Свернуть"></button><button class="dotbtn x" type="button" aria-label="Развернуть"></button></div>'+
+        '<div class="win-title">'+esc(p.name)+' — '+p.file+'</div>'+
+      '</div>'+
+      '<div class="win-body">'+
+        '<div class="bp">'+renderBlueprint(p)+'</div>'+
+        '<div class="win-info">'+
+          '<h3>'+esc(p.name)+'</h3>'+
+          '<p class="kind">'+esc(p.kind)+'</p>'+
+          '<blockquote class="quote">«'+esc(p.quote)+'»</blockquote>'+
+          (p.quoteLink ? '<p><a href="'+esc(p.quoteLink)+'" target="_blank" rel="noopener noreferrer">Открыть репозиторий на GitHub ↗</a></p>' : '')+
+          '<h4>'+esc(p.listTitle)+'</h4>'+
+          '<ul>'+items.map(function(t){ return '<li data-k="'+esc(t.toLowerCase())+'">'+esc(t)+'</li>'; }).join('')+'</ul>'+
+          '<div class="win-status">'+(p.sketch?'лист '+p.n+' · концепт':p.nodes && p.nodes.length?'наведи курсор на узел чертежа':'лист '+p.n+' · репозиторий')+'</div>'+
+        '</div>'+
+      '</div>';
+    desk.appendChild(el);
+
+    // позиция каскадом
+    var n=Object.keys(wins).length;
+    var w=el.offsetWidth, h=el.offsetHeight;
+    var x=Math.max(8, Math.min(150+n*34, window.innerWidth-w-8));
+    var y=Math.max(8, Math.min(26+n*34, window.innerHeight-90-h));
+    el.style.left=x+'px'; el.style.top=y+'px';
+
+    // кнопка в панели задач
+    var t=document.createElement('button');
+    t.className='task'; t.type='button'; t.style.setProperty('--c',p.color);
+    t.innerHTML='<i></i>'+esc(p.name);
+    t.addEventListener('click',function(){
+      var w=wins[id]; if(!w) return;
+      if(w.el.classList.contains('min')){ w.el.classList.remove('min'); focusWin(id); }
+      else if(w.el.classList.contains('focused')){ w.el.classList.add('min'); refreshTasks(); }
+      else focusWin(id);
+    });
+    tasksEl.appendChild(t);
+    wins[id]={el:el, task:t};
+
+    wire(id, el, p);
+    focusWin(id);
+  }
+
+  function focusWin(id){
+    var w=wins[id]; if(!w) return;
+    zTop++; w.el.style.zIndex=zTop;
+    Object.keys(wins).forEach(function(k){ wins[k].el.classList.toggle('focused', k===id); });
+    refreshTasks();
+  }
+  function refreshTasks(){
+    Object.keys(wins).forEach(function(k){
+      var w=wins[k];
+      w.task.classList.toggle('on', w.el.classList.contains('focused') && !w.el.classList.contains('min'));
+      w.task.classList.toggle('min', w.el.classList.contains('min'));
+    });
+  }
+  function closeWin(id){
+    var w=wins[id]; if(!w) return;
+    w.el.remove(); w.task.remove(); delete wins[id];
+    var rest=Object.keys(wins).filter(function(k){ return !wins[k].el.classList.contains('min'); });
+    if(rest.length){
+      rest.sort(function(a,b){ return (+wins[a].el.style.zIndex)-(+wins[b].el.style.zIndex); });
+      focusWin(rest[rest.length-1]);
+    }
+    refreshTasks();
+  }
+
+  function wire(id, el, p){
+    var bar=el.querySelector('.win-bar');
+    var status=el.querySelector('.win-status');
+    el.addEventListener('pointerdown',function(){ if(!el.classList.contains('focused')) focusWin(id); });
+    el.querySelector('.dotbtn.c').addEventListener('click',function(){ closeWin(id); });
+    el.querySelector('.dotbtn.m').addEventListener('click',function(){ el.classList.add('min'); el.classList.remove('focused'); refreshTasks(); });
+    el.querySelector('.dotbtn.x').addEventListener('click',function(){ el.classList.toggle('max'); });
+    bar.addEventListener('dblclick',function(e){ if(!e.target.closest('button') && !isMobile()) el.classList.toggle('max'); });
+
+    // перетаскивание
+    bar.addEventListener('pointerdown',function(e){
+      if(e.target.closest('button') || isMobile() || el.classList.contains('max')) return;
+      var r=el.getBoundingClientRect(), dx=e.clientX-r.left, dy=e.clientY-r.top;
+      bar.setPointerCapture(e.pointerId);
+      function mv(ev){
+        var x=Math.min(Math.max(ev.clientX-dx, 120-r.width), window.innerWidth-120);
+        var y=Math.min(Math.max(ev.clientY-dy, 0), window.innerHeight-90);
+        el.style.left=x+'px'; el.style.top=y+'px';
+      }
+      function up(){ bar.removeEventListener('pointermove',mv); bar.removeEventListener('pointerup',up); bar.removeEventListener('pointercancel',up); }
+      bar.addEventListener('pointermove',mv); bar.addEventListener('pointerup',up); bar.addEventListener('pointercancel',up);
+    });
+
+    // подсветка узлов и связей
+    if(!p.sketch && p.nodes && p.nodes.length){
+      var edges=el.querySelectorAll('.bp-edge'), lis=el.querySelectorAll('.win-info li');
+      var def=status.textContent;
+      function hot(g){
+        var nid=g?g.dataset.id:null;
+        el.querySelectorAll('.bp-node').forEach(function(n){ n.classList.toggle('hot', !!g && (n===g || connected(nid, n.dataset.id))); });
+        edges.forEach(function(e){ e.classList.toggle('hot', !!g && (e.dataset.a===nid || e.dataset.b===nid)); });
+        lis.forEach(function(li){ li.classList.toggle('hot', !!g && li.dataset.k===g.dataset.label.toLowerCase()); });
+        status.textContent = g ? '▸ '+g.dataset.label+' · связей: '+countEdges(nid) : def;
+      }
+      function connected(a,b){ return p.edges.some(function(e){ return (e[0]===a&&e[1]===b)||(e[1]===a&&e[0]===b); }); }
+      function countEdges(a){ return p.edges.filter(function(e){ return e[0]===a||e[1]===a; }).length; }
+      el.addEventListener('mouseover',function(e){ hot(e.target.closest('.bp-node')); });
+      el.addEventListener('mouseleave',function(){ hot(null); });
+      el.addEventListener('focusin',function(e){ hot(e.target.closest('.bp-node')); });
+      el.addEventListener('focusout',function(){ hot(null); });
+      el.querySelectorAll('.bp-node').forEach(function(g){ g.addEventListener('click',function(){ hot(g); }); });
+    }
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      var f=Object.keys(wins).filter(function(k){ return wins[k].el.classList.contains('focused'); })[0];
+      if(f) closeWin(f);
+    }
+  });
+
+  /* ================= часы ================= */
+  var clock=document.getElementById('clock');
+  function tick(){ var d=new Date(); clock.textContent=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+  tick(); setInterval(tick,20000);
+
+  /* ================= прибытие через портал ================= */
+  var arrive=document.getElementById('arrive'), ring=document.getElementById('arrRing');
+  function removeArrive(){ arrive.remove(); ring.remove(); }
+  arrive.addEventListener('animationend',function(e){ if(e.animationName==='arrIn'||e.animationName==='arrFade') removeArrive(); });
+  setTimeout(function(){ if(document.body.contains(arrive)) removeArrive(); }, 3000);
+
+  /* открыть сразу по ссылке: /portal/#lang */
+  var h=(location.hash||'').slice(1);
+  if(BY[h]) setTimeout(function(){ openProject(h); }, 1400);
+})();
+</script>
+</body>
+</html>

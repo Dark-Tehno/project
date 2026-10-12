@@ -127,6 +127,30 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rose); outline-offs
 .hb-section h2{font-size:1.45rem; margin-bottom:18px;}
 .hb-section .hb-eyebrow{margin-bottom:6px;}
 .hb-about p{font-size:1.02rem; line-height:1.75; max-width:70ch;}
+.hb-story-open{margin-top:16px;}
+.hb-story-dialog{
+  width:min(760px,calc(100% - 32px)); max-width:none; max-height:82vh; padding:0;
+  border:1px solid var(--border); border-radius:var(--radius); color:var(--text-muted);
+  background:var(--bg-soft); box-shadow:0 24px 80px rgba(0,0,0,.65); overflow:hidden;
+}
+.hb-story-dialog[open]{display:flex; flex-direction:column;}
+.hb-story-dialog::backdrop{background:rgba(12,2,4,.78); backdrop-filter:blur(5px);}
+.hb-story-dialog-header{
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:18px 22px; border-bottom:1px solid var(--border-soft); background:var(--bg-soft);
+}
+.hb-story-dialog-header h2{font-size:1.2rem; margin:0;}
+.hb-story-dialog-header form{margin:0;}
+.hb-story-close{
+  display:grid; place-items:center; width:38px; height:38px; padding:0; border:1px solid var(--border);
+  border-radius:9px; color:var(--cream); background:var(--surface); font:inherit; font-size:1.5rem; cursor:pointer;
+}
+.hb-story-close:hover{background:var(--surface-2);}
+.hb-story-content{flex:1 1 auto; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:22px;}
+.hb-story-content p{max-width:none; margin:0 0 14px; font-size:1rem; line-height:1.8;}
+.hb-story-content .hb-story-emphasis{color:var(--rose);}
+.hb-story-content h3{margin:28px 0 16px; font-size:1.1rem;}
+.hb-story-dialog-footer{display:flex; justify-content:flex-end; margin:8px 0 0; padding:0 22px 20px;}
 
 /* tag / genre marquee */
 .hb-scroller{overflow:hidden; -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);}
@@ -271,6 +295,8 @@ footer .draft-note{display:block; margin-top:6px; font-size:.72rem; color:var(--
   .hb-show{grid-template-columns:72px 1fr; row-gap:8px;}
   .hb-show .hb-btn{grid-column:1/-1; justify-self:start;}
   .hb-detail-hero{align-items:start;}
+  .hb-story-dialog-header,.hb-story-content{padding-left:16px; padding-right:16px;}
+  .hb-story-dialog-footer{padding-right:16px; padding-left:16px;}
 }
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto;}

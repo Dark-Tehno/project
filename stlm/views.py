@@ -4,7 +4,10 @@ from .models import Participant, Music, Album, Concert, Merch, News
 
 # Create your views here.
 def index(request):
-    return render(request, 'stlm/index.html')
+    # latest_release генерируется по тому что из моделей Album или Music, что имеет более позднюю дату релиза
+    latest_release = Album.objects.order_by('-release_date').first() or Music.objects.order_by('-release_date').first()
+    release_type = 'album' if isinstance(latest_release, Album) else 'track'
+    return render(request, 'stlm/index.html', {'latest_release': latest_release, 'release_type': release_type})
 
 def about(request):
     participants = Participant.objects.all()

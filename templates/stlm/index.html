@@ -7,8 +7,6 @@
             <div>
                 <div class="hb-eyebrow">Дрим-поп / шугейз-группа</div>
                 <h1>Скажи что<br>любишь меня 💕</h1>
-                <p class="hb-role">Новый альбом «Между строк» уже вышел</p>
-                <p class="hb-tagline">Тёплый шум гитар, шёпот вокала и признания, которые проще спеть, чем сказать. Слушайте, приходите на концерты и забирайте мерч — здесь всё в одном месте.</p>
                 <div class="hb-links">
                     <a class="hb-btn grad" href="{% url 'stlm_albums' %}">Слушать альбомы</a>
                     <a class="hb-btn" href="{% url 'stlm_tour' %}">Концерты рядом</a>
@@ -71,23 +69,22 @@
                 </div>
             </div>
         </section>
-
-        <section id="featured" class="hb-section">
-            <div class="hb-eyebrow">Новый релиз</div>
-            <h2>«Между строк»</h2>
-            <div class="hb-whoami" style="max-width:520px;">
-                <div class="hb-whoami-bar">альбом · 2026</div>
-                <div class="hb-whoami-body">
-                    <div class="cmd">$ npnp --now-playing<span class="cursor"></span></div>
-                    <div class="hb-row"><span class="k">трек</span><span class="v">Скажи, а не молчи</span></div>
-                    <div class="hb-row"><span class="k">длина</span><span class="v">3:42</span></div>
-                    <div class="hb-row"><span class="k">альбом</span><span class="v">Между строк</span></div>
+        {% if latest_release %}
+            <section id="featured" class="hb-section">
+                <div class="hb-eyebrow">Новый релиз</div>
+                <h2>«{{ latest_release.title }}»</h2>
+                <div class="hb-whoami" style="max-width:520px;">
+                    <div class="hb-whoami-bar">{{ release_type }} · 2026</div>
+                    <div class="hb-whoami-body">
+                        <div class="cmd">$ npnp --now-playing<span class="cursor"></span></div>
+                        <div class="hb-row"><span class="k">релиз</span><span class="v">{{ latest_release.release_date|date:"d.m.Y" }}</span></div>
+                    </div>
                 </div>
-            </div>
-            <div class="hb-links" style="margin-top:18px;">
-                <a class="hb-btn grad" href="{% url 'stlm_albums' %}">Открыть треклист</a>
-            </div>
-        </section>
+                <div class="hb-links" style="margin-top:18px;">
+                    <a class="hb-btn grad" href="{% url 'stlm_albums' %}">Открыть треклист</a>
+                </div>
+            </section>
+        {% endif %}
 
         <section id="follow" class="hb-section">
             <h2>Мы в сети</h2>

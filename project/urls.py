@@ -72,6 +72,7 @@ urlpatterns = [
     path('news/', include('news.urls')),
     path('news/api/v1/', include('news.v1.urls')),
     path('account/', include('account.urls')),
+    path('chat/', include('chat.web.urls')),
     path('chat/api/', include('chat.urls')),
     path('DZ/', include('DZ.urls')),
     path('stlm/', include('stlm.urls')),
