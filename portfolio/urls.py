@@ -4,7 +4,7 @@ from .views import *
 
 urlpatterns = [
     path('', portfolio, name='portfolio'),
-    path('portal/', TemplateView.as_view(template_name='portfolio/portal.html'), name='portal'),
+    path('portal/', portal, name='portal'),
     path('dark-lang/', darklang, name='darklang'),
     path('birthday/<str:name>/<str:date>', birthday, name='birthday'),
     

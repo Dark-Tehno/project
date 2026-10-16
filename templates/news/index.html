@@ -46,7 +46,6 @@
     min-height:100vh;
     position:relative;
   }
-  /* scanline overlay */
   body::before{
     content:'';position:fixed;inset:0;pointer-events:none;z-index:80;
     background:repeating-linear-gradient(180deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,20,10,0.10) 3px);
@@ -57,7 +56,6 @@
   ::selection{background:var(--green-dim);color:#03150a;}
   .wrap{max-width:840px;margin:0 auto;padding:0 18px 90px;}
 
-  /* Terminal chrome header */
   .termbar{
     max-width:840px;margin:20px auto 0;
     background:var(--panel-raised);
@@ -131,7 +129,6 @@
   }
   .search-form button:hover{background:var(--green);}
 
-  /* Tag rail */
   .tag-rail{
     display:flex;gap:8px;overflow-x:auto;padding:4px 0 18px;
     scrollbar-width:thin;
@@ -152,7 +149,6 @@
   }
   .tag-chip.active::before{color:#03150a;}
 
-  /* Status line */
   .status-line{
     max-width:840px;margin:0 auto;
     background:var(--panel);
@@ -239,7 +235,6 @@
   }
   .permalink:hover{color:var(--green);}
 
-  /* Pagination */
   .pager{
     display:flex;justify-content:center;align-items:center;gap:16px;
     margin-top:30px;font-size:12px;letter-spacing:0.04em;
@@ -253,7 +248,6 @@
   .pager button:not(:disabled):hover{border-color:var(--green-dim);color:var(--green);}
   .pager span{color:var(--text-muted);}
 
-  /* States */
   .state-block{
     text-align:center;padding:70px 20px;color:var(--text-muted);font-size:12.5px;
   }
@@ -273,7 +267,6 @@
   }
   .retry-btn:hover{background:var(--green-dim);color:#03150a;}
 
-  /* Modal */
   .modal-backdrop{
     position:fixed;inset:0;background:rgba(2,5,3,0.75);
     display:none;align-items:flex-start;justify-content:center;

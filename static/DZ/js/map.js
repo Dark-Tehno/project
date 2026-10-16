@@ -11,10 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let startX, startY, translateX = 0, translateY = 0;
     let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-    // Создаем модальное окно
     createModal();
 
-    // Загружаем SVG файл карты
     fetch('/static/DZ/images/world_map.svg')
         .then(response => response.text())
         .then(svgData => {
@@ -108,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setupMarkerEvents(marker, tooltip, zone) {
-        // Desktop: hover tooltip + click переход
         marker.addEventListener('mouseenter', (e) => {
             const rect = mapContainer.getBoundingClientRect();
             const x = e.clientX - rect.left + mapContainer.scrollLeft;
@@ -118,14 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         marker.addEventListener('mouseleave', () => hideTooltip(tooltip));
         
-        // Универсальный click handler
         marker.addEventListener('click', (e) => {
             e.stopPropagation();
             if (isMobile) {
-                // Мобильные: показываем модалку
                 showZoneModal(zone);
             } else {
-                // Desktop: сразу переходим
                 const link = zone.link;
                 if (link && link !== '#' && link.trim() !== '') {
                     window.location.href = link;
@@ -162,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tooltip.style.display = 'none';
     }
 
-    // Модальные функции
     window.showZoneModal = function(zone) {
         const modal = document.getElementById('zone-modal');
         const title = document.getElementById('modal-title');
@@ -178,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         modal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Блокируем скролл страницы
+        document.body.style.overflow = 'hidden';
     };
 
     window.closeZoneModal = function() {
@@ -191,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
         zoomInBtn.addEventListener('click', () => zoom(1.25));
         zoomOutBtn.addEventListener('click', () => zoom(0.8));
         
-        // Drag & Pan
         let dragStart = null;
         let initialTranslate = { x: 0, y: 0 };
         
@@ -220,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.style.userSelect = '';
         });
 
-        // Touch события (работают на всех устройствах)
         let touchStart = null;
         let initialPinchDistance = 0;
         
@@ -257,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
             initialPinchDistance = 0;
         });
 
-        // Закрытие модалки по ESC
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeZoneModal();
@@ -267,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateZoomDisplay();
     }
 
-    // Остальные функции без изменений...
     function zoom(factor, clientX = null, clientY = null) {
         const newScale = Math.max(minScale, Math.min(maxScale, scale * factor));
         if (Math.abs(newScale - scale) < 0.01) return;

@@ -19,9 +19,7 @@
 
         let isSeeking = false;
 
-        // Обновление прогресс-бара во время обычного проигрывания
         const updateProgress = () => {
-            // Принудительно завершаем поиск, если трек закончился сам
             if (audio.currentTime >= audio.duration && isSeeking) {
                 finishSeeking();
             }
@@ -112,7 +110,7 @@
             status.textContent = 'Трек завершён';
             progress.value = 100;
             current.textContent = formatTime(audio.duration);
-            isSeeking = false; // Страховка
+            isSeeking = false;
         });
 
         audio.addEventListener('error', (e) => {

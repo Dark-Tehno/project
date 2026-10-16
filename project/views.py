@@ -1,6 +1,7 @@
 from pathlib import Path
 import mimetypes
 
+from django.shortcuts import render
 from django.conf import settings
 from django.http import FileResponse, Http404, HttpResponse, JsonResponse, StreamingHttpResponse
 from rest_framework.views import APIView
@@ -205,3 +206,15 @@ def ping(request):
         },
         status=200,
     )
+
+def error_page_400(request, exception):
+    return render(request, "errors/400.html")
+
+def error_page_403(request, exception):
+    return render(request, "errors/403.html")
+
+def error_page_404(request, exception):
+    return render(request, "errors/404.html")
+
+def error_page_500(request):
+    return render(request, "errors/500.html")

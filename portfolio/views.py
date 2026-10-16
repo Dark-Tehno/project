@@ -1,17 +1,28 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.conf import settings
-
+from datetime import datetime
 import os
 import random
 
 
 def portfolio(request):
     logo_url = f"/static/images/og/{random.randint(0, 9)}.png"
-    return render(request, 'portfolio/index.html', {'logo_url': logo_url})
+    show_portal = False
+    if datetime.today().day == 21 and datetime.today().month == 1:
+        show_portal = True
+    return render(request, 'portfolio/index.html', {'logo_url': logo_url, "show_portal": show_portal})
+
+def portal(request):
+    if datetime.today().day == 21 and datetime.today().month == 1:
+        return render(request, 'portfolio/portal.html')
+    return HttpResponse(status=404)
 
 def darklang(request):
-    return render(request, 'portfolio/darklang.html')
+    show_portal = False
+    if datetime.today().day == 21 and datetime.today().month == 1:
+        show_portal = True
+    return render(request, 'portfolio/darklang.html', {"show_portal": show_portal})
 
 
 birthday_greetings = [
@@ -60,7 +71,7 @@ def birthday(request, name, date):
 
 
 def favicon(request):
-    favicon_path = os.path.join(settings.BASE_DIR, 'favicon.png')
+    favicon_path = os.path.join(settings.BASE_DIR, 'favicon.ico')
     with open(favicon_path, 'rb') as favicon_file:
         return HttpResponse(favicon_file.read(), content_type='image/x-icon')
 

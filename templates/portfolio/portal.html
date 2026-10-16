@@ -35,7 +35,6 @@ a{color:var(--cyan); text-decoration:none;}
 ::selection{background:rgba(124,92,255,.4); color:#fff;}
 :focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:6px;}
 
-/* ---------- стол ---------- */
 .desk{
   position:fixed; inset:0 0 var(--task-h) 0; overflow:hidden;
   background-image:
@@ -70,7 +69,6 @@ a{color:var(--cyan); text-decoration:none;}
 }
 .hint.gone{opacity:0;}
 
-/* ---------- окна ---------- */
 .win{
   position:fixed; width:min(860px,94vw); max-height:calc(100vh - var(--task-h) - 24px);
   display:flex; flex-direction:column; background:var(--elevated); border:1px solid var(--border);
@@ -141,7 +139,6 @@ a{color:var(--cyan); text-decoration:none;}
   margin-top:auto; padding-top:16px; font-family:var(--font-mono); font-size:.72rem; color:var(--text-faint); min-height:2.4em;
 }
 
-/* ---------- панель задач ---------- */
 .taskbar{
   position:fixed; left:0; right:0; bottom:0; height:var(--task-h); z-index:150;
   display:flex; align-items:center; gap:8px; padding:0 14px;
@@ -165,7 +162,6 @@ a{color:var(--cyan); text-decoration:none;}
 .task.min{opacity:.55;}
 .clock{font-family:var(--font-mono); font-size:.8rem; color:var(--text-muted); padding:0 4px; white-space:nowrap;}
 
-/* ---------- прибытие через портал ---------- */
 .arrive,.arrive-ring{position:fixed; z-index:300; pointer-events:none;}
 .arrive{
   inset:0;
@@ -232,8 +228,6 @@ a{color:var(--cyan); text-decoration:none;}
 (function(){
   "use strict";
 
-  /* ================= данные чертежей ================= */
-  // узлы: [id, подпись, x, y, w, h]; рёбра: [от, до, режим?, y-излома?]
   function N(id,label,x,y,w,h){ return {id:id,label:label,x:x,y:y,w:w||130,h:h||50}; }
 
   var PROJECTS = [
@@ -307,7 +301,6 @@ a{color:var(--cyan); text-decoration:none;}
   ];
   var BY = {}; PROJECTS.forEach(function(p,i){ p.n = i+1; BY[p.id]=p; });
 
-  /* ================= рендер чертежа ================= */
   var W=640, H=420;
   function route(a,b,mode){
     var ax=a.x+a.w/2, ay=a.y+a.h/2, bx=b.x+b.w/2, by=b.y+b.h/2;
@@ -392,7 +385,6 @@ a{color:var(--cyan); text-decoration:none;}
     return s;
   }
 
-  /* ================= иконки на столе ================= */
   function iconSvg(c){
     return '<svg viewBox="0 0 58 58" aria-hidden="true">'+
       '<path d="M10 4h26l12 12v38H10z" fill="#0d2b55" stroke="'+c+'" stroke-width="2" stroke-linejoin="round"/>'+
@@ -423,7 +415,6 @@ a{color:var(--cyan); text-decoration:none;}
     if(!e.target.closest('.icon')) selectIcon(null);
   });
 
-  /* ================= окна ================= */
   var desk=document.getElementById('desk');
   var tasksEl=document.getElementById('tasks');
   var hint=document.getElementById('hint');
@@ -514,7 +505,6 @@ a{color:var(--cyan); text-decoration:none;}
     el.querySelector('.dotbtn.x').addEventListener('click',function(){ el.classList.toggle('max'); });
     bar.addEventListener('dblclick',function(e){ if(!e.target.closest('button') && !isMobile()) el.classList.toggle('max'); });
 
-    // перетаскивание
     bar.addEventListener('pointerdown',function(e){
       if(e.target.closest('button') || isMobile() || el.classList.contains('max')) return;
       var r=el.getBoundingClientRect(), dx=e.clientX-r.left, dy=e.clientY-r.top;
@@ -528,7 +518,6 @@ a{color:var(--cyan); text-decoration:none;}
       bar.addEventListener('pointermove',mv); bar.addEventListener('pointerup',up); bar.addEventListener('pointercancel',up);
     });
 
-    // подсветка узлов и связей
     if(!p.sketch && p.nodes && p.nodes.length){
       var edges=el.querySelectorAll('.bp-edge'), lis=el.querySelectorAll('.win-info li');
       var def=status.textContent;
@@ -556,18 +545,15 @@ a{color:var(--cyan); text-decoration:none;}
     }
   });
 
-  /* ================= часы ================= */
   var clock=document.getElementById('clock');
   function tick(){ var d=new Date(); clock.textContent=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
   tick(); setInterval(tick,20000);
 
-  /* ================= прибытие через портал ================= */
   var arrive=document.getElementById('arrive'), ring=document.getElementById('arrRing');
   function removeArrive(){ arrive.remove(); ring.remove(); }
   arrive.addEventListener('animationend',function(e){ if(e.animationName==='arrIn'||e.animationName==='arrFade') removeArrive(); });
   setTimeout(function(){ if(document.body.contains(arrive)) removeArrive(); }, 3000);
 
-  /* открыть сразу по ссылке: /portal/#lang */
   var h=(location.hash||'').slice(1);
   if(BY[h]) setTimeout(function(){ openProject(h); }, 1400);
 })();

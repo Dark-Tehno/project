@@ -107,7 +107,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,.tab-link:focus-visible
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--surface-2); border-radius:10px; border:2px solid var(--bg);}
 
-/* ---------- topbar ---------- */
 .topbar{
   position:sticky; top:0; z-index:40;
   height:var(--topbar-h);
@@ -140,7 +139,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,.tab-link:focus-visible
 }
 .search-toggle-space{flex:1;}
 
-/* ---------- layout ---------- */
 .layout{display:flex; align-items:flex-start; max-width:1400px; margin:0 auto;}
 .sidenav{
   position:sticky; top:var(--topbar-h); align-self:flex-start;
@@ -181,7 +179,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,.tab-link:focus-visible
   color:var(--text-faint); margin-bottom:10px;
 }
 
-/* ---------- pills (sub-tabs) ---------- */
 .pillbar{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 28px; padding-bottom:20px; border-bottom:1px solid var(--border-soft);}
 .pill{
   font-family:var(--font-mono); font-size:.82rem; font-weight:500; color:var(--text-muted);
@@ -193,7 +190,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,.tab-link:focus-visible
 .subpanel{display:none;}
 .subpanel.active{display:block; animation:fade .3s ease;}
 
-/* ---------- hero ---------- */
 .hero{
   display:grid; grid-template-columns:1.15fr 1fr; gap:44px; align-items:center;
   padding:8px 0 46px;
@@ -218,7 +214,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,.tab-link:focus-visible
 .btn.grad{background:var(--gradient); color:#0a0d18; border:none; font-weight:700;}
 .btn.grad:hover{filter:brightness(1.07); text-decoration:none;}
 
-/* terminal signature element */
 .terminal{
   background:var(--elevated); border:1px solid var(--border-soft); border-radius:var(--radius);
   overflow:hidden; box-shadow:0 30px 60px -30px rgba(0,0,0,.6), 0 0 0 1px rgba(124,92,255,.06);
@@ -247,7 +242,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,.tab-link:focus-visible
 .terminal-body .cursor{display:inline-block; width:7px; height:1em; background:var(--cyan); vertical-align:text-bottom; animation:blink 1s step-end infinite;}
 @keyframes blink{50%{opacity:0;}}
 
-/* ---------- prose blocks ---------- */
 .tab-panel ul, .tab-panel ol{color:var(--text-muted); padding-left:1.3em; margin:0 0 1.2em;}
 .tab-panel li{margin-bottom:.4em;}
 .tab-panel li::marker{color:var(--text-faint);}
@@ -309,7 +303,6 @@ tr:last-child td{border-bottom:none;}
   font-size:.82rem; color:var(--text-faint);
 }
 
-/* ---------- responsive ---------- */
 @media (max-width:980px){
   .hero{grid-template-columns:1fr; gap:28px;}
 }
@@ -1199,17 +1192,16 @@ deactivate</code></pre>
 
   </main>
 </div>
+{% if show_portal %}{% include "portfolio/portal_gate.html" %}{% endif %}
 <script>
 (function(){
   "use strict";
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- helpers ---------- */
   function escapeHtml(s){
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  /* ---------- tab switching ---------- */
   var tabLinks = Array.prototype.slice.call(document.querySelectorAll('.tab-link'));
   var tabPanels = Array.prototype.slice.call(document.querySelectorAll('.tab-panel'));
 
@@ -1227,7 +1219,6 @@ deactivate</code></pre>
     link.addEventListener('click', function(){ activateTab(link.dataset.tab); });
   });
 
-  /* ---------- pill sub-tabs ---------- */
   var pillbars = Array.prototype.slice.call(document.querySelectorAll('.pillbar'));
   function activateSub(pillbar, subName){
     if(!pillbar) return;
@@ -1243,7 +1234,6 @@ deactivate</code></pre>
     });
   });
 
-  /* ---------- mobile nav ---------- */
   var sidenav = document.getElementById('sidenav');
   var backdrop = document.getElementById('backdrop');
   var menuToggle = document.getElementById('menuToggle');
@@ -1254,7 +1244,6 @@ deactivate</code></pre>
   });
   backdrop.addEventListener('click', closeMobileNav);
 
-  /* ---------- search ---------- */
   var searchInput = document.getElementById('sideSearch');
   var linkIndex = tabLinks.map(function(l){
     var panel = document.querySelector('.tab-panel[data-tab="' + l.dataset.tab + '"]');
@@ -1267,7 +1256,6 @@ deactivate</code></pre>
     });
   });
 
-  /* ---------- hash routing ---------- */
   function routeToHash(hash){
     var id = (hash || '').replace('#', '');
     if(!id){ activateTab('intro', {silent:true}); return; }
@@ -1300,7 +1288,6 @@ deactivate</code></pre>
   window.addEventListener('popstate', function(){ routeToHash(location.hash); });
   routeToHash(location.hash);
 
-  /* ---------- code copy buttons ---------- */
   document.querySelectorAll('pre').forEach(function(pre){
     var btn = document.createElement('button');
     btn.className = 'code-copy';
@@ -1318,7 +1305,6 @@ deactivate</code></pre>
     pre.appendChild(btn);
   });
 
-  /* ---------- Dark syntax highlighter ---------- */
   var KEYWORDS = /\b(if|then|else|while|for|in|return|try|except|do|end|import|use|from|function|class|and|or|not|true|false)\b/;
   var BUILTINS = /\b(print|println|input|to_int|to_str|to_float|type)\b/;
   var TOKEN_RE = /(#!.*)|(#.*)|("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`[^`]*`)|(\b\d+(?:\.\d+)?\b)|(\b(?:if|then|else|while|for|in|return|try|except|do|end|import|use|from|function|class|and|or|not|true|false)\b)|(\b(?:print|println|input|to_int|to_str|to_float|type)\b)|([a-zA-Z_]\w*)(?=\s*\()|([a-zA-Z_]\w*)/g;
@@ -1348,7 +1334,6 @@ deactivate</code></pre>
     codeEl.innerHTML = highlightDark(codeEl.textContent);
   });
 
-  /* ---------- terminal signature: philosophy dialogue ---------- */
   var lines = [
     { who: 'vsp210', text: 'Привет, мир!' },
     { who: 'q', text: 'А?' },

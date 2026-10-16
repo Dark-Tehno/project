@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark.Talk — версии приложения</title>
+<meta name="description" content="Все версии мессенджера Dark.Talk для Windows, Linux, macOS, Android, iOS и Web.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/chat/darktalk.css' %}">
+</head>
+<body>
+<header class="hb-topbar">
+  <a class="hb-brand" href="/">
+    <svg width="22" height="22" viewBox="0 0 26 26" fill="none">
+      <defs><linearGradient id="hbMark" x1="2" y1="2" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#7c5cff"/><stop offset="0.55" stop-color="#3e7bfa"/><stop offset="1" stop-color="#22d3e8"/>
+      </linearGradient></defs>
+      <circle cx="13" cy="13" r="11" stroke="url(#hbMark)" stroke-width="2.4"/>
+      <path d="M9.5 7.5H13.2C15.9 7.5 18 9.7 18 13C18 16.3 15.9 18.5 13.2 18.5H9.5V7.5Z" stroke="url(#hbMark)" stroke-width="1.8" stroke-linejoin="round"/>
+    </svg>
+    Dark.Talk
+  </a>
+  <nav class="hb-nav">
+    <a class="active" href="/chat/">Версии</a>
+    <a href="https://vsp210.ru/account/">Dark.Account</a>
+    <a href="https://github.com/vsp210" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+
+<div class="hb-page">
+  <section class="v-head">
+    <div class="eyebrow">Загрузки · Dark.Talk</div>
+    <h1>Версии <span>Dark.Talk</span></h1>
+    <p>Защищённый мессенджер с общением в реальном времени. Выберите платформу и скачайте нужную версию — или откройте страницу релиза, чтобы узнать, что в ней изменилось.</p>
+  </section>
+
+  <div class="toolbar">
+    <input class="search" id="search" type="search" placeholder="Поиск по версии или описанию…" aria-label="Поиск">
+    <div class="pills" id="pills"></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden>Ничего не найдено. Попробуйте другую платформу или запрос.</div>
+</div>
+
+<footer><p>&copy; 2025-2026 Dark.Tehno. Все права защищены.</p></footer>
+
+<script src="/chat/data.js"></script>
+<script>
+(function(){
+  "use strict";
+
+
+  var P = window.PLATFORMS, V = window.VERSIONS;
+  var grid = document.getElementById('grid');
+  var empty = document.getElementById('empty');
+  var pillsEl = document.getElementById('pills');
+  var search = document.getElementById('search');
+  var current = 'all';
+
+  console.log(P)
+  console.log(V)
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  // первая запись каждой платформы = последняя версия
+  var latestId = {};
+  V.forEach(function(v){ if(!(v.application in latestId)) latestId[v.application] = v.id; });
+
+  function cardHtml(v){
+    var label = P[v.application] || v.application;
+    var img = v.image
+      ? '<img src="' + esc(v.image) + '" alt="" loading="lazy">'
+      : '<span class="ph">' + esc(label.replace('Dark.Talk ', '').charAt(0)) + '</span>';
+    var latest = latestId[v.application] === v.id ? '<span class="tag latest">Последняя</span>' : '';
+    var href = '/chat/release/?id=' + v.id;
+    return '' +
+    '<article class="vcard">' +
+      '<a class="cover' + (v.image ? ' has-image' : '') + ' p-' + esc(v.application) + '" href="' + href + '" tabindex="-1" aria-hidden="true">' + img + '</a>' +
+      '<div class="body">' +
+        '<div class="row"><span class="tag plat">' + esc(label) + '</span>' + latest + '</div>' +
+        '<h3><a href="' + href + '">Версия ' + esc(v.version) + '</a></h3>' +
+        '<p class="desc">' + esc(v.description) + '</p>' +
+        '<div class="actions">' +
+          '<a class="btn" href="' + href + '">Подробнее</a>' +
+          '<a class="btn grad" href="' + esc(v.file) + '" download>Скачать</a>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function render(){
+    var q = search.value.trim().toLowerCase();
+    var list = V.filter(function(v){
+      if(current !== 'all' && v.application !== current) return false;
+      if(!q) return true;
+      return (v.version + ' ' + v.description + ' ' + (P[v.application] || '')).toLowerCase().indexOf(q) !== -1;
+    });
+    grid.innerHTML = list.map(cardHtml).join('');
+    empty.hidden = list.length > 0;
+  }
+
+  // кнопки платформ — только те, для которых есть версии
+  var used = {};
+  V.forEach(function(v){ used[v.application] = true; });
+  var keys = ['all'].concat(Object.keys(P).filter(function(k){ return used[k]; }));
+  pillsEl.innerHTML = keys.map(function(k){
+    var text = k === 'all' ? 'Все' : P[k].replace('Dark.Talk ', '');
+    return '<button class="pill' + (k === 'all' ? ' active' : '') + '" type="button" data-p="' + k + '">' + esc(text) + '</button>';
+  }).join('');
+
+  pillsEl.addEventListener('click', function(e){
+    var b = e.target.closest('.pill');
+    if(!b) return;
+    current = b.dataset.p;
+    Array.prototype.forEach.call(pillsEl.children, function(p){ p.classList.toggle('active', p === b); });
+    render();
+  });
+  search.addEventListener('input', render);
+
+  render();
+})();
+</script>
+</body>
+</html>

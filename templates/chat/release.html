@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark.Talk — релиз</title>
+<meta name="description" content="Информация о версии Dark.Talk и ссылка на скачивание.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/chat/darktalk.css' %}">
+</head>
+<body>
+<header class="hb-topbar">
+  <a class="hb-brand" href="/">
+    <svg width="22" height="22" viewBox="0 0 26 26" fill="none">
+      <defs><linearGradient id="hbMark" x1="2" y1="2" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#7c5cff"/><stop offset="0.55" stop-color="#3e7bfa"/><stop offset="1" stop-color="#22d3e8"/>
+      </linearGradient></defs>
+      <circle cx="13" cy="13" r="11" stroke="url(#hbMark)" stroke-width="2.4"/>
+      <path d="M9.5 7.5H13.2C15.9 7.5 18 9.7 18 13C18 16.3 15.9 18.5 13.2 18.5H9.5V7.5Z" stroke="url(#hbMark)" stroke-width="1.8" stroke-linejoin="round"/>
+    </svg>
+    Dark.Talk
+  </a>
+  <nav class="hb-nav">
+    <a class="active" href="/chat/">Версии</a>
+    <a href="https://vsp210.ru/account/">Dark.Account</a>
+    <a href="https://github.com/vsp210" target="_blank" rel="noopener">GitHub</a>
+  </nav>
+</header>
+
+<div class="hb-page" id="page"></div>
+
+<footer><p>&copy; 2025-2026 Dark.Tehno. Все права защищены.</p></footer>
+
+<script src="/chat/data.js"></script>
+<script src="{% static 'news/js/marked.min.js' %}"></script>
+<script src="{% static 'news/js/dompurify.min.js' %}"></script>
+<script>
+(function(){
+  "use strict";
+
+  var P = window.PLATFORMS, V = window.VERSIONS;
+  var page = document.getElementById('page');
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function renderMarkdown(s){
+    return DOMPurify.sanitize(marked.parse(String(s == null ? '' : s)));
+  }
+
+  var id = parseInt(new URLSearchParams(location.search).get('id'), 10);
+  var v = V.filter(function(x){ return x.id === id; })[0];
+
+  if(!v){
+    document.title = 'Dark.Talk — релиз не найден';
+    page.innerHTML =
+      '<div class="crumbs"><a href="/chat/">Версии</a><span>/</span>не найдено</div>' +
+      '<div class="empty">Такой версии нет. <a href="/chat/">Вернуться к списку</a></div>';
+    return;
+  }
+
+  var label = P[v.application] || v.application;
+  var fileName = String(v.file).split('/').pop();
+  var ext = fileName.indexOf('.') > -1 ? fileName.split('.').pop().toUpperCase() : '—';
+  var isLatest = V.filter(function(x){ return x.application === v.application; })[0].id === v.id;
+
+  var hints = {
+    android: 'Скачайте APK и разрешите установку из неизвестных источников в настройках Android, затем откройте файл.',
+    windows: 'Скачайте установщик и запустите его. Если Windows покажет предупреждение SmartScreen, выберите «Подробнее» → «Выполнить в любом случае».',
+    linux:   'Скачайте файл, выдайте права на запуск (chmod +x) и запустите его.',
+    macos:   'Скачайте файл, откройте его и перенесите приложение в папку «Программы».',
+    ios:     'Установка выполняется по инструкции для вашего канала распространения.',
+    web:     'Распакуйте архив на сервер или откройте веб-версию в браузере.',
+    unofficial: 'Это неофициальная сборка. Устанавливайте только если доверяете источнику.'
+  };
+
+  document.title = label + ' ' + v.version + ' — Dark.Talk';
+
+  var img = v.image
+    ? '<img src="' + esc(v.image) + '" alt="">'
+    : '<span class="ph">' + esc(label.replace('Dark.Talk ', '').charAt(0)) + '</span>';
+
+  var others = V.filter(function(x){ return x.id !== v.id && x.application === v.application; });
+  if(others.length === 0) others = V.filter(function(x){ return x.id !== v.id; }).slice(0, 4);
+
+  var othersHtml = others.length ? (
+    '<section class="hb-section"><h2>Другие версии</h2><div class="others">' +
+    others.map(function(o){
+      return '<a class="other" href="/chat/release?id=' + o.id + '"><b>' + esc(o.version) + '</b>' + esc(P[o.application] || o.application) + '</a>';
+    }).join('') +
+    '</div></section>'
+  ) : '';
+
+  page.innerHTML =
+    '<div class="crumbs"><a href="/chat/">Версии</a><span>/</span>' + esc(label) + '<span>/</span>' + esc(v.version) + '</div>' +
+
+    '<section class="r-hero">' +
+      '<div class="cover' + (v.image ? ' has-image' : '') + ' p-' + esc(v.application) + '">' + img + '</div>' +
+      '<div>' +
+        '<div class="tags"><span class="tag plat">' + esc(label) + '</span>' + (isLatest ? '<span class="tag latest">Последняя</span>' : '') + '</div>' +
+        '<h1>' + esc(label) + '</h1>' +
+        '<p class="r-ver">версия ' + esc(v.version) + '</p>' +
+        '<p class="lead">Файл обновления готов к загрузке. Подробности релиза и инструкция по установке — ниже.</p>' +
+        '<div class="r-actions">' +
+          '<a class="btn grad" href="' + esc(v.file) + '" download>Скачать ' + esc(v.version) + '</a>' +
+          '<a class="btn" href="/chat/">Все версии</a>' +
+        '</div>' +
+      '</div>' +
+    '</section>' +
+
+    '<section class="hb-section">' +
+      '<div class="r-layout">' +
+        '<div>' +
+          '<h2>Что нового</h2>' +
+          '<div class="r-desc">' + renderMarkdown(v.description) + '</div>' +
+          '<div class="callout"><strong>Установка.</strong> ' + esc(hints[v.application] || hints.unofficial) + '</div>' +
+        '</div>' +
+        '<aside class="info">' +
+          '<div class="info-bar">release.info</div>' +
+          '<div class="info-body">' +
+            '<div class="info-row"><span class="k">платформа</span><span class="v">' + esc(label) + '</span></div>' +
+            '<div class="info-row"><span class="k">версия</span><span class="v">' + esc(v.version) + '</span></div>' +
+            '<div class="info-row"><span class="k">файл</span><span class="v">' + esc(fileName) + '</span></div>' +
+            '<div class="info-row"><span class="k">формат</span><span class="v">' + esc(ext) + '</span></div>' +
+          '</div>' +
+        '</aside>' +
+      '</div>' +
+    '</section>' +
+
+    othersHtml;
+})();
+</script>
+</body>
+</html>

@@ -232,7 +232,6 @@ blockquote {
     color: var(--main-bg);
 }
 
-/* --- Стили для формы поиска --- */
 .search-form {
     display: flex;
     margin-bottom: 2rem;
@@ -320,17 +319,16 @@ blockquote {
     font-style: italic;
 }
 
-/* Стили для обертки карты с зумом */
 .map-wrapper {
     position: relative;
     width: 100%;
-    height: auto; /* Вернул автоматическую высоту */
-    min-height: 70vh; /* Минимальная высота */
-    max-height: 90vh; /* Максимальная высота */
+    height: auto;
+    min-height: 70vh;
+    max-height: 90vh;
     border: 1px solid var(--border-color);
     background-color: var(--main-bg);
     overflow: hidden;
-    display: block; /* Убрал flex для естественного размера SVG */
+    display: block;
 }
 
 #map-container {
@@ -349,8 +347,8 @@ blockquote {
 
 #map-container svg {
     width: 100%;
-    height: auto; /* Естественная пропорция SVG */
-    min-height: 600px; /* Минимальная высота для удобства */
+    height: auto;
+    min-height: 600px;
     transition: transform 0.3s ease;
     display: block;
     background-color: var(--map-background);
@@ -405,7 +403,6 @@ blockquote {
     padding: 2px 8px;
 }
 
-/* Адаптивность для мобильных */
 @media (max-width: 768px) {
     .map-wrapper {
         min-height: 60vh;
@@ -445,7 +442,6 @@ blockquote {
     }
 }
 
-/* Модальное окно для зон */
 .zone-modal {
     position: fixed;
     top: 0;
@@ -596,7 +592,6 @@ blockquote {
     color: var(--main-bg);
 }
 
-/* Адаптивность модалки */
 @media (max-width: 768px) {
     .modal-content {
         width: 95%;
@@ -613,7 +608,6 @@ blockquote {
     }
 }
 
-/* Улучшенные стили для маркеров при зуме */
 .map-marker {
     fill: var(--main-text);
     stroke: var(--main-bg);
@@ -695,7 +689,6 @@ blockquote {
     50% { opacity: 1; transform: scale(1); }
 }
 
-/* --- Стили для водяного знака --- */
 .beta-watermark {
     position: fixed;
     top: 50%;

@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from .views import SecureMediaView, ping
+from .views import SecureMediaView, ping, error_page_400, error_page_403, error_page_404, error_page_500
 from django.contrib.sitemaps.views import sitemap
 from DZ.sitemaps import *
 
@@ -80,3 +80,8 @@ urlpatterns = [
     path('', include('portfolio.urls')),
     
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+handler400 = error_page_400
+handler403 = error_page_403
+handler404 = error_page_404
+handler500 = error_page_500
