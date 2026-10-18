@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'DZ',
     'account',
     'chat',
-    'stlm'
+    'stlm',
+    'school' # Школьный проект по русскому языку "Создание умного чат-бота для подготовки к заданию №5(паронимы) или №4(орфоэпия)"
 ]
 
 AUTH_USER_MODEL = "account.DarkAccount"

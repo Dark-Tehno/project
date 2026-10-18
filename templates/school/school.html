@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ЕГЭ по русскому — ударения и паронимы</title>
+<meta name="description" content="Тренажёр для подготовки к заданиям 4 (ударения) и 5 (паронимы) ЕГЭ по русскому языку.">
+<meta name="author" content="Владимир (vsp210) / Dark.Tehno">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d18; --elevated:#121729; --surface:#161c33; --surface-2:#1d2440;
+  --border:#262d4d; --border-soft:#1c2340;
+  --text:#e8eaf6; --text-muted:#9aa2c7; --text-faint:#5d6690;
+  --violet:#7c5cff; --blue:#3e7bfa; --cyan:#22d3e8;
+  --ok:#4ade80; --bad:#f87171;
+  --gradient:linear-gradient(120deg,var(--violet) 0%,var(--blue) 55%,var(--cyan) 100%);
+  --font-display:'Unbounded',sans-serif; --font-body:'Golos Text',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  --radius:16px; --radius-sm:10px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; min-height:100vh;
+  background:
+    radial-gradient(1100px 620px at 88% -10%, rgba(124,92,255,.15), transparent 60%),
+    radial-gradient(900px 520px at -10% 20%, rgba(34,211,232,.09), transparent 55%),
+    var(--bg);
+  color:var(--text-muted); font-family:var(--font-body); font-size:16px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--font-display); font-weight:700; letter-spacing:-.01em; color:var(--text); margin:0;}
+p{margin:0;}
+a{color:var(--cyan); text-decoration:none;} a:hover{text-decoration:underline;}
+::selection{background:rgba(124,92,255,.4); color:#fff;}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:6px;}
+
+.topbar{display:flex; align-items:center; justify-content:space-between; padding:16px clamp(16px,4vw,40px);
+  border-bottom:1px solid var(--border-soft); background:rgba(10,13,24,.6); backdrop-filter:blur(10px); position:sticky; top:0; z-index:20;}
+.brand{display:flex; align-items:center; gap:9px; font-family:var(--font-display); font-weight:700; font-size:1rem; color:var(--text);}
+.nav{display:flex; align-items:center; gap:18px; font-size:.86rem; font-weight:500;}
+.nav a{color:var(--text-muted);} .nav a:hover{color:var(--text); text-decoration:none;}
+
+.page{max-width:880px; margin:0 auto; padding:0 clamp(16px,4vw,24px) 80px;}
+.head{padding:clamp(36px,6vw,60px) 0 24px;}
+.eyebrow{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:12px;}
+.head h1{font-size:clamp(1.8rem,5vw,2.8rem); font-weight:800; line-height:1.1;}
+.head h1 span{background:var(--gradient); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.head p.lead{margin-top:14px; max-width:60ch;}
+
+.pillbar{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 26px; padding-bottom:20px; border-bottom:1px solid var(--border-soft);}
+.pill{font-family:var(--font-mono); font-size:.84rem; font-weight:500; color:var(--text-muted); background:var(--surface);
+  border:1px solid var(--border-soft); border-radius:20px; padding:8px 16px; cursor:pointer;}
+.pill:hover:not(:disabled){color:var(--text); border-color:var(--border);}
+.pill.active{color:#0a0d18; background:var(--gradient); border-color:transparent; font-weight:700;}
+.pill:disabled{opacity:.45; cursor:not-allowed;}
+.seg{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px;}
+.seg .pill{font-size:.78rem; padding:6px 13px;}
+.panel{display:none;} .panel.active{display:block; animation:fade .3s ease;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+.card{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:20px; margin-bottom:14px;}
+.card h3{font-size:1.02rem; margin-bottom:6px;}
+.hint{font-size:.88rem; color:var(--text-faint);}
+.row{display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; align-items:center;}
+.btn{font-family:var(--font-body); font-weight:600; font-size:.9rem; padding:11px 18px; border-radius:9px; border:1px solid var(--border-soft);
+  color:var(--text); background:var(--surface-2); cursor:pointer; display:inline-flex; align-items:center; gap:8px;}
+.btn:hover:not(:disabled){border-color:var(--border); background:var(--elevated);}
+.btn.grad{background:var(--gradient); color:#0a0d18; border:none; font-weight:700;}
+.btn.grad:hover:not(:disabled){filter:brightness(1.07);}
+.btn:disabled{opacity:.45; cursor:not-allowed;}
+.btn.danger:hover:not(:disabled){border-color:var(--bad); color:var(--bad);}
+.opt{display:inline-flex; align-items:center; gap:8px; font-size:.86rem; color:var(--text-muted); cursor:pointer; user-select:none;}
+.opt input{accent-color:var(--violet); width:16px; height:16px; margin:0;}
+
+.words{display:grid; gap:10px; margin-top:16px;}
+.item{display:grid; gap:6px;}
+.word{display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:var(--elevated); border:1px solid var(--border-soft); border-radius:12px; padding:10px 14px;}
+.word .n,.sent .n{font-family:var(--font-mono); font-size:.78rem; color:var(--text-faint); flex:0 0 auto;}
+.word .n{width:1.6em;}
+.letters{display:flex; flex-wrap:wrap; gap:2px; font-family:var(--font-mono); font-size:1.5rem; font-weight:500; color:var(--text);}
+.ch{min-width:1.1ch; text-align:center; padding:0 1px; height:46px; line-height:46px;}
+.ch.hl{color:var(--cyan); font-weight:700; text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:6px;}
+button.vowel{font:inherit; color:var(--cyan); background:transparent; border:1px dashed var(--border); border-radius:8px;
+  min-width:40px; height:46px; padding:0; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent;}
+button.vowel:hover:not(:disabled){background:var(--surface-2); border-color:var(--cyan);}
+button.vowel.sel{color:#0a0d18; background:var(--gradient); border-color:transparent; font-weight:700;}
+button.vowel:disabled{cursor:default;}
+.word.ok-row{border-color:var(--ok);} .word.bad-row{border-color:var(--bad);}
+
+.sentences{display:grid; gap:10px; margin-top:16px;}
+.sent{display:flex; gap:12px; align-items:center; text-align:left; width:100%; font:inherit; color:var(--text);
+  background:var(--elevated); border:1px solid var(--border-soft); border-radius:12px; padding:14px; cursor:pointer; touch-action:manipulation;}
+.sent.top{align-items:flex-start;}
+.sent .n{padding-top:2px;}
+.sent:hover:not(:disabled){border-color:var(--border);}
+.sent.sel{border-color:var(--violet); box-shadow:0 0 0 1px var(--violet) inset; background:var(--surface-2);}
+.sent:disabled{cursor:default;}
+.sent mark{background:rgba(34,211,232,.14); color:var(--cyan); border:1px solid rgba(34,211,232,.35); border-radius:6px; padding:0 6px; font-family:var(--font-mono); font-size:.92em;}
+.sent.key{border-color:var(--ok); box-shadow:0 0 0 1px var(--ok) inset;}
+.sent.miss{border-color:var(--bad); box-shadow:0 0 0 1px var(--bad) inset;}
+.sent .letters{font-size:1.35rem;}
+.sent .ch{height:38px; line-height:38px;}
+
+.result{border-left:3px solid var(--violet); background:var(--surface); border-radius:0 10px 10px 0; padding:16px 18px; margin-top:18px; color:var(--text); white-space:pre-wrap; word-break:break-word;}
+.result h3{font-size:.8rem; font-family:var(--font-mono); letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;}
+.err{border:1px solid rgba(248,113,113,.4); background:rgba(248,113,113,.07); color:#fecaca; border-radius:10px; padding:12px 16px; margin-top:16px; font-size:.92rem;}
+.loading{display:flex; align-items:center; gap:12px; margin-top:16px; color:var(--text-muted); font-size:.92rem;}
+.spin{width:18px; height:18px; border-radius:50%; border:2px solid var(--border); border-top-color:var(--cyan); animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+details{margin-top:14px;}
+summary{cursor:pointer; font-size:.88rem; color:var(--text-muted);}
+summary:hover{color:var(--text);}
+pre.raw{background:var(--elevated); border:1px solid var(--border-soft); border-radius:8px; padding:12px 14px; white-space:pre-wrap; font-family:var(--font-mono); font-size:.82rem; margin:10px 0 0; color:var(--text-muted);}
+input[type=text]{width:100%; background:var(--elevated); color:var(--text); border:1px solid var(--border-soft); border-radius:9px; padding:10px 12px; font-family:var(--font-body); font-size:.95rem; margin-top:10px;}
+
+.fb{flex:0 0 100%; margin-top:2px; padding:8px 12px; border-radius:8px; font-size:.9rem; white-space:pre-wrap; background:var(--surface); border-left:3px solid var(--text-faint); color:var(--text-muted);}
+.fb.ok{border-left-color:var(--ok);} .fb.bad{border-left-color:var(--bad);}
+.fb b{color:var(--text);}
+.intro{margin-top:16px; font-size:.9rem; color:var(--text-muted); white-space:pre-wrap; border-left:3px solid var(--violet); padding-left:12px;}
+.task{margin-top:14px; font-size:.92rem; color:var(--text);}
+.hist{display:grid; gap:10px;}
+.hist-item{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:14px 16px;}
+.hist-top{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;}
+.tag{font-family:var(--font-mono); font-size:.72rem; color:var(--cyan); background:var(--surface-2); border:1px solid var(--border-soft); border-radius:20px; padding:3px 10px;}
+.hist-date{font-family:var(--font-mono); font-size:.74rem; color:var(--text-faint);}
+.hist-sum{color:var(--text); margin-top:8px; font-size:.95rem; word-break:break-word;}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-bottom:16px;}
+.stat{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:14px 16px;}
+.stat .v{font-family:var(--font-display); font-size:1.5rem; color:var(--text); font-weight:700;}
+.stat .l{font-size:.8rem; color:var(--text-faint);}
+.weak{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 18px;}
+.empty{text-align:center; padding:40px 0; color:var(--text-faint);}
+.note{margin-top:22px; font-size:.8rem; color:var(--text-faint);}
+footer{text-align:center; padding:26px 0 10px; font-size:.8rem; color:var(--text-faint);}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto;} .spin{animation-duration:2s;} .panel.active{animation:none;}}
+@media (max-width:520px){.letters{font-size:1.3rem;} button.vowel{min-width:36px;}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg width="22" height="22" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+      <defs><linearGradient id="mk" x1="2" y1="2" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#7c5cff"/><stop offset="0.55" stop-color="#3e7bfa"/><stop offset="1" stop-color="#22d3e8"/>
+      </linearGradient></defs>
+      <circle cx="13" cy="13" r="11" stroke="url(#mk)" stroke-width="2.4"/>
+      <path d="M9.5 7.5H13.2C15.9 7.5 18 9.7 18 13C18 16.3 15.9 18.5 13.2 18.5H9.5V7.5Z" stroke="url(#mk)" stroke-width="1.8" stroke-linejoin="round"/>
+    </svg>
+    Dark.Tehno
+  </div>
+  <nav class="nav">
+    <a href="https://vsp210.ru/">Главная</a>
+    <a href="https://vsp210.ru/account/">Dark.Account</a>
+  </nav>
+</header>
+
+<div class="page">
+  <section class="head">
+    <div class="eyebrow">Подготовка · ЕГЭ · русский язык</div>
+    <h1>Ударения и <span>паронимы</span></h1>
+    <p class="lead">Тренажёр к заданиям 4 и 5. Тесты берутся из проверенного банка, а ИИ по желанию составляет новые задания и подробно разбирает ответы. История и статистика хранятся только в вашем браузере.</p>
+  </section>
+
+  <div class="pillbar" role="tablist">
+    <button class="pill active" data-tab="stress" role="tab">Задание 4 · Ударения</button>
+    <button class="pill" data-tab="paronyms" role="tab">Задание 5 · Паронимы</button>
+    <button class="pill" data-tab="history" role="tab">Статистика <span id="histCount"></span></button>
+  </div>
+
+  <!-- УДАРЕНИЯ -->
+  <section class="panel active" id="panel-stress">
+    <div class="card">
+      <h3>Орфоэпические нормы</h3>
+      <p class="hint" id="stIntro"></p>
+      <div class="seg" role="group" aria-label="Режим">
+        <button class="pill active" id="stModeExam" type="button">Как в ЕГЭ</button>
+        <button class="pill" id="stModePractice" type="button">Ставлю ударение сам</button>
+      </div>
+      <div class="row">
+        <button class="btn grad" id="stNew">Новый тест</button>
+        <button class="btn" id="stReset" disabled>Сбросить выбор</button>
+        <button class="btn" id="stRetry" disabled title="Слова, в которых вы ошибались раньше">Повторить ошибки</button>
+        <label class="opt"><input type="checkbox" id="stAIgen"> Составить с помощью ИИ</label>
+      </div>
+      <div id="stStatus"></div>
+      <div class="words" id="stWords"></div>
+      <div class="row">
+        <button class="btn grad" id="stCheck" hidden>Проверить</button>
+        <button class="btn" id="stAI" hidden>Разбор от ИИ</button>
+      </div>
+      <div id="stResult"></div>
+      <div id="stAIBox"></div>
+      <p class="hint" style="margin-top:14px">Подсказка: клавиши 1–5 отмечают слова в режиме «Как в ЕГЭ».</p>
+    </div>
+  </section>
+
+  <!-- ПАРОНИМЫ -->
+  <section class="panel" id="panel-paronyms">
+    <div class="card">
+      <h3>Найдите неверно употреблённый пароним</h3>
+      <p class="hint">Выделенные слова — паронимы. Нажмите на предложение с ошибкой, впишите подходящий пароним и проверьте себя.</p>
+      <div class="row">
+        <button class="btn grad" id="pNew">Новое задание</button>
+        <button class="btn" id="pReset" disabled>Сбросить выбор</button>
+        <label class="opt"><input type="checkbox" id="pAIgen"> Составить с помощью ИИ</label>
+      </div>
+      <div id="pStatus"></div>
+      <div class="sentences" id="pList"></div>
+      <input type="text" id="pAnswer" placeholder="Подобранный пароним (по желанию)" autocomplete="off" hidden>
+      <div class="row">
+        <button class="btn grad" id="pCheck" hidden>Проверить</button>
+        <button class="btn" id="pAI" hidden>Разбор от ИИ</button>
+      </div>
+      <div id="pResult"></div>
+      <div id="pAIBox"></div>
+      <p class="hint" style="margin-top:14px">Подсказка: клавиши 1–5 выбирают предложение.</p>
+    </div>
+  </section>
+
+  <!-- СТАТИСТИКА И ИСТОРИЯ -->
+  <section class="panel" id="panel-history">
+    <div class="stats" id="hStats"></div>
+    <div id="hWeak"></div>
+    <div class="row" style="margin:0 0 16px">
+      <button class="btn" id="hExport">Скачать JSON</button>
+      <button class="btn danger" id="hClear">Очистить всё</button>
+    </div>
+    <div class="hist" id="hList"></div>
+    <p class="note">Данные лежат в localStorage этого браузера: на другом устройстве или после очистки данных сайта истории не будет. Хранится не более 100 последних записей.</p>
+  </section>
+</div>
+<footer><p>&copy; 2025-2026 Dark.Tehno. Все права защищены.</p></footer>
+
+<script>
+(function(){
+  "use strict";
+  var API = "/school/api/";
+  var KEY = "darktehno_school_history_v1";
+  var MAX = 100;
+  var VOWELS = "аеёиоуыэюя";
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- утилиты ---------- */
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(text !== undefined) e.textContent = text;
+    return e;
+  }
+  function clear(node){ while(node.firstChild) node.removeChild(node.firstChild); }
+  function cookie(name){
+    var m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+    return m ? decodeURIComponent(m[1]) : "";
+  }
+  function cleanAI(s){ return String(s || "").replace(/\*\*/g, "").replace(/^#+\s*/gm, "").trim(); }
+  function newId(){ return String(Date.now()) + Math.random().toString(36).slice(2, 6); }
+  function normWord(s){ return String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^а-я-]/g, ""); }
+  function formStr(text, idx){
+    return text.split("").map(function(c, i){ return i === idx ? c.toUpperCase() : c; }).join("");
+  }
+  function upIdx(form){
+    for(var i = 0; i < form.length; i++){
+      var c = form[i];
+      if(c !== c.toLowerCase() && VOWELS.indexOf(c.toLowerCase()) !== -1) return i;
+    }
+    return -1;
+  }
+
+  function api(method, path, body){
+    var headers = {"Accept":"application/json"};
+    var opts = {method:method, headers:headers, credentials:"same-origin"};
+    if(method !== "GET"){
+      headers["Content-Type"] = "application/json";
+      var t = cookie("csrftoken");
+      if(t) headers["X-CSRFToken"] = t;
+      opts.body = JSON.stringify(body);
+    }
+    return fetch(API + path, opts).then(function(res){
+      return res.text().then(function(txt){
+        var data = null;
+        try{ data = JSON.parse(txt); }catch(e){}
+        if(!res.ok){
+          var msg;
+          if(res.status === 401 || res.status === 403) msg = "auth";
+          else if(data && data.error) msg = data.error;
+          else msg = "Ошибка сервера (" + res.status + "). Попробуйте ещё раз.";
+          var err = new Error(msg); err.status = res.status; throw err;
+        }
+        if(!data) throw new Error("Сервер вернул не JSON.");
+        return data;
+      });
+    });
+  }
+  function showError(box, e){
+    clear(box);
+    var d = el("div", "err");
+    if(e && e.message === "auth"){
+      d.appendChild(document.createTextNode("Нужно войти в аккаунт. "));
+      var a = el("a", null, "Открыть Dark.Account"); a.href = "https://vsp210.ru/account/";
+      d.appendChild(a);
+    } else if(e instanceof TypeError){
+      d.textContent = "Нет связи с сервером. Проверьте интернет.";
+    } else {
+      d.textContent = (e && e.message) || "Что-то пошло не так.";
+    }
+    box.appendChild(d);
+  }
+  function showLoading(box, text){
+    clear(box);
+    var d = el("div", "loading"); d.appendChild(el("div", "spin")); d.appendChild(el("span", null, text));
+    box.appendChild(d);
+  }
+  function showIntro(box, text, note){
+    clear(box);
+    if(note) box.appendChild(el("div", "intro", note));
+    if(text) box.appendChild(el("div", "task", text));
+  }
+  function resultBox(box, title, text, color){
+    clear(box);
+    var r = el("div", "result");
+    if(color) r.style.borderLeftColor = color;
+    r.appendChild(el("h3", null, title));
+    r.appendChild(document.createTextNode(text));
+    box.appendChild(r);
+  }
+
+  /* ---------- история (localStorage) ---------- */
+  function loadHist(){
+    try{ var v = JSON.parse(localStorage.getItem(KEY) || "[]"); return Array.isArray(v) ? v : []; }
+    catch(e){ return []; }
+  }
+  function saveHist(list){
+    try{ localStorage.setItem(KEY, JSON.stringify(list.slice(0, MAX))); return true; }
+    catch(e){ return false; }
+  }
+  function pushHist(entry){
+    var list = loadHist(); list.unshift(entry); saveHist(list); renderHist(); renderRetry();
+  }
+  function updateHist(id, patch){
+    var list = loadHist();
+    list.forEach(function(x){ if(x.id === id) for(var k in patch) x[k] = patch[k]; });
+    saveHist(list); renderHist();
+  }
+  function fmtDate(ts){
+    try{ return new Date(ts).toLocaleString("ru-RU", {day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit"}); }
+    catch(e){ return ""; }
+  }
+  function pct(s, t){ return t ? Math.round(100 * s / t) + "%" : "—"; }
+
+  function computeStats(list){
+    var s = {stress:{n:0, s:0, t:0}, paronyms:{n:0, s:0, t:0}}, miss = {};
+    list.forEach(function(it){
+      var g = s[it.type]; if(!g) return;
+      g.n++;
+      if(typeof it.total === "number" && it.total > 0){ g.s += it.score || 0; g.t += it.total; }
+      (it.mistakes || []).forEach(function(w){ miss[w] = (miss[w] || 0) + 1; });
+    });
+    var weak = Object.keys(miss).map(function(w){ return {w:w, c:miss[w]}; })
+      .sort(function(a, b){ return b.c - a.c; });
+    return {s:s, weak:weak};
+  }
+  function mistakeWords(){ return computeStats(loadHist()).weak.map(function(x){ return x.w; }); }
+
+  function statCard(v, l){
+    var d = el("div", "stat"); d.appendChild(el("div", "v", v)); d.appendChild(el("div", "l", l)); return d;
+  }
+  function renderHist(){
+    var list = loadHist(), box = $("hList"), stats = computeStats(list);
+    $("histCount").textContent = list.length ? "(" + list.length + ")" : "";
+    $("hExport").disabled = $("hClear").disabled = !list.length;
+
+    var sb = $("hStats"); clear(sb);
+    sb.appendChild(statCard(String(list.length), "всего попыток"));
+    sb.appendChild(statCard(pct(stats.s.stress.s, stats.s.stress.t), "точность · ударения (" + stats.s.stress.n + ")"));
+    sb.appendChild(statCard(pct(stats.s.paronyms.s, stats.s.paronyms.t), "точность · паронимы (" + stats.s.paronyms.n + ")"));
+
+    var wb = $("hWeak"); clear(wb);
+    if(stats.weak.length){
+      wb.appendChild(el("div", "hint", "Слова, в которых вы ошибались чаще всего:"));
+      var wrap = el("div", "weak");
+      stats.weak.slice(0, 12).forEach(function(x){
+        wrap.appendChild(el("span", "tag", x.w + (x.c > 1 ? " ×" + x.c : "")));
+      });
+      wb.appendChild(wrap);
+    }
+
+    clear(box);
+    if(!list.length){ box.appendChild(el("div", "empty", "Пока пусто. Пройдите первый тест.")); return; }
+    list.forEach(function(it){
+      var card = el("div", "hist-item");
+      var top = el("div", "hist-top");
+      top.appendChild(el("span", "tag", (it.type === "stress" ? "Ударения" : "Паронимы") + (typeof it.total === "number" ? " · " + it.score + "/" + it.total : "")));
+      var right = el("div"); right.style.display = "flex"; right.style.gap = "10px"; right.style.alignItems = "center";
+      right.appendChild(el("span", "hist-date", fmtDate(it.ts)));
+      var del = el("button", "btn danger", "Удалить"); del.style.padding = "4px 10px"; del.style.fontSize = ".78rem";
+      del.addEventListener("click", function(){
+        saveHist(loadHist().filter(function(x){ return x.id !== it.id; })); renderHist(); renderRetry();
+      });
+      right.appendChild(del); top.appendChild(right); card.appendChild(top);
+      card.appendChild(el("div", "hist-sum", it.summary || ""));
+      var det = el("details"); det.appendChild(el("summary", null, "Разбор"));
+      det.appendChild(el("div", "result", cleanAI(it.result)));
+      if(it.ai){
+        var d3 = el("details"); d3.appendChild(el("summary", null, "Разбор от ИИ"));
+        d3.appendChild(el("div", "result", cleanAI(it.ai))); det.appendChild(d3);
+      }
+      if(it.raw){
+        var d2 = el("details"); d2.appendChild(el("summary", null, "Исходный тест"));
+        d2.appendChild(el("pre", "raw", it.raw)); det.appendChild(d2);
+      }
+      card.appendChild(det); box.appendChild(card);
+    });
+  }
+  $("hClear").addEventListener("click", function(){
+    if(confirm("Удалить всю историю из этого браузера?")){ saveHist([]); renderHist(); renderRetry(); }
+  });
+  $("hExport").addEventListener("click", function(){
+    var blob = new Blob([JSON.stringify(loadHist(), null, 2)], {type:"application/json"});
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "school-history.json";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  });
+
+  /* ---------- вкладки ---------- */
+  var tabPills = document.querySelectorAll(".pillbar .pill");
+  function activeTab(){
+    return $("panel-paronyms").classList.contains("active") ? "paronyms" :
+           $("panel-history").classList.contains("active") ? "history" : "stress";
+  }
+  function activate(tab, silent){
+    if(!$("panel-" + tab)) tab = "stress";
+    tabPills.forEach(function(p){ p.classList.toggle("active", p.dataset.tab === tab); });
+    ["stress","paronyms","history"].forEach(function(t){ $("panel-" + t).classList.toggle("active", t === tab); });
+    if(!silent) history.replaceState(null, "", "#" + tab);
+  }
+  tabPills.forEach(function(p){ p.addEventListener("click", function(){ activate(p.dataset.tab); }); });
+  activate((location.hash || "").slice(1), true);
+
+  /* ---------- общий запрос разбора у ИИ ---------- */
+  function askAI(btn, box, path, body, histId){
+    btn.disabled = true;
+    showLoading(box, "ИИ готовит разбор…");
+    api("POST", path, body).then(function(d){
+      var text = cleanAI(d.result);
+      resultBox(box, "Разбор от ИИ", text);
+      if(histId) updateHist(histId, {ai:text});
+      btn.disabled = false;
+    }).catch(function(e){ btn.disabled = false; showError(box, e); });
+  }
+
+  /* ---------- УДАРЕНИЯ ---------- */
+  var st = {items:[], mode:"exam", retry:false, done:false, busy:false, raw:"", lastId:null};
+
+  function mkStress(o){
+    var right = String((o && o.right) || ""), shown = String((o && o.shown) || right);
+    var ri = upIdx(right), si = upIdx(shown);
+    if(ri < 0 || si < 0) return null;
+    return {plain:right.toLowerCase(), right:right, ri:ri,
+            shownText:shown.toLowerCase(), shown:shown, si:si,
+            correct:(typeof o.correct === "boolean" ? o.correct : shown === right),
+            expl:cleanAI(o.explanation), sel:null};
+  }
+  function initSel(it){ it.sel = st.mode === "exam" ? false : -1; }
+  function isOk(it){ return st.mode === "exam" ? it.sel === it.correct : it.sel === it.ri; }
+  function verdict(it){
+    var ok = isOk(it), t;
+    if(st.mode === "exam"){
+      t = (ok ? "Верно. " : "Неверно. ") + (it.correct ? "Ударение поставлено правильно: " : "Ударение поставлено с ошибкой, правильно: ") + "«" + it.right + "».";
+    } else {
+      t = ok ? "Верно: «" + it.right + "»." : "Неверно. Правильно — «" + it.right + "».";
+    }
+    return {k: ok ? "ok" : "bad", t:t};
+  }
+  function askForm(it){
+    if(st.mode === "exam") return it.shown;
+    return it.sel >= 0 ? formStr(it.plain, it.sel) : it.right;
+  }
+  function wordNode(text, idx){
+    var box = el("span", "letters");
+    text.split("").forEach(function(ch, i){
+      box.appendChild(el("span", "ch" + (i === idx ? " hl" : ""), i === idx ? ch.toUpperCase() : ch));
+    });
+    return box;
+  }
+
+  function renderRetry(){
+    $("stRetry").disabled = st.busy || !mistakeWords().length;
+  }
+  function renderStress(){
+    var box = $("stWords"); clear(box);
+    $("stIntro").textContent = st.mode === "exam"
+      ? "Отметьте слова, в которых верно выделена буква, обозначающая ударный гласный звук. Выбор снимается повторным нажатием."
+      : "Нажмите на ударную гласную в каждом слове. Нажатие на выбранную букву снимает выбор.";
+    $("stModeExam").classList.toggle("active", st.mode === "exam");
+    $("stModePractice").classList.toggle("active", st.mode === "practice");
+    $("stModeExam").disabled = $("stModePractice").disabled = st.busy;
+
+    st.items.forEach(function(it, i){
+      var wrap = el("div", "item"), v = st.done ? verdict(it) : null;
+      if(st.mode === "exam"){
+        var cls = "sent" + (it.sel ? " sel" : "");
+        if(st.done) cls = "sent " + (v.k === "ok" ? "key" : "miss");
+        var b = el("button", cls); b.type = "button"; b.disabled = st.done || st.busy;
+        b.setAttribute("aria-pressed", it.sel ? "true" : "false");
+        b.appendChild(el("span", "n", (i + 1) + "."));
+        b.appendChild(wordNode(it.shownText, it.si));
+        b.addEventListener("click", function(){ it.sel = !it.sel; renderStress(); });
+        wrap.appendChild(b);
+      } else {
+        var row = el("div", "word" + (st.done ? (v.k === "ok" ? " ok-row" : " bad-row") : ""));
+        row.appendChild(el("span", "n", (i + 1) + "."));
+        var letters = el("div", "letters");
+        letters.setAttribute("role", "group"); letters.setAttribute("aria-label", "Слово " + (i + 1));
+        it.plain.split("").forEach(function(ch, ci){
+          if(VOWELS.indexOf(ch) !== -1){
+            var vb = el("button", "vowel" + (it.sel === ci ? " sel" : ""), it.sel === ci ? ch.toUpperCase() : ch);
+            vb.type = "button"; vb.disabled = st.done || st.busy;
+            vb.setAttribute("aria-pressed", it.sel === ci ? "true" : "false");
+            vb.setAttribute("aria-label", "Ударение на букву " + ch);
+            vb.addEventListener("click", function(){ it.sel = (it.sel === ci ? -1 : ci); renderStress(); });
+            letters.appendChild(vb);
+          } else letters.appendChild(el("span", "ch", ch));
+        });
+        row.appendChild(letters);
+        wrap.appendChild(row);
+      }
+      if(st.done){
+        var fb = el("div", "fb " + v.k); fb.appendChild(el("b", null, v.t));
+        if(it.expl) fb.appendChild(document.createTextNode("\n" + it.expl));
+        wrap.appendChild(fb);
+      }
+      box.appendChild(wrap);
+    });
+    var any = st.items.length > 0;
+    var complete = st.mode === "exam" || st.items.every(function(it){ return it.sel >= 0; });
+    $("stCheck").hidden = !any || st.done;
+    $("stCheck").disabled = !complete || st.busy;
+    $("stReset").disabled = !any || st.busy || st.done;
+    $("stNew").disabled = st.busy;
+    $("stAI").hidden = !st.done;
+    renderRetry();
+  }
+  function stressReset(){ clear($("stResult")); clear($("stAIBox")); st.done = false; }
+
+  function setMode(mode){
+    if(st.busy || st.mode === mode) return;
+    if(st.retry && mode === "exam") return;
+    st.mode = mode; st.items.forEach(initSel); stressReset(); renderStress();
+  }
+  $("stModeExam").addEventListener("click", function(){ setMode("exam"); });
+  $("stModePractice").addEventListener("click", function(){ setMode("practice"); });
+
+  $("stNew").addEventListener("click", function(){
+    st.busy = true; st.items = []; st.retry = false; stressReset(); renderStress();
+    var ai = $("stAIgen").checked;
+    showLoading($("stStatus"), ai ? "ИИ составляет тест… это может занять до минуты" : "Готовим слова…");
+    api("GET", "stress-marks/" + (ai ? "?source=ai" : "")).then(function(d){
+      st.busy = false; st.raw = d.test || "";
+      var items = (d.items || []).map(mkStress).filter(Boolean).slice(0, 5);
+      if(items.length < 2){ throw new Error("Не удалось получить тест. Нажмите «Новый тест» ещё раз."); }
+      st.items = items; st.items.forEach(initSel);
+      showIntro($("stStatus"), "", d.fallback ? "ИИ не справился с заданием — взят тест из банка слов." : "");
+      renderStress();
+    }).catch(function(e){ st.busy = false; renderStress(); showError($("stStatus"), e); });
+  });
+  $("stRetry").addEventListener("click", function(){
+    var words = mistakeWords().slice(0, 5);
+    var items = words.map(function(w){ return mkStress({right:w, shown:w, correct:true, explanation:""}); }).filter(Boolean);
+    if(!items.length) return;
+    st.retry = true; st.mode = "practice"; st.items = items; st.raw = ""; st.items.forEach(initSel);
+    stressReset(); showIntro($("stStatus"), "", "Работа над ошибками: слова, в которых вы ошибались раньше."); renderStress();
+  });
+  $("stReset").addEventListener("click", function(){ st.items.forEach(initSel); renderStress(); });
+  $("stCheck").addEventListener("click", function(){
+    st.done = true;
+    var score = 0, mistakes = [], lines = [];
+    st.items.forEach(function(it){
+      var ok = isOk(it); if(ok) score++; else mistakes.push(it.right);
+      lines.push((ok ? "✓ " : "✗ ") + it.right + (it.expl ? "\n   " + it.expl : ""));
+    });
+    renderStress();
+    resultBox($("stResult"), "Результат", "Правильно: " + score + " из " + st.items.length, score === st.items.length ? "var(--ok)" : "");
+    st.lastId = newId();
+    pushHist({id:st.lastId, ts:Date.now(), type:"stress", score:score, total:st.items.length, mistakes:mistakes,
+      summary:(st.mode === "exam" ? "Как в ЕГЭ: " : "Тренировка: ") + st.items.map(function(it){ return it.right; }).join(", ") + " · " + score + "/" + st.items.length,
+      result:lines.join("\n"), raw:st.raw});
+  });
+  $("stAI").addEventListener("click", function(){
+    askAI($("stAI"), $("stAIBox"), "stress-marks/", {words: st.items.map(askForm)}, st.lastId);
+  });
+
+  /* ---------- ПАРОНИМЫ ---------- */
+  var pr = {items:[], sel:-1, task:"", done:false, busy:false, raw:"", lastId:null};
+
+  function mkPar(o){
+    var text = String((o && o.text) || "");
+    if(!/[А-ЯЁ]{3,}/.test(text)) return null;
+    return {text:text, correct:o.correct === true, answer:String(o.answer || ""), expl:cleanAI(o.explanation)};
+  }
+  function appendSentence(parent, s){
+    s.split(/([А-ЯЁ]{3,})/).forEach(function(p){
+      if(!p) return;
+      if(/^[А-ЯЁ]{3,}$/.test(p)) parent.appendChild(el("mark", null, p));
+      else parent.appendChild(document.createTextNode(p));
+    });
+  }
+  function keyIndex(){
+    for(var i = 0; i < pr.items.length; i++) if(!pr.items[i].correct) return i;
+    return -1;
+  }
+  function renderPar(){
+    var box = $("pList"), key = pr.done ? keyIndex() : -1;
+    clear(box);
+    pr.items.forEach(function(it, i){
+      var cls = "sent top" + (pr.sel === i ? " sel" : "");
+      if(pr.done){
+        if(i === key) cls = "sent top key";
+        else if(i === pr.sel) cls = "sent top miss";
+        else cls = "sent top";
+      }
+      var b = el("button", cls);
+      b.type = "button"; b.disabled = pr.done || pr.busy;
+      b.setAttribute("aria-pressed", pr.sel === i ? "true" : "false");
+      b.appendChild(el("span", "n", (i + 1) + "."));
+      var t = el("span"); appendSentence(t, it.text); b.appendChild(t);
+      b.addEventListener("click", function(){ pr.sel = (pr.sel === i ? -1 : i); renderPar(); });
+      box.appendChild(b);
+    });
+    $("pAnswer").hidden = !pr.items.length;
+    $("pAnswer").disabled = pr.done || pr.busy;
+    $("pCheck").hidden = !pr.items.length || pr.done;
+    $("pCheck").disabled = pr.sel < 0 || pr.busy;
+    $("pReset").disabled = !pr.items.length || pr.busy || pr.done;
+    $("pNew").disabled = pr.busy;
+    $("pAI").hidden = !pr.done;
+  }
+  $("pNew").addEventListener("click", function(){
+    pr.busy = true; pr.items = []; pr.sel = -1; pr.done = false; $("pAnswer").value = "";
+    renderPar(); clear($("pResult")); clear($("pAIBox"));
+    var ai = $("pAIgen").checked;
+    showLoading($("pStatus"), ai ? "ИИ составляет задание… это может занять до минуты" : "Готовим задание…");
+    api("GET", "paronyms/" + (ai ? "?source=ai" : "")).then(function(d){
+      pr.busy = false; pr.raw = d.test || ""; pr.task = d.task || "";
+      var items = (d.items || []).map(mkPar).filter(Boolean).slice(0, 5);
+      if(items.length < 2) throw new Error("Не удалось получить задание. Нажмите «Новое задание» ещё раз.");
+      pr.items = items;
+      showIntro($("pStatus"), pr.task, d.fallback ? "ИИ не справился с заданием — взято задание из банка." : "");
+      renderPar();
+    }).catch(function(e){ pr.busy = false; renderPar(); showError($("pStatus"), e); });
+  });
+  $("pReset").addEventListener("click", function(){ pr.sel = -1; renderPar(); });
+  $("pCheck").addEventListener("click", function(){
+    pr.done = true; renderPar();
+    var key = keyIndex(), mine = $("pAnswer").value.trim();
+    var selOk = pr.sel === key;
+    var given = !!mine && key >= 0;
+    var ansOk = given && normWord(mine) === normWord(pr.items[key].answer);
+    var score = (selOk ? 1 : 0) + (ansOk ? 1 : 0), total = given ? 2 : 1;
+    var head = key < 0 ? "Ответ не определён автоматически."
+      : selOk ? "Верно! Ошибка в предложении " + (key + 1) + "." : "Неверно. Ошибка в предложении " + (key + 1) + ".";
+    var lines = ["Ваш выбор: предложение " + (pr.sel + 1)];
+    if(given) lines.push("Ваш пароним: " + mine + (ansOk ? " — верно" : " — неверно"));
+    if(key >= 0){
+      if(pr.items[key].answer) lines.push("Правильный ответ: " + pr.items[key].answer);
+      if(pr.items[key].expl) lines.push("Пояснение: " + pr.items[key].expl);
+    }
+    var box = $("pResult");
+    resultBox(box, head, lines.join("\n"), selOk && (!given || ansOk) ? "var(--ok)" : "var(--bad)");
+    var det = el("details"); det.appendChild(el("summary", null, "Пояснения ко всем предложениям"));
+    det.appendChild(el("div", "result", pr.items.map(function(it, i){ return (i + 1) + ". " + it.expl; }).join("\n")));
+    box.appendChild(det);
+    pr.lastId = newId();
+    pushHist({id:pr.lastId, ts:Date.now(), type:"paronyms", score:score, total:total,
+      summary:"Выбрано предложение " + (pr.sel + 1) + ": " + pr.items[pr.sel].text + " · " + (selOk ? "верно" : "неверно"),
+      result:head + "\n" + lines.join("\n"), raw:pr.raw});
+  });
+  $("pAI").addEventListener("click", function(){
+    askAI($("pAI"), $("pAIBox"), "paronyms/", {sentences: pr.items.map(function(it){ return it.text; })}, pr.lastId);
+  });
+
+  /* ---------- горячие клавиши 1–5 ---------- */
+  document.addEventListener("keydown", function(e){
+    if(e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target;
+    if(t && (t.tagName === "INPUT" && t.type === "text" || t.tagName === "TEXTAREA")) return;
+    var n = parseInt(e.key, 10);
+    if(!(n >= 1 && n <= 5)) return;
+    var tab = activeTab();
+    if(tab === "stress" && st.mode === "exam" && !st.done && !st.busy && st.items[n - 1]){
+      st.items[n - 1].sel = !st.items[n - 1].sel; renderStress();
+    } else if(tab === "paronyms" && !pr.done && !pr.busy && pr.items[n - 1]){
+      pr.sel = (pr.sel === n - 1 ? -1 : n - 1); renderPar();
+    }
+  });
+
+  renderStress(); renderPar(); renderHist();
+})();
+</script>
+</body>
+</html>

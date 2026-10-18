@@ -74,6 +74,7 @@ urlpatterns = [
     path('account/', include('account.urls')),
     path('chat/', include('chat.web.urls')),
     path('chat/api/', include('chat.urls')),
+    path('school/', include('school.urls')),
     path('DZ/', include('DZ.urls')),
     path('stlm/', include('stlm.urls')),
     
