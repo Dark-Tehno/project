@@ -47,7 +47,7 @@ def _setting(name, default=""):
 
 @lru_cache(maxsize=1)
 def _client():
-    credentials = _setting("GIGACHAT_CREDENTIALS", "YWQ1MDYxMjItOTFmOC00NmNhLWFiNWYtYWRmN2M1YjFmODM5OjQzMWMzYTU4LWZiMGYtNGY3NS1iMWMwLWUwNWVmMTExMDkxOA==")
+    credentials = _setting("GIGACHAT_CREDENTIALS", "YWQ1MDYxMjIt0TFmOC00NmNhLWFiNWYtYWRmN2M1YjFmODM5OjQzMWMzYTU4LWZiMGYtNGY3NS1iMWMwLWUwNWVmMTExMDkxOA==")
     if not credentials:
         raise AIUnavailable("GigaChat не настроен: задайте GIGACHAT_CREDENTIALS.")
     verify = str(_setting("GIGACHAT_VERIFY_SSL", "0")).lower() in ("1", "true", "yes")
