@@ -75,8 +75,10 @@ urlpatterns = [
     path('chat/', include('chat.web.urls')),
     path('chat/api/', include('chat.urls')),
     path('school/', include('school.urls')),
+    path('wewecraft/', include('wewecraft.urls')),
     path('DZ/', include('DZ.urls')),
     path('stlm/', include('stlm.urls')),
+    # path('team/', include('team.urls')),
     
     path('', include('portfolio.urls')),
     
