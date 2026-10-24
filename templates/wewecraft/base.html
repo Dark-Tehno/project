@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Dark.Tehno">
+<title>{% block title %}{{ server_name }} — Minecraft сервер{% endblock %}</title>
+<meta name="description" content="{% block description %}{{ server_name }} — Minecraft сервер. IP: {{ server_address }}, версия {{ server_version }}.{% endblock %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0d18;
+  --bg-soft:#0d1120;
+  --elevated:#121729;
+  --surface:#161c33;
+  --surface-2:#1d2440;
+  --border:#262d4d;
+  --border-soft:#1c2340;
+  --text:#e8eaf6;
+  --text-muted:#9aa2c7;
+  --text-faint:#5d6690;
+  --violet:#7c5cff;
+  --blue:#3e7bfa;
+  --cyan:#22d3e8;
+  --good:#7fe7c4;
+  --warn:#ffcf7a;
+  --bad:#ff6159;
+  --gradient:linear-gradient(120deg,var(--violet) 0%,var(--blue) 55%,var(--cyan) 100%);
+  --gradient-soft:linear-gradient(120deg,rgba(124,92,255,.18) 0%,rgba(62,123,250,.14) 55%,rgba(34,211,232,.14) 100%);
+  --font-display:'Unbounded',sans-serif;
+  --font-body:'Golos Text',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --radius:14px;
+  --radius-sm:8px;
+  --topbar-h:64px;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; min-height:100vh; display:flex; flex-direction:column;
+  background:
+    radial-gradient(1100px 620px at 82% -8%, rgba(124,92,255,.16), transparent 60%),
+    radial-gradient(900px 500px at -6% 12%, rgba(34,211,232,.10), transparent 55%),
+    var(--bg);
+  color:var(--text); font-family:var(--font-body); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:700; line-height:1.2; margin:0 0 .5em; letter-spacing:-0.01em;}
+h1{font-size:clamp(1.7rem,4vw,2.6rem); font-weight:800;}
+h2{font-size:1.25rem;}
+h3{font-size:1rem;}
+p{color:var(--text-muted); margin:0 0 1em;}
+a{color:var(--cyan); text-decoration:none;}
+a:hover{text-decoration:underline;}
+strong{color:var(--text); font-weight:600;}
+code{font-family:var(--font-mono); font-size:.88em; background:var(--bg-soft); border:1px solid var(--border-soft); border-radius:6px; padding:1px 6px; color:var(--text);}
+::selection{background:rgba(124,92,255,.4); color:#fff;}
+a:focus-visible,button:focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:6px;}
+::-webkit-scrollbar{width:10px; height:10px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--surface-2); border-radius:10px; border:2px solid var(--bg);}
+
+/* ---------- topbar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:40; height:var(--topbar-h);
+  display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 20px;
+  background:rgba(10,13,24,.78); backdrop-filter:blur(14px); border-bottom:1px solid var(--border-soft);
+}
+.brand a{display:flex; align-items:center; gap:10px; color:var(--text); font-family:var(--font-display); font-weight:700; font-size:1.05rem;}
+.brand a:hover{text-decoration:none;}
+.brand .ver{font-family:var(--font-mono); font-weight:500; font-size:.68rem; color:var(--text-faint); border:1px solid var(--border); border-radius:20px; padding:2px 8px;}
+.top-links{display:flex; align-items:center; gap:4px; flex-wrap:wrap; justify-content:flex-end;}
+.top-links a{
+  font-size:.84rem; color:var(--text-muted); font-weight:500; padding:8px 12px;
+  border-radius:8px; border:1px solid transparent; white-space:nowrap;
+}
+.top-links a:hover{color:var(--text); background:var(--surface); text-decoration:none; border-color:var(--border-soft);}
+.top-links a.active{color:var(--text); background:var(--surface-2);}
+.top-links a.primary{color:#0a0d18; background:var(--gradient); font-weight:600; margin-left:6px;}
+.top-links a.primary:hover{filter:brightness(1.08);}
+
+/* ---------- layout ---------- */
+.page-shell{flex:1; width:100%; max-width:1200px; margin:0 auto; padding:0 clamp(18px,4vw,48px) 70px;}
+.section{padding-top:48px;}
+.eyebrow{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-faint); margin-bottom:10px;}
+.page-head{padding-top:48px; margin-bottom:28px;}
+.page-head p{max-width:620px; font-size:1.02rem;}
+.grad-text{background:var(--gradient); -webkit-background-clip:text; background-clip:text; color:transparent;}
+
+.toast-stack{padding-top:22px; display:flex; flex-direction:column; gap:10px;}
+.alert{border:1px solid var(--border-soft); border-left:3px solid var(--violet); background:var(--surface); border-radius:0 10px 10px 0; padding:12px 16px; font-size:.88rem; color:var(--text-muted);}
+.alert-success{border-left-color:var(--good);}
+.alert-error{border-left-color:var(--bad);}
+.alert-warning{border-left-color:var(--warn);}
+
+.btn{
+  font-family:var(--font-body); font-weight:600; font-size:.9rem; padding:11px 20px; border-radius:10px;
+  border:1px solid var(--border-soft); background:none; color:var(--text);
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;
+}
+.btn:hover{border-color:var(--border); background:var(--surface); text-decoration:none;}
+.btn.grad{background:var(--gradient); color:#0a0d18; border:none; font-weight:700;}
+.btn.grad:hover{filter:brightness(1.07);}
+.btn.danger{border-color:rgba(255,97,89,.35); color:#ff9b95;}
+.btn.danger:hover{background:rgba(255,97,89,.1); border-color:var(--bad);}
+.btn.small{padding:7px 13px; font-size:.78rem; border-radius:8px;}
+.btn-row{display:flex; gap:12px; flex-wrap:wrap; align-items:center;}
+
+.card{background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius); padding:26px 28px;}
+.card.soft{background:var(--gradient-soft); border-color:var(--border);}
+.grid{display:grid; gap:18px;}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.grid.cols-2{grid-template-columns:repeat(2,1fr);}
+
+.badge{font-family:var(--font-mono); font-size:.72rem; color:var(--text-muted); border:1px solid var(--border-soft); border-radius:20px; padding:4px 10px; display:inline-flex; align-items:center; gap:6px;}
+.badge .sw{width:7px; height:7px; border-radius:50%; background:var(--border);}
+.badge-ok .sw{background:var(--good); box-shadow:0 0 6px var(--good);}
+.badge-warn .sw{background:var(--warn); box-shadow:0 0 6px var(--warn);}
+.badge-danger .sw{background:var(--bad); box-shadow:0 0 6px var(--bad);}
+
+/* ---------- hero ---------- */
+.hero{padding-top:72px; display:grid; grid-template-columns:1.2fr .8fr; gap:32px; align-items:center;}
+.hero p.lead{font-size:1.1rem; max-width:560px; margin-bottom:1.6em;}
+.ip-box{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:var(--bg-soft); border:1px solid var(--border); border-radius:12px; padding:14px 16px;
+}
+.ip-box .ip{font-family:var(--font-mono); font-size:1.1rem; color:var(--text); word-break:break-all;}
+.status-line{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+.stat-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:20px;}
+.stat-box{flex:1; min-width:120px; border:1px solid var(--border-soft); background:var(--bg-soft); border-radius:var(--radius-sm); padding:14px 16px;}
+.stat-box .num{font-family:var(--font-display); font-size:1.4rem; font-weight:800; color:var(--text);}
+.stat-box .label{font-size:.76rem; color:var(--text-faint);}
+
+/* ---------- content ---------- */
+.feature h3{margin-bottom:.4em;}
+.feature p{margin:0; font-size:.92rem;}
+.feature .ico{width:38px; height:38px; border-radius:10px; background:var(--gradient-soft); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; margin-bottom:14px; font-family:var(--font-mono); color:var(--cyan); font-weight:700;}
+.news-item + .news-item{margin-top:16px;}
+.news-item .date{font-family:var(--font-mono); font-size:.72rem; color:var(--text-faint);}
+.news-item h3{margin:6px 0 .5em; color:var(--text);}
+.news-item .body{color:var(--text-muted); white-space:pre-line;}
+.rule{display:flex; gap:18px;}
+.rule + .rule{margin-top:14px;}
+.rule .n{font-family:var(--font-display); font-weight:800; font-size:1.4rem; flex:0 0 44px;}
+.rule h3{margin-bottom:.3em; color:var(--text);}
+.rule p{margin:0 0 .5em;}
+.steps{counter-reset:step; display:flex; flex-direction:column; gap:14px;}
+.step{display:flex; gap:18px; align-items:flex-start;}
+.step::before{
+  counter-increment:step; content:counter(step);
+  flex:0 0 36px; height:36px; border-radius:50%; background:var(--gradient); color:#0a0d18;
+  font-family:var(--font-display); font-weight:800; display:flex; align-items:center; justify-content:center;
+}
+.step h3{margin:0 0 .25em; color:var(--text);}
+.step p{margin:0;}
+.player{display:flex; align-items:center; gap:14px;}
+.player img{width:48px; height:48px; border-radius:10px; image-rendering:pixelated; background:var(--surface-2);}
+.player .nick{font-weight:600; color:var(--text);}
+.player .sub{font-size:.78rem; color:var(--text-faint);}
+.code-display{
+  font-family:var(--font-mono); text-align:center; letter-spacing:.35em; font-size:2rem; font-weight:700; color:var(--text);
+  padding:18px; background:var(--bg-soft); border:1px solid var(--border); border-radius:12px; margin:18px 0 10px;
+}
+.empty{color:var(--text-faint); text-align:center; padding:40px 12px;}
+.cmd{font-family:var(--font-mono); background:var(--bg-soft); border:1px solid var(--border-soft); border-radius:10px; padding:12px 16px; color:var(--text); display:block; overflow-x:auto;}
+
+/* ---------- footer ---------- */
+.footer{border-top:1px solid var(--border-soft); padding:22px 20px; text-align:center; font-size:.8rem; color:var(--text-faint);}
+.footer a{color:var(--text-muted);}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr; padding-top:40px;}
+  .grid.cols-3,.grid.cols-2{grid-template-columns:1fr;}
+  .topbar{height:auto; padding:10px 14px; flex-direction:column; align-items:flex-start;}
+  .top-links{justify-content:flex-start;}
+}
+{% block extra_style %}{% endblock %}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <a href="{% url 'wewecraft-index' %}">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+        <defs><linearGradient id="wmark" x1="2" y1="2" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#7c5cff"/><stop offset="0.55" stop-color="#3e7bfa"/><stop offset="1" stop-color="#22d3e8"/>
+        </linearGradient></defs>
+        <path d="M13 2.5L22.5 8V18L13 23.5L3.5 18V8L13 2.5Z" stroke="url(#wmark)" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M3.5 8L13 13.5L22.5 8M13 13.5V23.5" stroke="url(#wmark)" stroke-width="1.8" stroke-linejoin="round"/>
+      </svg>
+      {{ server_name }}<span class="ver">by Dark.Tehno</span>
+    </a>
+  </div>
+  <nav class="top-links">
+    <a href="{% url 'wewecraft-index' %}" class="{% if active_nav == 'home' %}active{% endif %}">Главная</a>
+    <a href="{% url 'wewecraft-join' %}" class="{% if active_nav == 'join' %}active{% endif %}">Как зайти</a>
+    <a href="{% url 'wewecraft-rules' %}" class="{% if active_nav == 'rules' %}active{% endif %}">Правила</a>
+    <a href="{% url 'wewecraft-news' %}" class="{% if active_nav == 'news' %}active{% endif %}">Новости</a>
+    <a href="{% url 'wewecraft-players' %}" class="{% if active_nav == 'players' %}active{% endif %}">Игроки</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'wewecraft-link' %}" class="primary">Мой аккаунт</a>
+    {% else %}
+      <a href="{% url 'login-view' %}?next={% url 'wewecraft-link' %}">Войти</a>
+      <a class="primary" href="{% url 'register-view' %}">Регистрация</a>
+    {% endif %}
+  </nav>
+</header>
+
+<main class="page-shell">
+  {% if messages %}
+    <div class="toast-stack">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  {{ server_name }} · не является продуктом Mojang AB и Microsoft · Сайт на платформе <a href="/">Dark.Tehno</a>
+</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

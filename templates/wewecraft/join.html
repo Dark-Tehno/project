@@ -1,0 +1,19 @@
+{% extends "wewecraft/base.html" %}
+{% block title %}Как зайти — {{ server_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Начало игры</div>
+  <h1>Как зайти на сервер</h1>
+  <p>Четыре шага — и ты в игре. Привязка аккаунта необязательна, но даёт доступ к профилю на сайте.</p>
+</div>
+
+<div class="card">
+  <div class="steps">
+    <div class="step"><div><h3>Запусти Minecraft Java Edition {{ server_version }}</h3><p>Версия клиента должна совпадать с версией сервера.</p></div></div>
+    <div class="step"><div><h3>Добавь сервер</h3><p>«Сетевая игра» → «Добавить сервер», адрес: <code>{{ server_address }}</code></p></div></div>
+    <div class="step"><div><h3>Зарегистрируйся на сайте</h3><p><a href="{% url 'register-view' %}">Создай аккаунт</a> или <a href="{% url 'login-view' %}">войди</a>, если он уже есть.</p></div></div>
+    <div class="step"><div><h3>Привяжи игровой аккаунт</h3><p>На странице <a href="{% url 'wewecraft-link' %}">«Мой аккаунт»</a> получи код и введи в игре: <code>/link КОД</code></p></div></div>
+  </div>
+</div>
+{% endblock %}

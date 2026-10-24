@@ -1,0 +1,23 @@
+{% extends "wewecraft/base.html" %}
+{% block title %}Правила — {{ server_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Порядок на сервере</div>
+  <h1>Правила</h1>
+  <p>Незнание правил не освобождает от ответственности. Заходя на сервер, ты соглашаешься с ними.</p>
+</div>
+
+{% for rule in rules %}
+  <div class="card rule">
+    <div class="n grad-text">{{ rule.number }}</div>
+    <div>
+      <h3>{{ rule.title }}</h3>
+      <p>{{ rule.text|linebreaksbr }}</p>
+      {% if rule.punishment %}<span class="badge badge-warn"><span class="sw"></span> {{ rule.punishment }}</span>{% endif %}
+    </div>
+  </div>
+{% empty %}
+  <div class="card empty">Правила ещё не добавлены. Добавь их в админке (раздел «Правила»).</div>
+{% endfor %}
+{% endblock %}

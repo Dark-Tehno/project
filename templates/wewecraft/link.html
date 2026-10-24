@@ -1,0 +1,72 @@
+{% extends "wewecraft/base.html" %}
+{% block title %}Мой аккаунт — {{ server_name }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Привязка аккаунта</div>
+  <h1>Мой аккаунт</h1>
+  <p>Привет, <strong>{{ user.username }}</strong>! Здесь ты связываешь профиль на сайте с игровым ником.</p>
+</div>
+
+{% if profile %}
+  <div class="card player" style="justify-content:space-between; flex-wrap:wrap;">
+    <div class="player">
+      <img src="https://mc-heads.net/avatar/{{ profile.username }}/96" alt="{{ profile.username }}">
+      <div>
+        <div class="nick">{{ profile.username }}</div>
+        <div class="sub">Привязан {{ profile.linked_at|date:"d.m.Y H:i" }}</div>
+        <div style="margin-top:8px;"><span class="badge badge-ok"><span class="sw"></span> Аккаунт привязан</span></div>
+      </div>
+    </div>
+    <form method="post" action="{% url 'wewecraft-link-unlink' %}" onsubmit="return confirm('Отвязать игровой аккаунт?');">
+      {% csrf_token %}
+      <button class="btn danger" type="submit">Отвязать</button>
+    </form>
+  </div>
+
+{% elif link %}
+  <div class="card">
+    <h2>Твой код привязки</h2>
+    <div class="code-display" id="code">{{ link.code }}</div>
+    <p class="hint">Действует до <strong>{{ link.expires_at|date:"H:i" }}</strong>. Зайди на сервер <code>{{ server_address }}</code> и введи в чате:</p>
+    <code class="cmd">/link {{ link.code }}</code>
+    <div class="btn-row" style="margin-top:18px;">
+      <button class="btn" type="button" id="copy-code">Копировать команду</button>
+      <form method="post" action="{% url 'wewecraft-link-generate' %}" style="display:inline;">
+        {% csrf_token %}
+        <button class="btn" type="submit">Новый код</button>
+      </form>
+      <a class="btn" href="{% url 'wewecraft-link' %}">Обновить статус</a>
+    </div>
+  </div>
+
+{% else %}
+  <div class="card">
+    <h2>Игровой аккаунт не привязан</h2>
+    <p>Получи одноразовый код (действует 10 минут) и введи его в игре командой <code>/link КОД</code>.</p>
+    <form method="post" action="{% url 'wewecraft-link-generate' %}">
+      {% csrf_token %}
+      <button class="btn grad" type="submit">Получить код</button>
+    </form>
+  </div>
+{% endif %}
+
+<div class="card" style="margin-top:18px;">
+  <h3>Управление профилем</h3>
+  <p style="margin:0;">Почта, пароль, 2FA и устройства — в <a href="{% url 'profile-view' %}">настройках Dark.Account</a>.</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if link %}
+<script>
+document.getElementById('copy-code').addEventListener('click', function(){
+  var b = this;
+  navigator.clipboard.writeText('/link {{ link.code }}').then(function(){
+    b.textContent = 'Скопировано';
+    setTimeout(function(){ b.textContent = 'Копировать команду'; }, 1600);
+  });
+});
+</script>
+{% endif %}
+{% endblock %}

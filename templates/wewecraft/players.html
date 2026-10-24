@@ -1,0 +1,148 @@
+{% extends "wewecraft/base.html" %}
+{% block title %}Игроки — {{ server_name }}{% endblock %}
+
+{% block extra_style %}
+.online-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+.player-card{flex-direction:column; align-items:stretch; gap:14px;}
+.player-top{display:flex; align-items:center; gap:14px;}
+.player-top .badges{display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;}
+.bar{height:6px; border-radius:6px; background:var(--bg-soft); border:1px solid var(--border-soft); overflow:hidden;}
+.bar > i{display:block; height:100%; background:var(--gradient);}
+.bar.hp > i{background:linear-gradient(90deg,#ff6159,#ffcf7a);}
+.meta-row{display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:.72rem; color:var(--text-faint);}
+.section-title{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;}
+.section-title h2{margin:0;}
+@media (max-width:860px){ .online-grid{grid-template-columns:1fr;} }
+{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Сообщество</div>
+  <h1>Игроки</h1>
+  <p>Все, кто сейчас на сервере, видны здесь — даже если аккаунт на сайте не привязан.</p>
+</div>
+
+<section>
+  <div class="section-title">
+    <h2>Сейчас на сервере</h2>
+    <span class="badge" id="online-badge">
+      {% if online.ok %}<span class="sw" style="background:var(--good)"></span> онлайн: {{ online.count }}
+      {% else %}<span class="sw" style="background:var(--warn)"></span> нет данных{% endif %}
+    </span>
+  </div>
+
+  <div class="online-grid" id="online-grid">
+    {% for p in online.players %}
+      <div class="card player player-card">
+        <div class="player-top">
+          <img src="https://mc-heads.net/avatar/{{ p.name }}/96" alt="{{ p.name }}">
+          <div>
+            <div class="nick">{{ p.name }}</div>
+            <div class="badges">
+              {% if p.linked %}<span class="badge badge-ok"><span class="sw"></span> {{ p.site_username }}</span>
+              {% else %}<span class="badge"><span class="sw"></span> не привязан</span>{% endif %}
+            </div>
+          </div>
+        </div>
+        {% if p.max_health %}
+        <div>
+          <div class="meta-row"><span>HP {{ p.health|floatformat:0 }}/{{ p.max_health|floatformat:0 }}</span><span>ур. {{ p.level }}</span></div>
+          <div class="bar hp"><i style="width:{% widthratio p.health p.max_health 100 %}%"></i></div>
+        </div>
+        {% endif %}
+        <div class="meta-row"><span>{{ p.game_mode }} · {{ p.dimension }}</span><span>{{ p.ping }} мс</span></div>
+      </div>
+    {% empty %}
+      <div class="card empty" style="grid-column:1/-1;">
+        {% if online.ok %}Сейчас на сервере никого нет.{% else %}Не удалось получить список игроков с сервера.{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-title"><h2>Привязанные аккаунты</h2></div>
+  <div class="grid cols-3">
+    {% for p in profiles %}
+      <div class="card player">
+        <img src="https://mc-heads.net/avatar/{{ p.username }}/96" alt="{{ p.username }}" loading="lazy">
+        <div>
+          <div class="nick">{{ p.username }}</div>
+          <div class="sub">{{ p.user.username }} · с {{ p.linked_at|date:"d.m.Y" }}</div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="card empty" style="grid-column:1/-1;">Пока никто не привязал аккаунт. Будь первым!</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  var grid = document.getElementById('online-grid');
+  var badge = document.getElementById('online-badge');
+
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+  function badgeEl(cls, text){
+    var b = el('span', 'badge ' + cls);
+    b.appendChild(el('span', 'sw'));
+    b.appendChild(document.createTextNode(' ' + text));
+    return b;
+  }
+  function card(p){
+    var c = el('div', 'card player player-card');
+    var top = el('div', 'player-top');
+    var img = el('img'); img.alt = p.name;
+    img.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(p.name) + '/96';
+    top.appendChild(img);
+    var info = el('div');
+    info.appendChild(el('div', 'nick', p.name));
+    var bs = el('div', 'badges');
+    bs.appendChild(p.linked ? badgeEl('badge-ok', p.site_username) : badgeEl('', 'не привязан'));
+    info.appendChild(bs); top.appendChild(info); c.appendChild(top);
+
+    if (p.max_health) {
+      var hp = el('div');
+      var row = el('div', 'meta-row');
+      row.appendChild(el('span', '', 'HP ' + Math.round(p.health) + '/' + Math.round(p.max_health)));
+      row.appendChild(el('span', '', 'ур. ' + p.level));
+      hp.appendChild(row);
+      var bar = el('div', 'bar hp'), fill = el('i');
+      fill.style.width = Math.max(0, Math.min(100, p.health / p.max_health * 100)) + '%';
+      bar.appendChild(fill); hp.appendChild(bar); c.appendChild(hp);
+    }
+    var meta = el('div', 'meta-row');
+    meta.appendChild(el('span', '', p.game_mode + ' · ' + p.dimension));
+    meta.appendChild(el('span', '', p.ping + ' мс'));
+    c.appendChild(meta);
+    return c;
+  }
+
+  function render(d){
+    grid.textContent = '';
+    badge.textContent = '';
+    var sw = el('span', 'sw'); sw.style.background = d.ok ? 'var(--good)' : 'var(--warn)';
+    badge.appendChild(sw);
+    badge.appendChild(document.createTextNode(d.ok ? ' онлайн: ' + d.count : ' нет данных'));
+    if (!d.players.length) {
+      var e = el('div', 'card empty', d.ok ? 'Сейчас на сервере никого нет.' : 'Не удалось получить список игроков с сервера.');
+      e.style.gridColumn = '1/-1'; grid.appendChild(e); return;
+    }
+    d.players.forEach(function(p){ grid.appendChild(card(p)); });
+  }
+
+  function refresh(){
+    fetch('{% url "wewecraft-online" %}', {cache:'no-store'})
+      .then(function(r){ return r.json(); }).then(render).catch(function(){});
+  }
+  setInterval(function(){ if (!document.hidden) refresh(); }, 10000);
+})();
+</script>
+{% endblock %}

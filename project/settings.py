@@ -57,7 +57,15 @@ INSTALLED_APPS = [
     # 'team', # Набор в организацию Dark.Tehno. Раздача ролей и заданий. Взаимодействие с другими участниками команды.
 ]
 
+WEWECRAFT_SERVER_NAME = "WeWeCraft"
+WEWECRAFT_SERVER_ADDRESS = "wewecraft.vsp210.ru"
+WEWECRAFT_SERVER_VERSION = "1.20.1"
+WEWECRAFT_SERVER_KEY = "dVCA_+*Wve9x+Ss*+]h4,}6vvps=L^ub/0}$S5B%q)t"
+WEWECRAFT_PLUGIN_URL = "http://188.127.241.222:25774"
+WEWECRAFT_PLUGIN_TOKEN = "123456789"
+
 AUTH_USER_MODEL = "account.DarkAccount"
+
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [

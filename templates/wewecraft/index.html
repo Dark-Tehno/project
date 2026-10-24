@@ -1,0 +1,95 @@
+{% extends "wewecraft/base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div>
+    <div class="eyebrow">Minecraft · Java Edition · {{ server_version }}</div>
+    <h1>Добро пожаловать на <span class="grad-text">{{ server_name }}</span></h1>
+    <p class="lead">Уютный сервер с дружным сообществом. Заходи, строй, исследуй — а аккаунт на сайте привяжи к игре одной командой.</p>
+
+    <div class="ip-box">
+      <span class="ip" id="server-ip">{{ server_address }}</span>
+      <button class="btn small" id="copy-ip" type="button">Копировать IP</button>
+    </div>
+    <div class="status-line" id="status-line">
+      <span class="badge"><span class="sw"></span> Проверяем статус…</span>
+    </div>
+
+    <div class="btn-row" style="margin-top:22px;">
+      <a class="btn grad" href="{% url 'wewecraft-join' %}">Как зайти</a>
+      {% if user.is_authenticated %}
+        <a class="btn" href="{% url 'wewecraft-link' %}">Привязать аккаунт</a>
+      {% else %}
+        <a class="btn" href="{% url 'register-view' %}">Создать аккаунт</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card soft">
+    <div class="eyebrow">Сервер сейчас</div>
+    <div class="stat-row" style="margin-top:0;">
+      <div class="stat-box"><div class="num" id="stat-online">—</div><div class="label">Онлайн</div></div>
+      <div class="stat-box"><div class="num" id="stat-max">—</div><div class="label">Слотов</div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="num">{{ players_count }}</div><div class="label">Привязанных игроков</div></div>
+      <div class="stat-box"><div class="num">{{ server_version }}</div><div class="label">Версия</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="eyebrow">Что у нас есть</div>
+  <div class="grid cols-3">
+    <div class="card feature"><div class="ico">01</div><h3>Привязка аккаунта</h3><p>Свяжи профиль на сайте с игровым ником по одноразовому коду — без паролей в чате.</p></div>
+    <div class="card feature"><div class="ico">02</div><h3>Честные правила</h3><p>Понятные правила и справедливые наказания. <a href="{% url 'wewecraft-rules' %}">Читать правила →</a></p></div>
+    <div class="card feature"><div class="ico">03</div><h3>Сообщество</h3><p>Список игроков, новости и события сервера — всё на одном сайте.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="eyebrow">Новости</div>
+  {% for item in news %}
+    <article class="card news-item">
+      <div class="date">{{ item.created_at|date:"d.m.Y" }}</div>
+      <h3>{{ item.title }}</h3>
+      <div class="body">{{ item.text|truncatechars:280 }}</div>
+    </article>
+  {% empty %}
+    <div class="card empty">Пока новостей нет.</div>
+  {% endfor %}
+  {% if news %}<p style="margin-top:14px;"><a href="{% url 'wewecraft-news' %}">Все новости →</a></p>{% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  var addr = '{{ server_address|escapejs }}';
+  var btn = document.getElementById('copy-ip');
+  btn.addEventListener('click', function(){
+    navigator.clipboard.writeText(addr).then(function(){
+      btn.textContent = 'Скопировано';
+      setTimeout(function(){ btn.textContent = 'Копировать IP'; }, 1600);
+    });
+  });
+
+  var line = document.getElementById('status-line');
+  fetch('https://api.mcsrvstat.us/3/' + encodeURIComponent(addr))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var ok = d && d.online;
+      line.innerHTML = ok
+        ? '<span class="badge badge-ok"><span class="sw"></span> Онлайн</span>'
+        : '<span class="badge badge-danger"><span class="sw"></span> Оффлайн</span>';
+      if (ok && d.players) {
+        document.getElementById('stat-online').textContent = d.players.online;
+        document.getElementById('stat-max').textContent = d.players.max;
+      }
+    })
+    .catch(function(){
+      line.innerHTML = '<span class="badge badge-warn"><span class="sw"></span> Статус недоступен</span>';
+    });
+})();
+</script>
+{% endblock %}
